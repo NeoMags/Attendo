@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Attendo</string>
+    <string name="language">Language</string>
+
+    <string name="login_title">Sign in</string>
+    <string name="login_company">Company code</string>
+    <string name="login_employee_id">Employee ID</string>
+    <string name="login_password">Password</string>
+    <string name="login_button">Sign in</string>
+
+    <string name="msg_invalid_credentials">Company code, Employee ID or password is incorrect.</string>
+    <string name="msg_too_many_attempts">Too many attempts. Try again in %1$d minutes.</string>
+    <string name="msg_network">No internet connection. Please try again.</string>
+    <string name="msg_session_expired">Session expired. Please sign in again.</string>
+    <string name="msg_required">This field is required</string>
+
+    <string name="change_pw_title">Set a new password</string>
+    <string name="change_pw_intro">Change your password before you continue.</string>
+    <string name="new_password">New password</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="change_pw_button">Change password</string>
+    <string name="msg_password_weak">Password must be 8–72 characters and contain letters and digits.</string>
+    <string name="msg_password_mismatch">Passwords do not match.</string>
+    <string name="msg_password_same">The new password must be different from the old one.</string>
+
+    <string name="home_welcome">Hello, %1$s</string>
+    <string name="status_not_checked_in">You are not checked in</string>
+    <string name="status_checked_in_since">Checked in since %1$s</string>
+    <string name="status_late">%1$d min late</string>
+    <string name="status_pending_sync">Check-in is saved on this phone and waiting to be sent</string>
+    <string name="status_worked">Worked %1$s</string>
+    <string name="btn_check_in">Check in</string>
+    <string name="btn_check_out">Check out</string>
+    <string name="btn_retry_sync">Send pending check-in</string>
+    <string name="btn_refresh">Refresh</string>
+    <string name="btn_sign_out">Sign out</string>
+
+    <string name="msg_permission_needed">Location permission is needed to check in</string>
+    <string name="msg_location_unavailable">Could not get your location. Turn on GPS and try again in an open area.</string>
+    <string name="msg_mock_location">Mock (fake) location detected. Turn it off and try again.</string>
+    <string name="msg_accuracy_too_low">GPS accuracy is too low (%1$d m, limit %2$d m). Move to an open area and retry.</string>
+    <string name="msg_duplicate_checkin">You are already checked in.</string>
+    <string name="msg_device_limit">This account is already linked to another phone. Ask your admin to remove it.</string>
+    <string name="msg_device_blocked">This phone has been blocked. Contact your admin.</string>
+    <string name="msg_bad_timestamp">Your phone\'s clock looks wrong. Fix the date and time, then retry.</string>
+    <string name="msg_company_inactive">Your company account is inactive.</string>
+    <string name="msg_employee_not_found">Your account is not set up as an employee. Contact your admin.</string>
+    <string name="msg_generic">Something went wrong (%1$s).</string>
+    <string name="msg_checked_in">Checked in</string>
+    <string name="msg_checked_out">Checked out</string>
+
+    <string name="tracking_notif_title">Attendo is recording your work location</string>
+    <string name="tracking_notif_text">Your shift is in progress</string>
+    <string name="tracking_channel">Shift tracking</string>
+    <string name="banner_bg_location">For reliable tracking, set Location to "Allow all the time".</string>
+    <string name="banner_battery">Battery saver may stop tracking. Set Attendo to "Unrestricted".</string>
+    <string name="banner_notifications">Notifications are off. Turn them on so tracking stays active.</string>
+    <string name="btn_open_settings">Open settings</string>
+    <string name="status_tracking_on">Location tracking is on</string>
+    <string name="status_queued_points">%1$d location points waiting to upload</string>
+</resources>
