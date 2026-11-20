@@ -88,3 +88,7 @@ Phases 3-11
 - Web: routes lazy-loaded (initial JS 524 kB / ~155 kB gz; Analytics 455 kB and Excel 929 kB load only on use); route views write `log_admin_access('route_history')`; `vercel.json` SPA rewrite + security headers (no CSP yet — untested against Google Maps, would need browser verification).
 - Known gaps: CORS on admin Edge Functions is `*` (tokens travel in headers, not cookies; tighten to the dashboard origin after deploy); analytics thresholds are hard-coded in web/SQL while `analytics.*` settings exist in the DB (inconsistency, to unify); company-wide report exports are not individually audit-logged (`log_admin_access` is per employee).
 - Deferred Android: queue size cap, poor-signal behaviour, Room migration tests.
+
+## Deployment (dashboard)
+- Repo: https://github.com/NeoMags/Attendo (branch `main`). Vercel project `attendo-dashboard` (root `web`, Vite), auto-deploys on push.
+- Live URL: https://attendo-dashboard.vercel.app (production deployment READY; page itself not opened from this environment). Env: VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY (publishable). Maps key not set yet.
