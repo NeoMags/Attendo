@@ -92,3 +92,7 @@ Phases 3-11
 ## Deployment (dashboard)
 - Repo: https://github.com/NeoMags/Attendo (branch `main`). Vercel project `attendo-dashboard` (root `web`, Vite), auto-deploys on push.
 - Live URL: https://attendo-dashboard.vercel.app (production deployment READY; page itself not opened from this environment). Env: VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY (publishable). Maps key not set yet.
+
+## Dashboard additions (post-Phase 10)
+- Geofences page (list/add/toggle; admin write, manager read), Manager teams page (assign/remove employees; admin only), Device health page (fleet from employee_status_v, 30 s refresh), Attendance correction modal (admin; calls admin_correct_attendance; company-timezone inputs via lib/tz.ts).
+- Not done: map picker for geofences, geofence event view, edit/delete geofence. Not verified in a browser or with a real admin/manager login.

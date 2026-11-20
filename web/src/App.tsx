@@ -13,6 +13,9 @@ const LiveMap = lazy(() => import('@/pages/LiveMap'))
 const Routes_ = lazy(() => import('@/pages/Routes'))
 const Analytics = lazy(() => import('@/pages/Analytics'))
 const Reports = lazy(() => import('@/pages/Reports'))
+const Devices = lazy(() => import('@/pages/Devices'))
+const Geofences = lazy(() => import('@/pages/Geofences'))
+const Team = lazy(() => import('@/pages/Team'))
 const Setup = lazy(() => import('@/pages/Setup'))
 const Companies = lazy(() => import('@/pages/Companies'))
 import { Spinner } from '@/components/ui'
@@ -51,6 +54,9 @@ export default function App() {
               <Route path="attendance" element={<Attendance />} />
               <Route path="analytics" element={<Analytics />} />
               <Route path="reports" element={<Reports />} />
+              <Route path="devices" element={<Devices />} />
+              <Route path="geofences" element={<Geofences />} />
+              <Route path="team" element={<RoleGate allow={isAdmin}><Team /></RoleGate>} />
               <Route path="setup" element={<RoleGate allow={isAdmin}><Setup /></RoleGate>} />
               <Route path="companies" element={<RoleGate allow={(r) => r === 'super_admin'}><Companies /></RoleGate>} />
             </Route>

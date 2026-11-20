@@ -1,8 +1,10 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
-import { Badge, Button, Card, ErrorNote, Field, Input, Spinner, Table, Td } from '@/components/ui'
+import { Badge, Button, Card, ErrorNote, Field, Input, Modal, Spinner, Table, Td } from '@/components/ui'
+import { isAdmin } from '@/lib/roles'
+import { utcIsoToZoned, zonedToUtcIso } from '@/lib/tz'
 import { csvEscape, fmtDuration, fmtTime, todayIn } from '@/lib/format'
 
 interface Row {
@@ -12,9 +14,48 @@ interface Row {
 
 const PAGE = 500
 
+const CORRECT_ERRORS: Record<string, string> = {
+  ATTENDANCE_NOT_FOUND: 'Record not found.', FORBIDDEN: 'Only company admins can correct attendance.',
+  REASON_REQUIRED: 'Enter a reason (at least 5 characters).', INVALID_TIMES: 'Check-out must be after check-in.',
+  TIMESTAMP_IN_FUTURE: 'Times cannot be in the future.',
+}
+
+function CorrectModal({ row, tz, onClose, onDone }: { row: Row; tz: string; onClose: () => void; onDone: () => void }) {
+  const [cin, setCin] = useState(utcIsoToZoned(row.check_in_at, tz))
+  const [cout, setCout] = useState(row.check_out_at ? utcIsoToZoned(row.check_out_at, tz) : '')
+  const [reason, setReason] = useState('')
+  const [err, setErr] = useState<string | null>(null)
+  const save = useMutation({
+    mutationFn: async () => {
+      const inIso = zonedToUtcIso(cin, tz)
+      const outIso = cout ? zonedToUtcIso(cout, tz) : null
+      if (!inIso || (cout && !outIso)) throw new Error('Enter valid date and time values.')
+      if (reason.trim().length < 5) throw new Error(CORRECT_ERRORS.REASON_REQUIRED)
+      const { error } = await supabase.rpc('admin_correct_attendance', { p_attendance_id: row.id, p_check_in_at: inIso, p_check_out_at: outIso, p_reason: reason.trim() })
+      if (error) { const k = Object.keys(CORRECT_ERRORS).find((c) => error.message.includes(c)); throw new Error(k ? CORRECT_ERRORS[k] : error.message) }
+    },
+    onSuccess: onDone, onError: (e) => setErr(e.message),
+  })
+  return (
+    <Modal title={`Correct attendance — ${row.employees?.full_name ?? ''}`} onClose={onClose}>
+      <form onSubmit={(e) => { e.preventDefault(); setErr(null); save.mutate() }} className="space-y-3">
+        <p className="text-xs text-slate-500">Times are in the company timezone ({tz}). The original values and your reason are kept in the audit trail.</p>
+        <Field label="Check-in"><Input type="datetime-local" required value={cin} onChange={(e) => setCin(e.target.value)} /></Field>
+        <Field label="Check-out" hint="Leave empty to keep the record open"><Input type="datetime-local" value={cout} onChange={(e) => setCout(e.target.value)} /></Field>
+        <Field label="Reason"><Input required minLength={5} value={reason} onChange={(e) => setReason(e.target.value)} /></Field>
+        {err && <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{err}</p>}
+        <div className="flex justify-end gap-2"><Button type="button" variant="ghost" onClick={onClose}>Cancel</Button><Button type="submit" disabled={save.isPending}>Save correction</Button></div>
+      </form>
+    </Modal>
+  )
+}
+
 export default function Attendance() {
-  const { companyId, company } = useAuth()
+  const { companyId, company, role } = useAuth()
   const tz = company?.timezone
+  const admin = isAdmin(role)
+  const qc = useQueryClient()
+  const [editing, setEditing] = useState<Row | null>(null)
   const [from, setFrom] = useState(() => todayIn(tz))
   const [to, setTo] = useState(() => todayIn(tz))
   const bad = from > to
@@ -68,7 +109,7 @@ export default function Attendance() {
       <Card>
         {q.isLoading ? <Spinner /> : q.error ? <ErrorNote error={q.error} /> : (
           <>
-            <Table head={['Date', 'Employee', 'Check-in', 'Check-out', 'Late', 'Worked', 'Status']} empty={rows.length ? undefined : 'No attendance in this period.'}>
+            <Table head={['Date', 'Employee', 'Check-in', 'Check-out', 'Late', 'Worked', 'Status', '']} empty={rows.length ? undefined : 'No attendance in this period.'}>
               {rows.map((r) => (
                 <tr key={r.id}>
                   <Td>{r.work_date}</Td>
@@ -78,6 +119,7 @@ export default function Attendance() {
                   <Td>{r.late_minutes ? <Badge tone="warn">{r.late_minutes} min</Badge> : '—'}</Td>
                   <Td>{fmtDuration(r.worked_seconds)}</Td>
                   <Td><Badge tone={r.status === 'open' ? 'good' : 'muted'}>{r.status}</Badge></Td>
+                  <Td className="text-right">{admin && <Button variant="ghost" onClick={() => setEditing(r)}>Correct</Button>}</Td>
                 </tr>
               ))}
             </Table>
@@ -85,6 +127,7 @@ export default function Attendance() {
           </>
         )}
       </Card>
+      {editing && <CorrectModal row={editing} tz={tz ?? 'UTC'} onClose={() => setEditing(null)} onDone={() => { setEditing(null); qc.invalidateQueries({ queryKey: ['attendance'] }) }} />}
     </div>
   )
 }

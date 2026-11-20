@@ -14,6 +14,9 @@ export const NAV: NavItem[] = [
   { to: '/attendance', label: 'Attendance', roles: ['super_admin', 'company_admin', 'manager'] },
   { to: '/analytics', label: 'Analytics', roles: ['super_admin', 'company_admin', 'manager'] },
   { to: '/reports', label: 'Reports', roles: ['super_admin', 'company_admin', 'manager'] },
+  { to: '/devices', label: 'Device health', roles: ['super_admin', 'company_admin', 'manager'] },
+  { to: '/geofences', label: 'Geofences', roles: ['super_admin', 'company_admin', 'manager'] },
+  { to: '/team', label: 'Manager teams', roles: ['super_admin', 'company_admin'] },
   { to: '/setup', label: 'Departments & shifts', roles: ['super_admin', 'company_admin'] },
   { to: '/companies', label: 'Companies', roles: ['super_admin'] },
 ]
