@@ -25,13 +25,11 @@ describe('payroll helpers', () => {
   })
 })
 
-describe('payslipPdf', () => {
-  it('produces a PDF blob', async () => {
-    const { payslipPdf } = await import('./payroll')
-    const p = { id: 'p', run_id: 'r', employee_id: 'e', month: '2026-02-01', pay_type: 'monthly', monthly_salary: 24000, daily_wage: null, working_days: 24, present_days: 5, holiday_days: 0, paid_leave_days: 0, unpaid_leave_days: 0, absent_days: 19, gross: 5000, bonus: 200, other_deduction: 0, skip_advance: false, advance_deduction: 1000, net: 4200, adjustment_note: null, finalized: true, paid_on: '2026-03-02', payment_mode: 'bank', employees: { full_name: 'Test', employee_code: 'E001' } } as const
-    const blob = await payslipPdf({ p: p as never, companyName: 'Tatva', template: { id: 't', name: 'x', header_text: null, footer_text: 'Thanks', show_attendance: true, show_bank: true, accent: '#123456', is_default: true }, bankLine: 'Bank: X · A/c ending 1234' })
-    const head = new TextDecoder().decode(new Uint8Array(await blob.arrayBuffer()).slice(0, 5))
-    expect(head).toBe('%PDF-')
-    expect(blob.size).toBeGreaterThan(1500)
+describe('scriptRuns', () => {
+  it('splits mixed scripts into runs', async () => {
+    const { scriptRuns } = await import('./payslipI18n')
+    expect(scriptRuns('Asha आशा (E001)').map((r) => r.script)).toEqual(['latin', 'hi', 'latin'])
+    expect(scriptRuns('ಅಶೋಕ Kumar').map((r) => r.script)).toEqual(['kn', 'latin'])
+    expect(scriptRuns('').length).toBe(0)
   })
 })

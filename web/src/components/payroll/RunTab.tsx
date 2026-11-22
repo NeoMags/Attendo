@@ -3,9 +3,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { download } from '@/lib/reports'
 import { Badge, Button, Card, ErrorNote, Field, Input, Modal, Select, Spinner } from '@/components/ui'
+import { asLang, LANGS, type Lang } from '@/lib/payslipI18n'
 import { currentYm, inr, monthLabel, monthStart, openForPrint, payError, payslipLines, payslipPdf, type Payslip, type Template } from '@/lib/payroll'
 
-const COLS = 'id, run_id, employee_id, month, pay_type, monthly_salary, daily_wage, working_days, present_days, holiday_days, paid_leave_days, unpaid_leave_days, absent_days, gross, bonus, other_deduction, skip_advance, advance_deduction, net, adjustment_note, finalized, paid_on, payment_mode, employees(full_name, employee_code)'
+const COLS = 'id, run_id, employee_id, month, pay_type, monthly_salary, daily_wage, working_days, present_days, holiday_days, paid_leave_days, unpaid_leave_days, absent_days, gross, bonus, other_deduction, skip_advance, advance_deduction, net, adjustment_note, finalized, paid_on, payment_mode, employees(full_name, employee_code, preferred_language)'
 type Run = { id: string; status: 'draft' | 'finalized' }
 
 export default function RunTab({ companyId, companyName, onOpenEmployee }: { companyId: string; companyName: string; onOpenEmployee: (id: string, name: string) => void }) {
@@ -14,6 +15,7 @@ export default function RunTab({ companyId, companyName, onOpenEmployee }: { com
   const [adjust, setAdjust] = useState<Payslip | null>(null)
   const [pay, setPay] = useState<Payslip | null>(null)
   const [tplId, setTplId] = useState('')
+  const [langPick, setLangPick] = useState<'' | Lang>('')
   const [err, setErr] = useState<string | null>(null)
   const month = monthStart(ym)
   const refresh = () => qc.invalidateQueries({ queryKey: ['payroll'] })
@@ -48,7 +50,7 @@ export default function RunTab({ companyId, companyName, onOpenEmployee }: { com
     const bank = await supabase.from('employee_payroll_info').select('bank_name, bank_account').eq('employee_id', p.employee_id).maybeSingle()
     const acct = bank.data?.bank_account as string | null
     const bankLine = bank.data?.bank_name ? `Bank: ${bank.data.bank_name}${acct ? ` · A/c ending ${acct.slice(-4)}` : ''}` : null
-    const blob = await payslipPdf({ p, companyName, template, bankLine })
+    const blob = await payslipPdf({ p, companyName, template, bankLine, lang: langPick || asLang(p.employees?.preferred_language) })
     if (print) openForPrint(blob); else download(blob, `payslip-${p.employees?.employee_code ?? p.employee_id}-${p.month.slice(0, 7)}.pdf`)
   }
 
@@ -62,6 +64,7 @@ export default function RunTab({ companyId, companyName, onOpenEmployee }: { com
         <Field label="Month"><Input type="month" value={ym} max={currentYm()} onChange={(e) => e.target.value && setYm(e.target.value)} /></Field>
         {(!d?.run || draft) && <Button disabled={rpc.isPending} onClick={() => rpc.mutate({ fn: 'generate_payroll', args: { p_company: companyId, p_month: month } })}>{d?.run ? 'Recalculate from attendance' : 'Generate payroll'}</Button>}
         {draft && d!.slips.length > 0 && <Button disabled={rpc.isPending} onClick={() => { if (window.confirm(`Finalize ${monthLabel(month)}? Advance recoveries will be recorded and payslips become visible to employees. This cannot be undone.`)) rpc.mutate({ fn: 'finalize_payroll', args: { p_run: d!.run!.id } }) }}>Finalize month</Button>}
+        <Field label="Payslip language"><Select value={langPick} onChange={(e) => setLangPick(e.target.value as '' | Lang)}><option value="">Employee's language</option>{LANGS.map(([k, n]) => <option key={k} value={k}>{n}</option>)}</Select></Field>
         <Field label="Payslip template"><Select value={tplId} onChange={(e) => setTplId(e.target.value)}><option value="">{template ? `Default (${template.name})` : 'Plain'}</option>{(tpls.data ?? []).map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}</Select></Field>
       </div>
       <p className="text-sm text-slate-600">

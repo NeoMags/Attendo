@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { Button, Card, ErrorNote, Field, Input, Modal, Select, Spinner, Table, Td } from '@/components/ui'
 import { inr, payError } from '@/lib/payroll'
 
-interface Bal { id: string; employee_id: string; amount: number; given_on: string; reason: string | null; monthly_deduction: number | null; recovered: number; remaining: number; employees: { full_name: string; employee_code: string } | null }
+interface Bal { id: string; employee_id: string; amount: number; given_on: string; reason: string | null; monthly_deduction: number | null; recovered: number; remaining: number; voided: boolean; void_reason: string | null; employees: { full_name: string; employee_code: string } | null }
 
 export default function AdvancesTab({ companyId, onOpenEmployee }: { companyId: string; onOpenEmployee: (id: string, name: string) => void }) {
   const qc = useQueryClient()
@@ -12,11 +12,12 @@ export default function AdvancesTab({ companyId, onOpenEmployee }: { companyId: 
   const q = useQuery({
     queryKey: ['payroll', 'advances', companyId],
     queryFn: async () => {
-      const { data, error } = await supabase.from('advance_balances').select('id, employee_id, amount, given_on, reason, monthly_deduction, recovered, remaining, employees(full_name, employee_code)').eq('company_id', companyId).order('given_on', { ascending: false })
+      const { data, error } = await supabase.from('advance_balances').select('id, employee_id, amount, given_on, reason, monthly_deduction, recovered, remaining, voided, void_reason, employees(full_name, employee_code)').eq('company_id', companyId).order('given_on', { ascending: false })
       if (error) throw error
       return data as unknown as Bal[]
     },
   })
+  const [voiding, setVoiding] = useState<Bal | null>(null)
   const rows = q.data ?? []
   const outstanding = rows.reduce((s, r) => s + Number(r.remaining), 0)
   return (
@@ -27,17 +28,19 @@ export default function AdvancesTab({ companyId, onOpenEmployee }: { companyId: 
       </div>
       <Card>
         {q.isLoading ? <Spinner /> : q.error ? <ErrorNote error={q.error} /> : (
-          <Table head={['Employee', 'Given on', 'Amount', 'Monthly deduction', 'Recovered', 'Outstanding', 'Reason']} empty={rows.length ? undefined : 'No advances.'}>
+          <Table head={['Employee', 'Given on', 'Amount', 'Monthly deduction', 'Recovered', 'Outstanding', 'Reason', '']} empty={rows.length ? undefined : 'No advances.'}>
             {rows.map((r) => (
               <tr key={r.id}>
                 <Td><button className="underline-offset-2 hover:underline" onClick={() => onOpenEmployee(r.employee_id, r.employees?.full_name ?? '')}>{r.employees?.full_name}</button></Td>
                 <Td>{r.given_on}</Td><Td>{inr(r.amount)}</Td><Td>{r.monthly_deduction ? inr(r.monthly_deduction) : 'All at once'}</Td>
-                <Td>{inr(r.recovered)}</Td><Td className="font-medium">{inr(r.remaining)}</Td><Td className="text-xs text-slate-500">{r.reason}</Td>
+                <Td>{inr(r.recovered)}</Td><Td className="font-medium">{inr(r.remaining)}</Td><Td className="text-xs text-slate-500">{r.reason}{r.voided && <div className="text-amber-700">Voided{r.void_reason ? `: ${r.void_reason}` : ''}</div>}</Td>
+                <Td className="text-right">{Number(r.remaining) > 0 && <Button variant="ghost" onClick={() => setVoiding(r)}>{Number(r.recovered) > 0 ? 'Write off balance' : 'Void'}</Button>}</Td>
               </tr>
             ))}
           </Table>
         )}
       </Card>
+      {voiding && <VoidForm adv={voiding} onClose={() => setVoiding(null)} onDone={() => { setVoiding(null); qc.invalidateQueries({ queryKey: ['payroll'] }) }} />}
       {open && <AdvanceForm companyId={companyId} onClose={() => setOpen(false)} onDone={() => { setOpen(false); qc.invalidateQueries({ queryKey: ['payroll'] }) }} />}
     </div>
   )
@@ -70,6 +73,27 @@ function AdvanceForm({ companyId, onClose, onDone }: { companyId: string; onClos
         <Field label="Reason (optional)"><Input value={reason} maxLength={300} onChange={(e) => setReason(e.target.value)} /></Field>
         {err && <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{err}</p>}
         <Button type="submit" disabled={save.isPending} className="w-full">Record advance</Button>
+      </form>
+    </Modal>
+  )
+}
+
+function VoidForm({ adv, onClose, onDone }: { adv: Bal; onClose: () => void; onDone: () => void }) {
+  const [why, setWhy] = useState(''); const [err, setErr] = useState<string | null>(null)
+  const partly = Number(adv.recovered) > 0
+  const save = useMutation({
+    mutationFn: async () => { const { error } = await supabase.rpc('void_advance', { p_advance: adv.id, p_reason: why.trim() || null }); if (error) throw new Error(payError(error.message)) },
+    onSuccess: onDone, onError: (e: Error) => setErr(e.message),
+  })
+  return (
+    <Modal title={partly ? 'Write off advance balance' : 'Void advance'} onClose={onClose}>
+      <form className="space-y-3" onSubmit={(e: FormEvent) => { e.preventDefault(); setErr(null); save.mutate() }}>
+        <p className="text-sm">{partly
+          ? `${inr(adv.recovered)} was already recovered from salary and stays in the history. The remaining ${inr(adv.remaining)} will be written off and no longer deducted.`
+          : `This ${inr(adv.amount)} advance will be cancelled and nothing will be deducted. Use this for an entry made by mistake.`} Finalized payslips are not changed; draft payslips update automatically.</p>
+        <Field label="Reason (optional)"><Input value={why} maxLength={300} onChange={(e) => setWhy(e.target.value)} /></Field>
+        {err && <p role="alert" className="text-sm text-red-700">{err}</p>}
+        <Button type="submit" disabled={save.isPending} className="w-full">{partly ? 'Write off' : 'Void advance'}</Button>
       </form>
     </Modal>
   )

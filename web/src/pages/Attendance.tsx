@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
-import { Badge, Button, Card, ErrorNote, Field, Input, Modal, PersonCell, Spinner, Table, Td } from '@/components/ui'
+import { Badge, Button, Card, ErrorNote, Field, Input, Modal, PersonCell, Select, Spinner, Table, Td } from '@/components/ui'
 import EmployeePanel from '@/components/EmployeePanel'
 import { shiftSeconds, underOver } from '@/lib/worktime'
 import { isAdmin } from '@/lib/roles'
@@ -11,7 +11,7 @@ import { csvEscape, fmtDuration, fmtTime, todayIn } from '@/lib/format'
 
 interface Row {
   id: string; employee_id: string; work_date: string; status: string; check_in_at: string; check_out_at: string | null
-  late_minutes: number | null; worked_seconds: number | null; employees: { employee_code: string; full_name: string; shifts: { start_time: string; end_time: string } | null } | null
+  late_minutes: number | null; worked_seconds: number | null; day_fraction_override: number | null; employees: { employee_code: string; full_name: string; shifts: { start_time: string; end_time: string } | null } | null
 }
 
 const PAGE = 500
@@ -20,6 +20,30 @@ const CORRECT_ERRORS: Record<string, string> = {
   ATTENDANCE_NOT_FOUND: 'Record not found.', FORBIDDEN: 'Only company admins can correct attendance.',
   REASON_REQUIRED: 'Enter a reason (at least 5 characters).', INVALID_TIMES: 'Check-out must be after check-in.',
   TIMESTAMP_IN_FUTURE: 'Times cannot be in the future.',
+}
+
+/** How much this attendance row counts for payroll. Automatic follows the shift's full/half-day hours. */
+function DayValue({ row, onDone }: { row: Row; onDone: () => void }) {
+  const [v, setV] = useState(row.day_fraction_override === null ? '' : String(row.day_fraction_override))
+  const [why, setWhy] = useState('')
+  const [err, setErr] = useState<string | null>(null)
+  const save = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.rpc('set_attendance_fraction', { p_attendance: row.id, p_fraction: v === '' ? null : Number(v), p_reason: why.trim() || null })
+      if (error) throw new Error(error.message.includes('FORBIDDEN') ? 'Only company admins can change this.' : error.message)
+    },
+    onSuccess: onDone, onError: (e: Error) => setErr(e.message),
+  })
+  return (
+    <form className="mt-4 space-y-2 border-t border-slate-200 pt-3" onSubmit={(e) => { e.preventDefault(); setErr(null); save.mutate() }}>
+      <Field label="Counts for payroll as" hint="Automatic uses the shift's full-day / half-day hours.">
+        <Select value={v} onChange={(e) => setV(e.target.value)}><option value="">Automatic</option><option value="1">Full day</option><option value="0.5">Half day</option><option value="0">Not counted</option></Select>
+      </Field>
+      <Field label="Reason (optional)"><Input value={why} maxLength={300} onChange={(e) => setWhy(e.target.value)} /></Field>
+      {err && <p role="alert" className="text-sm text-red-700">{err}</p>}
+      <Button type="submit" variant="ghost" disabled={save.isPending}>Save day value</Button>
+    </form>
+  )
 }
 
 function CorrectModal({ row, tz, onClose, onDone }: { row: Row; tz: string; onClose: () => void; onDone: () => void }) {
@@ -48,6 +72,7 @@ function CorrectModal({ row, tz, onClose, onDone }: { row: Row; tz: string; onCl
         {err && <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{err}</p>}
         <div className="flex justify-end gap-2"><Button type="button" variant="ghost" onClick={onClose}>Cancel</Button><Button type="submit" disabled={save.isPending}>Save correction</Button></div>
       </form>
+      <DayValue row={row} onDone={onDone} />
     </Modal>
   )
 }
@@ -70,7 +95,7 @@ export default function Attendance() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('attendance')
-        .select('id, employee_id, work_date, status, check_in_at, check_out_at, late_minutes, worked_seconds, employees(employee_code, full_name, shifts(start_time, end_time))')
+        .select('id, employee_id, work_date, status, check_in_at, check_out_at, late_minutes, worked_seconds, day_fraction_override, employees(employee_code, full_name, shifts(start_time, end_time))')
         .eq('company_id', companyId!)
         .gte('work_date', from)
         .lte('work_date', to)
