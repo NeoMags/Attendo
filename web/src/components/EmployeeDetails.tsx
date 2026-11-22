@@ -2,7 +2,7 @@ import { useState, type FormEvent, type ReactNode } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { prepareUpload } from '@/lib/image'
-import { aadhaarLast4, docPath, isEsiIp, isIfsc, isUan, isValidAadhaar, normalizePhone } from '@/lib/identity'
+import { aadhaarLast4, aadhaarStatus, docPath, formatAadhaar, isEsiIp, isIfsc, isUan, normalizePhone } from '@/lib/identity'
 import { Button, ErrorNote, Field, Input, Modal, Select, Spinner } from '@/components/ui'
 
 const BUCKET = 'employee-docs'
@@ -68,7 +68,7 @@ export default function EmployeeDetails({ companyId, employeeId, name, onClose }
       if (v.em_phone.trim() && !em) throw new Error('Emergency phone is not valid.')
       if (!v.address.trim()) throw new Error('Address is required.')
       if (!v.amount.trim() || !Number.isFinite(amount) || amount < 0) throw new Error(`Enter the ${flags.payType === 'monthly' ? 'monthly salary' : 'daily wage'}.`)
-      if (aadhaarNo.trim() && !isValidAadhaar(aadhaarNo)) throw new Error('Aadhaar number is not valid (check the digits).')
+      if (aadhaarNo.trim() && aadhaarStatus(aadhaarNo) === 'incomplete') throw new Error('Aadhaar number must be 12 digits.')
       if (noAadhaarYet && !aadhaarNo.trim()) throw new Error('Enter the Aadhaar number (only the last 4 digits are stored).')
       if (v.uan.trim() && !isUan(v.uan.trim())) throw new Error('UAN must be 12 digits.')
       if (v.esi.trim() && !isEsiIp(v.esi.trim())) throw new Error('ESI IP number must be 10 or 17 digits.')
@@ -139,7 +139,12 @@ export default function EmployeeDetails({ companyId, employeeId, name, onClose }
           </Section>
           <Section title="Aadhaar">
             <Field label="Aadhaar number" hint={load.data?.pi?.aadhaar_last4 ? `On file: ending ${load.data.pi.aadhaar_last4}. Enter again only to replace. The full number is never stored.` : 'Only the last 4 digits are stored; the full number is not saved.'}>
-              <Input inputMode="numeric" autoComplete="off" value={aadhaarNo} onChange={(e) => setAadhaarNo(e.target.value)} placeholder="XXXX XXXX XXXX" />
+              <Input inputMode="numeric" autoComplete="off" value={aadhaarNo} onChange={(e) => setAadhaarNo(formatAadhaar(e.target.value))} placeholder="XXXX XXXX XXXX" maxLength={14} />
+              {{ empty: null,
+                incomplete: <p className="mt-1 text-xs text-slate-500">{aadhaarNo.replace(/\D/g, '').length} of 12 digits</p>,
+                ok: <p className="mt-1 text-xs text-green-700">12 digits, checksum OK</p>,
+                unusual: <p className="mt-1 text-xs text-amber-700">12 digits, but the checksum does not match. Check for a typo. You can still save.</p>,
+              }[aadhaarStatus(aadhaarNo)]}
             </Field>
             <Field label="Aadhaar card image" hint={load.data?.aadhaarUrl ? 'A file is on file. Choose another to replace it.' : 'Capture or upload (JPG/PNG/PDF, up to 2 MB).'}>
               <input type="file" accept="image/*,application/pdf" capture="environment" onChange={(e) => setAadhaarFile(e.target.files?.[0] ?? null)} />

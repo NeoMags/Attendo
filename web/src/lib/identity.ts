@@ -18,6 +18,21 @@ export function isValidAadhaar(input: string): boolean {
   return c === 0
 }
 
+/** Digits only, max 12, grouped 4-4-4 for display while typing. */
+export function formatAadhaar(input: string): string {
+  const d = input.replace(/\D/g, '').slice(0, 12)
+  return d.replace(/(\d{4})(?=\d)/g, '$1 ')
+}
+
+export type AadhaarStatus = 'empty' | 'incomplete' | 'ok' | 'unusual'
+/** 'ok' = 12 digits and a valid checksum. 'unusual' = 12 digits but fails the checksum/first-digit rule (typo or test number): warn, don't block. */
+export function aadhaarStatus(input: string): AadhaarStatus {
+  const d = input.replace(/\D/g, '')
+  if (!d) return 'empty'
+  if (d.length < 12) return 'incomplete'
+  return isValidAadhaar(d) ? 'ok' : 'unusual'
+}
+
 /** Only the last 4 digits are ever kept; the full number is not sent anywhere. */
 export const aadhaarLast4 = (input: string) => input.replace(/\D/g, '').slice(-4)
 

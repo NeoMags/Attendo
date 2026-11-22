@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { aadhaarLast4, docPath, isEsiIp, isIfsc, isUan, isValidAadhaar, normalizePhone } from './identity'
+import { aadhaarLast4, aadhaarStatus, formatAadhaar, docPath, isEsiIp, isIfsc, isUan, isValidAadhaar, normalizePhone } from './identity'
 
 describe('aadhaar', () => {
   // 2234 5678 9012 style numbers are not guaranteed valid; build valid ones from the algorithm below.
@@ -46,5 +46,20 @@ describe('phone + statutory ids', () => {
     expect(docPath('c', 'e', 'aadhaar', 'application/pdf')).toBe('c/e/aadhaar.pdf')
     expect(docPath('c', 'e', 'photo', 'application/pdf')).toBeNull()
     expect(docPath('c', 'e', 'photo', 'image/gif')).toBeNull()
+  })
+})
+
+describe('aadhaar typing helpers', () => {
+  it('formats digits only, grouped, max 12', () => {
+    expect(formatAadhaar('2345a67890123999')).toBe('2345 6789 0123')
+    expect(formatAadhaar('')).toBe('')
+  })
+  it('status: empty / incomplete / unusual (non-blocking) / ok', () => {
+    expect(aadhaarStatus('')).toBe('empty')
+    expect(aadhaarStatus('2345 67')).toBe('incomplete')
+    expect(aadhaarStatus('123456789012')).toBe('unusual')
+    let ok = ''
+    for (let c = 0; c <= 9; c++) if (isValidAadhaar(`23456789012${c}`)) ok = `23456789012${c}`
+    expect(aadhaarStatus(formatAadhaar(ok))).toBe('ok')
   })
 })
