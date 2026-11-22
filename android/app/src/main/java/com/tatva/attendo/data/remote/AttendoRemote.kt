@@ -42,4 +42,9 @@ interface AttendoRemote {
     suspend fun myAttendance(accessToken: String, employeeId: String, fromDate: String): List<AttendanceDto>
     suspend fun documentBytes(accessToken: String, path: String): ByteArray?
     suspend fun leaveUsage(accessToken: String, year: Int, month: Int): LeaveUsageDto?
+
+    // Tasks: reads filtered by RLS; progress changes go through set_task_progress (assignee only).
+    suspend fun myTasks(accessToken: String, employeeId: String): List<TaskDto>
+    suspend fun taskTitles(accessToken: String, ids: List<String>): List<TaskTitleDto>
+    suspend fun setTaskProgress(accessToken: String, taskId: String, status: String, note: String?): TaskDto
 }

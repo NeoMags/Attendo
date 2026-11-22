@@ -12,6 +12,7 @@ import com.tatva.attendo.domain.AttendanceRepository
 import com.tatva.attendo.domain.DeviceDescriptor
 import com.tatva.attendo.domain.LeaveRepository
 import com.tatva.attendo.domain.MyDetailsRepository
+import com.tatva.attendo.domain.TasksRepository
 import com.tatva.attendo.domain.NotificationRepository
 import com.tatva.attendo.data.local.AttendoDb
 import com.tatva.attendo.data.local.RoomLocationQueue
@@ -67,6 +68,7 @@ class AppContainer(context: Context) {
     val leave = LeaveRepository(session, remote)
     val notifications = NotificationRepository(session, remote)
     val myDetails = MyDetailsRepository(session, remote)
+    val tasks = TasksRepository(session, remote)
 
     val uploader = LocationUploader(locationQueue, remote, session)
     val heartbeat = HeartbeatReporter(AndroidHealthSource(app, locationQueue, trackingStore), remote, session, device)

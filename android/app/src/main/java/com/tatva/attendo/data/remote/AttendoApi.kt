@@ -197,6 +197,28 @@ class AttendoApi(
     override suspend fun cancelLeave(accessToken: String, requestId: String): LeaveRequestDto =
         decode(rpc(accessToken, "cancel_leave", buildJsonObject { put("p_request_id", requestId) }))
 
+    // ---------------------------------------------------------- tasks
+    override suspend fun myTasks(accessToken: String, employeeId: String): List<TaskDto> {
+        val url = "$base/rest/v1/tasks?assignee_id=eq.$employeeId&status=neq.cancelled" +
+            "&select=id,parent_id,title,description,priority,due_date,status,submit_note,review_note&order=due_date.asc.nullslast&limit=200"
+        val (status, text) = send(request(url, accessToken).get().build())
+        if (status !in 200..299) throw errorFor(status, text)
+        return decode(text)
+    }
+
+    override suspend fun taskTitles(accessToken: String, ids: List<String>): List<TaskTitleDto> {
+        if (ids.isEmpty()) return emptyList()
+        val url = "$base/rest/v1/tasks?id=in.(${ids.joinToString(",")})&select=id,title"
+        val (status, text) = send(request(url, accessToken).get().build())
+        if (status !in 200..299) throw errorFor(status, text)
+        return decode(text)
+    }
+
+    override suspend fun setTaskProgress(accessToken: String, taskId: String, status: String, note: String?): TaskDto =
+        decode(rpc(accessToken, "set_task_progress", buildJsonObject {
+            put("p_id", taskId); put("p_status", status); put("p_note", note.orNull())
+        }))
+
     // ---------------------------------------------------------- notifications
     override suspend fun myNotifications(accessToken: String, employeeId: String): List<NotificationDto> {
         val url = "$base/rest/v1/notifications?employee_id=eq.$employeeId&select=id,kind,title,body,created_at&order=created_at.desc&limit=50"

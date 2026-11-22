@@ -101,6 +101,18 @@ class FakeRemote : AttendoRemote {
     }
     override suspend fun cancelLeave(accessToken: String, requestId: String): LeaveRequestDto { cancelCalls += requestId; return cancelResult(requestId) }
 
+    var tasksResult: List<TaskDto> = emptyList()
+    var taskTitlesResult: List<TaskTitleDto> = emptyList()
+    var taskTitlesFails = false
+    val progressCalls = mutableListOf<Triple<String, String, String?>>()
+    var progressError: Throwable? = null
+    override suspend fun myTasks(accessToken: String, employeeId: String) = tasksResult
+    override suspend fun taskTitles(accessToken: String, ids: List<String>): List<TaskTitleDto> { if (taskTitlesFails) throw ApiException.Network(java.io.IOException("x")); return taskTitlesResult }
+    override suspend fun setTaskProgress(accessToken: String, taskId: String, status: String, note: String?): TaskDto {
+        progressCalls += Triple(taskId, status, note); progressError?.let { throw it }
+        return TaskDto(taskId, null, "t", status = status)
+    }
+
     var sessionLookup: String? = null
     var ingestResult: (String, List<LocationRecordDto>) -> IngestResult = { _, r -> IngestResult(accepted = r.size) }
     val ingestCalls = mutableListOf<Pair<String, List<LocationRecordDto>>>()

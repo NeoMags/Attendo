@@ -149,3 +149,17 @@ data class LeaveRequestDto(
     @SerialName("aadhaar_last4") val aadhaarLast4: String? = null, @SerialName("bank_name") val bankName: String? = null,
 )
 @Serializable data class LeaveUsageDto(@SerialName("limit_per_month") val limitPerMonth: Int? = null, val used: Int = 0)
+
+@Serializable
+data class TaskDto(
+    val id: String,
+    @SerialName("parent_id") val parentId: String? = null,
+    val title: String,
+    val description: String? = null,
+    val priority: String = "normal",
+    @SerialName("due_date") val dueDate: String? = null,
+    val status: String,
+    @SerialName("submit_note") val submitNote: String? = null,
+    @SerialName("review_note") val reviewNote: String? = null,
+)
+@Serializable data class TaskTitleDto(val id: String, val title: String)

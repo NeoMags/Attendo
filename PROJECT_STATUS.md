@@ -125,3 +125,9 @@ Phases 3-11
 - Web: Employees -> Details (photo/Aadhaar capture or upload with client-side compression, Verhoeff-checked Aadhaar number - only last 4 digits stored, phone normalisation, pay, PF/ESI, bank, leave override); new employee opens Details right after creation; Leave page has the company monthly limit. Vitest 53/53.
 - Android 0.7.0: Home -> My details (photo, contact, pay/PF/ESI, Aadhaar last 4, 30-day attendance), leave usage line, limit error message. Transactions section is a placeholder until payroll.
 - Not verified: browser camera/upload flow on a real phone, storage upload against the live bucket, Android on a device. Hindi/Kannada strings need native review.
+
+## Round 3: tasks (v0.8.0) + fixes
+- Aadhaar input: digits-only live formatting, "n of 12 digits" hint; checksum mismatch is now a warning (can still save).
+- Leave: approver chooses Paid/Unpaid on final approval (`leave_requests.is_paid`, `decide_leave(..., p_paid)`); weekly off = untick day in a shift's working days (`shifts.working_days`).
+- Tasks: table `tasks` (one-level subtasks via parent_id), per-task/subtask assignee, status todo/in_progress/submitted/rework/approved/cancelled. Writes only via RPCs create_task/update_task/cancel_task/set_task_progress/review_task. Parent can't be submitted/approved while subtasks are open. Notifications kind 'task'.
+- Web: Tasks page (create, subtasks, edit, cancel, approve, send back). Android: "Tasks" screen (start / submit with note). Tests: SQL 322, web 59, Android 102.
