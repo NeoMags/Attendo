@@ -13,6 +13,8 @@ const LiveMap = lazy(() => import('@/pages/LiveMap'))
 const Routes_ = lazy(() => import('@/pages/Routes'))
 const Analytics = lazy(() => import('@/pages/Analytics'))
 const Reports = lazy(() => import('@/pages/Reports'))
+const AttendanceCalendar = lazy(() => import('@/pages/AttendanceCalendar'))
+const Alerts = lazy(() => import('@/pages/Alerts'))
 const Devices = lazy(() => import('@/pages/Devices'))
 const Geofences = lazy(() => import('@/pages/Geofences'))
 const Team = lazy(() => import('@/pages/Team'))
@@ -54,6 +56,8 @@ export default function App() {
               <Route path="attendance" element={<Attendance />} />
               <Route path="analytics" element={<Analytics />} />
               <Route path="reports" element={<Reports />} />
+              <Route path="calendar" element={<AttendanceCalendar />} />
+              <Route path="alerts" element={<Alerts />} />
               <Route path="devices" element={<Devices />} />
               <Route path="geofences" element={<Geofences />} />
               <Route path="team" element={<RoleGate allow={isAdmin}><Team /></RoleGate>} />

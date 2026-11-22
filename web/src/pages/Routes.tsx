@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useSearchParams } from 'react-router-dom'
 import { AdvancedMarker, APIProvider, Map, Pin, useMap } from '@vis.gl/react-google-maps'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
@@ -15,8 +16,9 @@ const PAGE = 1000, MAX_PAGES = 10
 export default function Routes() {
   const { companyId, company } = useAuth()
   const tz = company?.timezone
-  const [empId, setEmpId] = useState('')
-  const [date, setDate] = useState(() => todayIn(tz))
+  const [sp] = useSearchParams()
+  const [empId, setEmpId] = useState(() => sp.get('emp') ?? '')
+  const [date, setDate] = useState(() => (/^\d{4}-\d{2}-\d{2}$/.test(sp.get('date') ?? '') ? sp.get('date')! : todayIn(tz)))
   const [idx, setIdx] = useState(0)
   const [playing, setPlaying] = useState(false)
 

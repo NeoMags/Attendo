@@ -2,14 +2,16 @@ import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
-import { Badge, Button, Card, ErrorNote, Field, Input, Modal, Spinner, Table, Td } from '@/components/ui'
+import { Badge, Button, Card, ErrorNote, Field, Input, Modal, PersonCell, Spinner, Table, Td } from '@/components/ui'
+import EmployeePanel from '@/components/EmployeePanel'
+import { shiftSeconds, underOver } from '@/lib/worktime'
 import { isAdmin } from '@/lib/roles'
 import { utcIsoToZoned, zonedToUtcIso } from '@/lib/tz'
 import { csvEscape, fmtDuration, fmtTime, todayIn } from '@/lib/format'
 
 interface Row {
-  id: string; work_date: string; status: string; check_in_at: string; check_out_at: string | null
-  late_minutes: number | null; worked_seconds: number | null; employees: { employee_code: string; full_name: string } | null
+  id: string; employee_id: string; work_date: string; status: string; check_in_at: string; check_out_at: string | null
+  late_minutes: number | null; worked_seconds: number | null; employees: { employee_code: string; full_name: string; shifts: { start_time: string; end_time: string } | null } | null
 }
 
 const PAGE = 500
@@ -56,6 +58,8 @@ export default function Attendance() {
   const admin = isAdmin(role)
   const qc = useQueryClient()
   const [editing, setEditing] = useState<Row | null>(null)
+  const [openEmp, setOpenEmp] = useState<string | null>(null)
+  const uo = (r: Row) => { const sh = r.employees?.shifts; return sh ? underOver(r.worked_seconds, shiftSeconds(sh.start_time, sh.end_time)) : null }
   const [from, setFrom] = useState(() => todayIn(tz))
   const [to, setTo] = useState(() => todayIn(tz))
   const bad = from > to
@@ -66,7 +70,7 @@ export default function Attendance() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('attendance')
-        .select('id, work_date, status, check_in_at, check_out_at, late_minutes, worked_seconds, employees(employee_code, full_name)')
+        .select('id, employee_id, work_date, status, check_in_at, check_out_at, late_minutes, worked_seconds, employees(employee_code, full_name, shifts(start_time, end_time))')
         .eq('company_id', companyId!)
         .gte('work_date', from)
         .lte('work_date', to)
@@ -79,10 +83,10 @@ export default function Attendance() {
   })
 
   function exportCsv() {
-    const head = ['Date', 'Employee ID', 'Name', 'Check-in', 'Check-out', 'Late (min)', 'Worked', 'Status']
+    const head = ['Date', 'Employee ID', 'Name', 'Check-in', 'Check-out', 'Late (min)', 'Worked', 'Under', 'Over', 'Status']
     const lines = (q.data ?? []).map((r) => [
       r.work_date, r.employees?.employee_code, r.employees?.full_name, fmtTime(r.check_in_at, tz), fmtTime(r.check_out_at, tz),
-      r.late_minutes ?? 0, fmtDuration(r.worked_seconds), r.status,
+      r.late_minutes ?? 0, fmtDuration(r.worked_seconds), uo(r) ? fmtDuration(uo(r)!.underS) : '', uo(r) ? fmtDuration(uo(r)!.overS) : '', r.status,
     ].map(csvEscape).join(','))
     const blob = new Blob([[head.join(','), ...lines].join('\r\n')], { type: 'text/csv;charset=utf-8' })
     const a = document.createElement('a')
@@ -109,15 +113,17 @@ export default function Attendance() {
       <Card>
         {q.isLoading ? <Spinner /> : q.error ? <ErrorNote error={q.error} /> : (
           <>
-            <Table head={['Date', 'Employee', 'Check-in', 'Check-out', 'Late', 'Worked', 'Status', '']} empty={rows.length ? undefined : 'No attendance in this period.'}>
+            <Table head={['Date', 'Employee', 'Check-in', 'Check-out', 'Late', 'Worked', 'Under', 'Over', 'Status', '']} empty={rows.length ? undefined : 'No attendance in this period.'}>
               {rows.map((r) => (
                 <tr key={r.id}>
                   <Td>{r.work_date}</Td>
-                  <Td>{r.employees?.full_name} <span className="text-slate-400">({r.employees?.employee_code})</span></Td>
+                  <Td><PersonCell name={r.employees?.full_name ?? '—'} code={r.employees?.employee_code} onClick={() => setOpenEmp(r.employee_id)} /></Td>
                   <Td>{fmtTime(r.check_in_at, tz)}</Td>
                   <Td>{fmtTime(r.check_out_at, tz)}</Td>
                   <Td>{r.late_minutes ? <Badge tone="warn">{r.late_minutes} min</Badge> : '—'}</Td>
                   <Td>{fmtDuration(r.worked_seconds)}</Td>
+                  <Td>{uo(r) && uo(r)!.underS ? <span className="text-amber-700">{fmtDuration(uo(r)!.underS)}</span> : '—'}</Td>
+                  <Td>{uo(r) && uo(r)!.overS ? <span className="text-emerald-700">{fmtDuration(uo(r)!.overS)}</span> : '—'}</Td>
                   <Td><Badge tone={r.status === 'open' ? 'good' : 'muted'}>{r.status}</Badge></Td>
                   <Td className="text-right">{admin && <Button variant="ghost" onClick={() => setEditing(r)}>Correct</Button>}</Td>
                 </tr>
@@ -127,6 +133,7 @@ export default function Attendance() {
           </>
         )}
       </Card>
+      {openEmp && <EmployeePanel employeeId={openEmp} onClose={() => setOpenEmp(null)} />}
       {editing && <CorrectModal row={editing} tz={tz ?? 'UTC'} onClose={() => setEditing(null)} onDone={() => { setEditing(null); qc.invalidateQueries({ queryKey: ['attendance'] }) }} />}
     </div>
   )

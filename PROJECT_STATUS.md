@@ -96,3 +96,9 @@ Phases 3-11
 ## Dashboard additions (post-Phase 10)
 - Geofences page (list/add/toggle; admin write, manager read), Manager teams page (assign/remove employees; admin only), Device health page (fleet from employee_status_v, 30 s refresh), Attendance correction modal (admin; calls admin_correct_attendance; company-timezone inputs via lib/tz.ts).
 - Not done: map picker for geofences, geofence event view, edit/delete geofence. Not verified in a browser or with a real admin/manager login.
+
+## UI upgrade round (reference-inspired, additive)
+- Amber accent, grouped sidebar (Monitor / People / Setup), icon stat cards, avatars, skeleton loading.
+- New: Attendance calendar page, Geofence alerts page (reads geofence_events), Employee side panel (day summary, distance, battery; writes a route_history audit entry), Under/Over columns on Attendance + CSV (computed vs shift length; unpaid breaks not modelled), "Not in yet" stat on Overview. Routes page now accepts ?emp=&date=.
+- Tests: lib/worktime.test.ts (6). Total vitest 38. Not verified in a browser; the geofence_events embeds (employees, geofences) are unverified against live PostgREST.
+- Not done: Leave, shift roster, payroll, claims, appraisal, applicant tracking, Wi-Fi restriction, push notifications.

@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
-import { Badge, Card, ErrorNote, Spinner, Stat, Table, Td } from '@/components/ui'
+import { Badge, Card, ErrorNote, PersonCell, Spinner, Stat, Table, Td } from '@/components/ui'
+import EmployeePanel from '@/components/EmployeePanel'
 import { fmtTime, humanAge, todayIn } from '@/lib/format'
 
 interface Status {
@@ -16,6 +18,7 @@ export default function Overview() {
   const { companyId, company } = useAuth()
   const tz = company?.timezone
   const today = todayIn(tz)
+  const [openEmp, setOpenEmp] = useState<string | null>(null)
 
   const q = useQuery({
     queryKey: ['overview', companyId, today],
@@ -25,7 +28,7 @@ export default function Overview() {
       const [emps, status, att] = await Promise.all([
         supabase.from('employees').select('id', { count: 'exact', head: true }).eq('company_id', companyId!).eq('is_active', true),
         supabase.from('employee_status_v').select('*').eq('company_id', companyId!),
-        supabase.from('attendance').select('id, late_minutes').eq('company_id', companyId!).eq('work_date', today),
+        supabase.from('attendance').select('id, employee_id, late_minutes').eq('company_id', companyId!).eq('work_date', today),
       ])
       const err = emps.error ?? status.error ?? att.error
       if (err) throw err
@@ -41,21 +44,23 @@ export default function Overview() {
   const live = d.status.filter((s) => s.is_checked_in)
   const issues = live.filter((s) => s.health_status && s.health_status !== 'healthy')
   const late = d.att.filter((a) => (a.late_minutes ?? 0) > 0).length
+  const notIn = Math.max(0, d.total - new Set(d.att.map((a) => a.employee_id)).size)
 
   return (
     <div className="space-y-4">
       <h1 className="text-lg font-semibold">Today · {today}</h1>
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Stat label="Active employees" value={d.total} />
-        <Stat label="Checked in now" value={live.length} tone="good" />
-        <Stat label="Late today" value={late} tone={late ? 'warn' : undefined} />
-        <Stat label="Device issues" value={issues.length} tone={issues.length ? 'bad' : undefined} />
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+        <Stat label="Active employees" value={d.total} icon="users" />
+        <Stat label="Checked in now" value={live.length} tone="good" icon="check" />
+        <Stat label="Not in yet" value={notIn} icon="userx" hint="No check-in today" />
+        <Stat label="Late today" value={late} tone={late ? 'warn' : undefined} icon="clock" />
+        <Stat label="Device issues" value={issues.length} tone={issues.length ? 'bad' : undefined} icon="alert" />
       </div>
       <Card title="Checked-in employees">
         <Table head={['Employee', 'Since', 'Last location', 'Device health']} empty={live.length ? undefined : 'Nobody is checked in.'}>
           {live.map((s) => (
             <tr key={s.employee_id}>
-              <Td>{s.full_name} <span className="text-slate-400">({s.employee_code})</span></Td>
+              <Td><PersonCell name={s.full_name} code={s.employee_code} onClick={() => setOpenEmp(s.employee_id)} /></Td>
               <Td>{fmtTime(s.checked_in_at, tz)}</Td>
               <Td>{humanAge(s.seconds_since_fix)}</Td>
               <Td>
@@ -66,6 +71,7 @@ export default function Overview() {
           ))}
         </Table>
       </Card>
+      {openEmp && <EmployeePanel employeeId={openEmp} onClose={() => setOpenEmp(null)} />}
     </div>
   )
 }
