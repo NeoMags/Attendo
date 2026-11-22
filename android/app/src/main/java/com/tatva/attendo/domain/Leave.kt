@@ -38,7 +38,7 @@ object LeaveRules {
     fun formatDays(d: Double): String = if (d % 1.0 == 0.0) d.toLong().toString() else "%.1f".format(java.util.Locale.ROOT, d)
 }
 
-data class LeaveOverview(val types: List<LeaveTypeDto>, val balances: List<LeaveBalanceDto>, val requests: List<LeaveRequestDto>)
+data class LeaveOverview(val types: List<LeaveTypeDto>, val balances: List<LeaveBalanceDto>, val requests: List<LeaveRequestDto>, val usage: com.tatva.attendo.data.remote.LeaveUsageDto? = null)
 
 class LeaveRepository(
     private val session: SessionManager,
@@ -52,7 +52,10 @@ class LeaveRepository(
         val types = session.authed { remote.leaveTypes(it) }
         val balances = session.authed { remote.leaveBalances(it, employeeId, year) }
         val requests = session.authed { remote.myLeaveRequests(it, employeeId) }
-        return LeaveOverview(types, balances, requests)
+        val now = today()
+        // Informational only: the server enforces the limit, so a failure here must not block the screen.
+        val usage = runCatching { session.authed { remote.leaveUsage(it, now.year, now.monthValue) } }.getOrNull()
+        return LeaveOverview(types, balances, requests, usage)
     }
 
     suspend fun apply(typeId: String, start: LocalDate, end: LocalDate, half: Boolean, reason: String?): LeaveRequestDto =

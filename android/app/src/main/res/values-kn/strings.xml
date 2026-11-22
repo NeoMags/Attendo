@@ -106,4 +106,30 @@
     <string name="msg_leave_not_found">ರಜೆ ವಿನಂತಿ ಸಿಗಲಿಲ್ಲ.</string>
     <string name="notif_title">ಅಧಿಸೂಚನೆಗಳು</string>
     <string name="notif_none">ಇನ್ನೂ ಯಾವುದೇ ಅಧಿಸೂಚನೆಗಳಿಲ್ಲ.</string>
+    <!-- Round 2 -->
+    <string name="btn_my_details">ನನ್ನ ವಿವರಗಳು</string>
+    <string name="details_contact">ಸಂಪರ್ಕ</string>
+    <string name="details_phone">ಫೋನ್</string>
+    <string name="details_alt_phone">ಪರ್ಯಾಯ ಫೋನ್</string>
+    <string name="details_address">ವಿಳಾಸ</string>
+    <string name="details_dob">ಜನ್ಮ ದಿನಾಂಕ</string>
+    <string name="details_referred_by">ಶಿಫಾರಸು ಮಾಡಿದವರು</string>
+    <string name="details_emergency">ತುರ್ತು ಸಂಪರ್ಕ</string>
+    <string name="details_pay">ವೇತನ ಮತ್ತು ಕಾನೂನುಬದ್ಧ</string>
+    <string name="details_not_set">ಇನ್ನೂ ಹೊಂದಿಸಿಲ್ಲ. ಅಡ್ಮಿನ್ ಅವರನ್ನು ಕೇಳಿ.</string>
+    <string name="details_daily_wage">ದಿನಗೂಲಿ</string>
+    <string name="details_monthly_salary">ಮಾಸಿಕ ವೇತನ</string>
+    <string name="details_pf">ಪಿಎಫ್</string>
+    <string name="details_esi">ಇಎಸ್‌ಐ</string>
+    <string name="details_aadhaar">ಆಧಾರ್</string>
+    <string name="details_bank">ಬ್ಯಾಂಕ್</string>
+    <string name="details_attendance">ಹಾಜರಾತಿ (ಕಳೆದ 30 ದಿನ)</string>
+    <string name="details_att_summary">ಹಾಜರಿದ್ದ ದಿನ: %1$d · ತಡವಾದ ದಿನ: %2$d</string>
+    <string name="details_no_attendance">ಕಳೆದ 30 ದಿನಗಳಲ್ಲಿ ಹಾಜರಾತಿ ಇಲ್ಲ.</string>
+    <string name="details_transactions">ವಹಿವಾಟುಗಳು</string>
+    <string name="details_transactions_soon">ಪೇರೋಲ್ ಆರಂಭವಾದ ನಂತರ ವೇತನ ಮತ್ತು ಮುಂಗಡ ವಹಿವಾಟುಗಳು ಇಲ್ಲಿ ಕಾಣಿಸುತ್ತವೆ.</string>
+    <string name="yes">ಹೌದು</string>
+    <string name="no">ಇಲ್ಲ</string>
+    <string name="leave_usage">ಈ ತಿಂಗಳ ರಜೆ ವಿನಂತಿಗಳು: %2$d ರಲ್ಲಿ %1$d</string>
+    <string name="msg_leave_limit_reached">ರಜೆ ವಿನಂತಿಗಳ ಮಾಸಿಕ ಮಿತಿ ತಲುಪಿದೆ. ಅಡ್ಮಿನ್ ಅವರನ್ನು ಕೇಳಿ.</string>
 </resources>

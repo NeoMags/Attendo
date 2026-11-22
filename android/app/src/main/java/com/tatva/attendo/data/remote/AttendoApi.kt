@@ -219,6 +219,46 @@ class AttendoApi(
         if (status !in 200..299) throw errorFor(status, text)
     }
 
+    // ------------------------------------------------------------ my details
+    override suspend fun myProfileDetails(accessToken: String, employeeId: String): MyProfileDto? {
+        val url = "$base/rest/v1/employee_profiles?employee_id=eq.$employeeId&select=photo_path,address,phone,alt_phone,referred_by,date_of_birth,designation,emergency_name,emergency_phone&limit=1"
+        val (status, text) = send(request(url, accessToken).get().build())
+        if (status !in 200..299) throw errorFor(status, text)
+        return decode<List<MyProfileDto>>(text).firstOrNull()
+    }
+
+    override suspend fun myPayInfo(accessToken: String, employeeId: String): MyPayDto? {
+        val url = "$base/rest/v1/employee_payroll_info?employee_id=eq.$employeeId&select=pay_type,monthly_salary,daily_wage,pf_eligible,esi_eligible,aadhaar_last4,bank_name&limit=1"
+        val (status, text) = send(request(url, accessToken).get().build())
+        if (status !in 200..299) throw errorFor(status, text)
+        return decode<List<MyPayDto>>(text).firstOrNull()
+    }
+
+    override suspend fun myAttendance(accessToken: String, employeeId: String, fromDate: String): List<AttendanceDto> {
+        val url = "$base/rest/v1/attendance?employee_id=eq.$employeeId&work_date=gte.$fromDate" +
+            "&select=id,work_date,status,check_in_at,check_out_at,late_minutes,worked_seconds&order=work_date.desc&limit=62"
+        val (status, text) = send(request(url, accessToken).get().build())
+        if (status !in 200..299) throw errorFor(status, text)
+        return decode(text)
+    }
+
+    override suspend fun documentBytes(accessToken: String, path: String): ByteArray? {
+        val encoded = path.split('/').joinToString("/") { java.net.URLEncoder.encode(it, "UTF-8") }
+        val req = request("$base/storage/v1/object/authenticated/employee-docs/$encoded", accessToken).get().build()
+        return try {
+            client.newCall(req).await().use { r ->
+                if (r.code == 404 || r.code == 400) null
+                else if (r.code !in 200..299) throw errorFor(r.code, r.body?.string().orEmpty())
+                else r.body?.byteStream()?.use { ins -> ins.readNBytes(MAX_DOC_BYTES + 1).takeIf { it.size <= MAX_DOC_BYTES } }
+            }
+        } catch (e: IOException) {
+            throw ApiException.Network(e)
+        }
+    }
+
+    override suspend fun leaveUsage(accessToken: String, year: Int, month: Int): LeaveUsageDto? =
+        decode<List<LeaveUsageDto>>(rpc(accessToken, "leave_request_usage", buildJsonObject { put("p_year", year); put("p_month", month) })).firstOrNull()
+
     // -------------------------------------------------------------- plumbing
     private suspend fun rpc(token: String, fn: String, args: JsonObject): String {
         val (status, text) = send(post("$base/rest/v1/rpc/$fn", args, token))
@@ -269,6 +309,7 @@ class AttendoApi(
     private fun Float?.orNull(): kotlinx.serialization.json.JsonElement = if (this == null) JsonNull else JsonPrimitive(this)
 
     private companion object {
+        const val MAX_DOC_BYTES = 3 * 1024 * 1024
         val APP_CODE = Regex("^[A-Z][A-Z_]+$")
     }
 }

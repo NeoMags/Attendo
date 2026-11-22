@@ -36,4 +36,10 @@ interface AttendoRemote {
     suspend fun myNotifications(accessToken: String, employeeId: String): List<NotificationDto>
     suspend fun notifSeenAt(accessToken: String): String?
     suspend fun markNotificationsSeen(accessToken: String, isoNow: String)
+
+    suspend fun myProfileDetails(accessToken: String, employeeId: String): MyProfileDto?
+    suspend fun myPayInfo(accessToken: String, employeeId: String): MyPayDto?
+    suspend fun myAttendance(accessToken: String, employeeId: String, fromDate: String): List<AttendanceDto>
+    suspend fun documentBytes(accessToken: String, path: String): ByteArray?
+    suspend fun leaveUsage(accessToken: String, year: Int, month: Int): LeaveUsageDto?
 }

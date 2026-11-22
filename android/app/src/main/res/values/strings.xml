@@ -107,4 +107,30 @@
     <string name="msg_leave_not_found">Leave request not found.</string>
     <string name="notif_title">Notifications</string>
     <string name="notif_none">No notifications yet.</string>
+    <!-- Round 2 -->
+    <string name="btn_my_details">My details</string>
+    <string name="details_contact">Contact</string>
+    <string name="details_phone">Phone</string>
+    <string name="details_alt_phone">Alternate phone</string>
+    <string name="details_address">Address</string>
+    <string name="details_dob">Date of birth</string>
+    <string name="details_referred_by">Referred by</string>
+    <string name="details_emergency">Emergency contact</string>
+    <string name="details_pay">Pay and statutory</string>
+    <string name="details_not_set">Not set yet. Ask your admin.</string>
+    <string name="details_daily_wage">Daily wage</string>
+    <string name="details_monthly_salary">Monthly salary</string>
+    <string name="details_pf">PF</string>
+    <string name="details_esi">ESI</string>
+    <string name="details_aadhaar">Aadhaar</string>
+    <string name="details_bank">Bank</string>
+    <string name="details_attendance">Attendance (last 30 days)</string>
+    <string name="details_att_summary">Days present: %1$d · Late days: %2$d</string>
+    <string name="details_no_attendance">No attendance in the last 30 days.</string>
+    <string name="details_transactions">Transactions</string>
+    <string name="details_transactions_soon">Salary and advance transactions will appear here once payroll is enabled.</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="leave_usage">Leave requests this month: %1$d of %2$d</string>
+    <string name="msg_leave_limit_reached">You have reached the monthly limit for leave requests. Ask your admin.</string>
 </resources>

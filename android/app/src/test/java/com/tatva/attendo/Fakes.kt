@@ -80,6 +80,17 @@ class FakeRemote : AttendoRemote {
     override suspend fun myNotifications(accessToken: String, employeeId: String) = notifsResult
     override suspend fun notifSeenAt(accessToken: String) = seenResult
     override suspend fun markNotificationsSeen(accessToken: String, isoNow: String) { seenMarks += isoNow; seenResult = isoNow }
+    var myProfileResult: MyProfileDto? = null
+    var myPayResult: MyPayDto? = null
+    var myAttendanceResult: List<AttendanceDto> = emptyList()
+    var documentResult: ByteArray? = null
+    var usageResult: LeaveUsageDto? = null
+    val attendanceFromDates = mutableListOf<String>()
+    override suspend fun myProfileDetails(accessToken: String, employeeId: String) = myProfileResult
+    override suspend fun myPayInfo(accessToken: String, employeeId: String) = myPayResult
+    override suspend fun myAttendance(accessToken: String, employeeId: String, fromDate: String): List<AttendanceDto> { attendanceFromDates += fromDate; return myAttendanceResult }
+    override suspend fun documentBytes(accessToken: String, path: String) = documentResult
+    override suspend fun leaveUsage(accessToken: String, year: Int, month: Int) = usageResult
     override suspend fun leaveTypes(accessToken: String) = leaveTypesResult
     override suspend fun leaveBalances(accessToken: String, employeeId: String, year: Int): List<LeaveBalanceDto> {
         leaveBalanceCalls += employeeId to year; return balancesResult

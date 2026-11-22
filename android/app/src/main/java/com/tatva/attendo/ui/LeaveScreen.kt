@@ -74,6 +74,7 @@ fun LeaveScreen(vm: LeaveViewModel, onBack: () -> Unit) {
         if (ui.balances.isEmpty() && !ui.loading) Text(stringResource(R.string.leave_no_types), style = MaterialTheme.typography.bodyMedium)
         ui.balances.forEach { BalanceRow(it) }
 
+        ui.usage?.limitPerMonth?.let { Text(stringResource(R.string.leave_usage, ui.usage!!.used, it), style = MaterialTheme.typography.bodyMedium) }
         HorizontalDivider()
         Text(stringResource(R.string.leave_apply), style = MaterialTheme.typography.titleMedium)
         ui.types.forEach { t ->

@@ -136,3 +136,16 @@ data class LeaveRequestDto(
 
 @Serializable data class NotificationDto(val id: String, val kind: String = "", val title: String, val body: String? = null, @SerialName("created_at") val createdAt: String)
 @Serializable data class UserPrefsDto(@SerialName("notif_seen_at") val notifSeenAt: String? = null)
+
+@Serializable data class MyProfileDto(
+    @SerialName("photo_path") val photoPath: String? = null, val address: String? = null, val phone: String? = null,
+    @SerialName("alt_phone") val altPhone: String? = null, @SerialName("referred_by") val referredBy: String? = null,
+    @SerialName("date_of_birth") val dateOfBirth: String? = null, val designation: String? = null,
+    @SerialName("emergency_name") val emergencyName: String? = null, @SerialName("emergency_phone") val emergencyPhone: String? = null,
+)
+@Serializable data class MyPayDto(
+    @SerialName("pay_type") val payType: String, @SerialName("monthly_salary") val monthlySalary: Double? = null, @SerialName("daily_wage") val dailyWage: Double? = null,
+    @SerialName("pf_eligible") val pfEligible: Boolean = false, @SerialName("esi_eligible") val esiEligible: Boolean = false,
+    @SerialName("aadhaar_last4") val aadhaarLast4: String? = null, @SerialName("bank_name") val bankName: String? = null,
+)
+@Serializable data class LeaveUsageDto(@SerialName("limit_per_month") val limitPerMonth: Int? = null, val used: Int = 0)

@@ -202,6 +202,7 @@ class VmFactory(private val c: AppContainer) : ViewModelProvider.Factory {
             { c.session.ownerKey()?.let { o -> c.locationQueue.count(o) } ?: 0 },
         ) { c.session.authed { c.remote.profile(it) } }
         LeaveViewModel::class.java -> LeaveViewModel(c.leave)
+        MyDetailsViewModel::class.java -> MyDetailsViewModel(c.myDetails)
         NotificationsViewModel::class.java -> NotificationsViewModel(c.notifications)
         else -> error("Unknown ViewModel ${modelClass.name}")
     } as T

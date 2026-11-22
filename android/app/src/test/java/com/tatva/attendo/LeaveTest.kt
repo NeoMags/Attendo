@@ -205,3 +205,78 @@ class NotificationsApiTest {
         assertEquals("2026-11-23T12:00:00Z", json.parseToJsonElement(rec.body.readUtf8()).jsonObject["notif_seen_at"]!!.jsonPrimitive.content)
     }
 }
+
+class MyDetailsTest {
+    private val remote = FakeRemote().apply { profileResult = EmployeeProfile(id = "emp-1", employeeCode = "E1", fullName = "Asha") }
+    private val session = SessionManager(MemTokenStore(StoredSession("a1", "r1", Long.MAX_VALUE / 2, false, "acme:e001")), remote)
+    private val repo = com.tatva.attendo.domain.MyDetailsRepository(session, remote) { LocalDate.of(2026, 11, 23) }
+    private fun att(d: String, late: Int) = com.tatva.attendo.data.remote.AttendanceDto("a$d", d, "closed", "${d}T04:00:00Z", null, late, null)
+
+    @Test fun loads_profile_pay_attendance_from_30_days_back_and_photo() = runBlocking<Unit> {
+        remote.myProfileResult = com.tatva.attendo.data.remote.MyProfileDto(photoPath = "c/e/photo.jpg", phone = "+919876543210")
+        remote.myPayResult = com.tatva.attendo.data.remote.MyPayDto(payType = "monthly", monthlySalary = 18000.0, aadhaarLast4 = "1234")
+        remote.myAttendanceResult = listOf(att("2026-11-20", 10), att("2026-11-19", 0), att("2026-11-19", 5))
+        remote.documentResult = byteArrayOf(1, 2, 3)
+        val d = repo.load()
+        assertEquals("Asha", d.employee.fullName); assertEquals("+919876543210", d.profile!!.phone); assertEquals(18000.0, d.pay!!.monthlySalary!!, 0.0)
+        assertArrayEquals(byteArrayOf(1, 2, 3), d.photo)
+        assertEquals(listOf("2026-10-24"), remote.attendanceFromDates)
+        assertEquals(2, com.tatva.attendo.domain.AttendanceSummary.present(d.attendance))   // distinct days
+        assertEquals(2, com.tatva.attendo.domain.AttendanceSummary.lateDays(d.attendance))
+    }
+    @Test fun missing_profile_and_pay_are_null_not_errors() = runBlocking<Unit> {
+        val d = repo.load(); assertNull(d.profile); assertNull(d.pay); assertNull(d.photo)
+    }
+    @Test fun photo_failure_does_not_hide_details() = runBlocking<Unit> {
+        remote.myProfileResult = com.tatva.attendo.data.remote.MyProfileDto(photoPath = "c/e/photo.jpg")
+        val failing = object : com.tatva.attendo.data.remote.AttendoRemote by remote {
+            override suspend fun documentBytes(accessToken: String, path: String): ByteArray? = throw ApiException.Network(java.io.IOException("x"))
+        }
+        val d = com.tatva.attendo.domain.MyDetailsRepository(SessionManager(MemTokenStore(StoredSession("a1", "r1", Long.MAX_VALUE / 2, false, "k")), failing), failing).load()
+        assertNull(d.photo); assertNotNull(d.profile)
+    }
+    @Test fun leave_limit_error_maps_and_usage_loads() = runBlocking<Unit> {
+        assertEquals(MsgKind.LEAVE_LIMIT_REACHED, ApiException.Server("LEAVE_LIMIT_REACHED", "x", 400).toUiMessage().kind)
+        remote.usageResult = com.tatva.attendo.data.remote.LeaveUsageDto(limitPerMonth = 2, used = 1)
+        val o = LeaveRepository(session, remote) { LocalDate.of(2026, 11, 23) }.load()
+        assertEquals(2, o.usage!!.limitPerMonth); assertEquals(1, o.usage!!.used)
+    }
+}
+
+class MyDetailsApiTest {
+    private lateinit var server: MockWebServer
+    private lateinit var api: AttendoApi
+    private val json = Json { ignoreUnknownKeys = true }
+    @Before fun up() { server = MockWebServer().apply { start() }; api = AttendoApi(server.url("/").toString(), "pub", OkHttpClient(), json) }
+    @After fun down() = server.shutdown()
+
+    @Test fun profile_pay_and_attendance_queries() = runBlocking<Unit> {
+        server.enqueue(MockResponse().setBody("""[{"photo_path":"c/e/photo.jpg","address":"MG Road","phone":"+919876543210","extra":1}]"""))
+        assertEquals("MG Road", api.myProfileDetails("T", "emp-1")!!.address)
+        assertTrue(server.takeRequest().path!!.contains("employee_id=eq.emp-1"))
+        server.enqueue(MockResponse().setBody("""[{"pay_type":"daily","daily_wage":650,"pf_eligible":true,"esi_eligible":false,"aadhaar_last4":"1234"}]"""))
+        val pay = api.myPayInfo("T", "emp-1")!!
+        assertEquals("daily", pay.payType); assertEquals(650.0, pay.dailyWage!!, 0.0); assertTrue(pay.pfEligible)
+        server.takeRequest()
+        server.enqueue(MockResponse().setBody("[]"))
+        assertNull(api.myProfileDetails("T", "emp-1"))
+        server.takeRequest()
+        server.enqueue(MockResponse().setBody("""[{"id":"a","work_date":"2026-11-20","status":"closed","check_in_at":"2026-11-20T04:00:00+00:00","late_minutes":3}]"""))
+        assertEquals(3, api.myAttendance("T", "emp-1", "2026-10-24").single().lateMinutes)
+        assertTrue(server.takeRequest().path!!.contains("work_date=gte.2026-10-24"))
+    }
+    @Test fun document_download_uses_authenticated_endpoint_and_handles_missing() = runBlocking<Unit> {
+        server.enqueue(MockResponse().setBody(okio.Buffer().write(byteArrayOf(9, 8, 7))))
+        assertArrayEquals(byteArrayOf(9, 8, 7), api.documentBytes("TOK", "c-1/e-1/photo.jpg"))
+        val rec = server.takeRequest()
+        assertEquals("/storage/v1/object/authenticated/employee-docs/c-1/e-1/photo.jpg", rec.path); assertEquals("Bearer TOK", rec.getHeader("Authorization"))
+        server.enqueue(MockResponse().setResponseCode(404).setBody("""{"error":"not_found"}"""))
+        assertNull(api.documentBytes("TOK", "c-1/e-1/photo.jpg"))
+    }
+    @Test fun leave_usage_rpc() = runBlocking<Unit> {
+        server.enqueue(MockResponse().setBody("""[{"limit_per_month":null,"used":2}]"""))
+        val u = api.leaveUsage("T", 2026, 11)!!
+        assertNull(u.limitPerMonth); assertEquals(2, u.used)
+        val rec = server.takeRequest(); assertEquals("/rest/v1/rpc/leave_request_usage", rec.path)
+    }
+}

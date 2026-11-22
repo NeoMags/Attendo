@@ -82,7 +82,8 @@ fun AttendoRoot(container: AppContainer) {
                     when (screen) {
                         "leave" -> LeaveScreen(viewModel(key = "leave-$owner", factory = factory)) { screen = "home" }
                         "notifs" -> NotificationsScreen(notifVm) { screen = "home" }
-                        else -> HomeScreen(viewModel(key = owner, factory = factory), unread = nUi.unread, onOpenNotifications = { screen = "notifs" }) { screen = "leave" }
+                        "details" -> MyDetailsScreen(viewModel(key = "details-$owner", factory = factory)) { screen = "home" }
+                        else -> HomeScreen(viewModel(key = owner, factory = factory), unread = nUi.unread, onOpenNotifications = { screen = "notifs" }, onOpenDetails = { screen = "details" }) { screen = "leave" }
                     }
                 }
             }
@@ -127,6 +128,7 @@ fun messageText(m: UiMessage): String {
         MsgKind.LEAVE_TYPE_UNAVAILABLE -> R.string.msg_leave_type_unavailable
         MsgKind.LEAVE_NOT_CANCELLABLE -> R.string.msg_leave_not_cancellable
         MsgKind.LEAVE_NOT_FOUND -> R.string.msg_leave_not_found
+        MsgKind.LEAVE_LIMIT_REACHED -> R.string.msg_leave_limit_reached
     }
     return stringResource(id, *m.args.toTypedArray())
 }
@@ -182,7 +184,7 @@ fun ChangePasswordScreen(vm: ChangePasswordViewModel) {
 }
 
 @Composable
-fun HomeScreen(vm: HomeViewModel, unread: Int = 0, onOpenNotifications: () -> Unit = {}, onOpenLeave: () -> Unit = {}) {
+fun HomeScreen(vm: HomeViewModel, unread: Int = 0, onOpenNotifications: () -> Unit = {}, onOpenDetails: () -> Unit = {}, onOpenLeave: () -> Unit = {}) {
     val ui by vm.ui.collectAsState()
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
         // Notifications are optional (tracking still runs); precise location is required to check in.
@@ -260,6 +262,7 @@ fun HomeScreen(vm: HomeViewModel, unread: Int = 0, onOpenNotifications: () -> Un
         OutlinedButton(onClick = vm::refresh, enabled = !ui.loading && !ui.busy, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.btn_refresh))
         }
+        OutlinedButton(onClick = onOpenDetails, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.btn_my_details)) }
         OutlinedButton(onClick = onOpenLeave, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.btn_leave)) }
         TextButton(onClick = { vm.signOut() }) { Text(stringResource(R.string.btn_sign_out)) }
     }

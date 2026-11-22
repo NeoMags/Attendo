@@ -22,6 +22,7 @@ data class LeaveUi(
     val types: List<LeaveTypeDto> = emptyList(),
     val balances: List<LeaveBalanceDto> = emptyList(),
     val requests: List<LeaveRequestDto> = emptyList(),
+    val usage: com.tatva.attendo.data.remote.LeaveUsageDto? = null,
     val typeId: String? = null,
     val start: LocalDate? = null,
     val end: LocalDate? = null,
@@ -56,7 +57,7 @@ class LeaveViewModel(
                 val o = repo.load()
                 _ui.update { s ->
                     s.copy(
-                        loading = false, types = o.types, balances = o.balances, requests = o.requests,
+                        loading = false, types = o.types, balances = o.balances, requests = o.requests, usage = o.usage,
                         typeId = s.typeId?.takeIf { id -> o.types.any { t -> t.id == id } } ?: o.types.singleOrNull()?.id,
                     )
                 }
@@ -122,7 +123,7 @@ class LeaveViewModel(
     private suspend fun reload() {
         try {
             val o = repo.load()
-            _ui.update { it.copy(types = o.types, balances = o.balances, requests = o.requests) }
+            _ui.update { it.copy(types = o.types, balances = o.balances, requests = o.requests, usage = o.usage) }
         } catch (e: CancellationException) {
             throw e
         } catch (_: Exception) {

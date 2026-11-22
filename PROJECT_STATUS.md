@@ -119,3 +119,9 @@ Phases 3-11
 - Web: header live day/date/time (company zone) + bell (unread badge, realtime INSERT subscription, mark all read); Overview cards add/remove/replace/reorder per user with 10-card catalogue (incl. Absent), 7-day chart, recent exits; Field schedule calendar (month grid, day list, visit verified by geofence entry); per-geofence exit-alert toggle. Vitest 46/46.
 - Android 0.6.0: live clock/date + bell with unread count on Home, notifications screen (polled every 60 s while the app is open). No phone push yet (needs Firebase). 
 - Not verified: web pages in a browser, realtime delivery live, Android on a device.
+
+## Round 2 (employee onboarding + self-service)
+- DB (live, migration 20261123000012): `employee_profiles` (photo, address, phones, referred by, DOB, designation, emergency contact, per-employee leave-request limit), `employee_payroll_info` (monthly/daily pay, PF/UAN, ESI/IP, Aadhaar last-4 + image path, bank; admins + the employee only, managers excluded), `company_settings` (monthly leave-request limit), private `employee-docs` bucket (2 MB, jpg/png/webp/pdf) with company-scoped policies (managers see team photos only), `apply_leave` enforces the limit (LEAVE_LIMIT_REACHED), `leave_request_usage` RPC. SQL suite 278/278 (shim now emulates storage).
+- Web: Employees -> Details (photo/Aadhaar capture or upload with client-side compression, Verhoeff-checked Aadhaar number - only last 4 digits stored, phone normalisation, pay, PF/ESI, bank, leave override); new employee opens Details right after creation; Leave page has the company monthly limit. Vitest 53/53.
+- Android 0.7.0: Home -> My details (photo, contact, pay/PF/ESI, Aadhaar last 4, 30-day attendance), leave usage line, limit error message. Transactions section is a placeholder until payroll.
+- Not verified: browser camera/upload flow on a real phone, storage upload against the live bucket, Android on a device. Hindi/Kannada strings need native review.
