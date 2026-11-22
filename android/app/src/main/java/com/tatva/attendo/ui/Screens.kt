@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -69,8 +71,12 @@ fun AttendoRoot(container: AppContainer) {
             when (state) {
                 SessionState.LoggedOut -> LoginScreen(viewModel(factory = factory))
                 SessionState.MustChangePassword -> ChangePasswordScreen(viewModel(factory = factory))
-                SessionState.LoggedIn ->
-                    HomeScreen(viewModel(key = container.session.ownerKey(), factory = factory))
+                SessionState.LoggedIn -> {
+                    val owner = container.session.ownerKey()
+                    var showLeave by rememberSaveable { mutableStateOf(false) }
+                    if (showLeave) LeaveScreen(viewModel(key = "leave-$owner", factory = factory)) { showLeave = false }
+                    else HomeScreen(viewModel(key = owner, factory = factory)) { showLeave = true }
+                }
             }
         }
     }
@@ -100,6 +106,19 @@ fun messageText(m: UiMessage): String {
         MsgKind.GENERIC -> R.string.msg_generic
         MsgKind.CHECKED_IN -> R.string.msg_checked_in
         MsgKind.CHECKED_OUT -> R.string.msg_checked_out
+        MsgKind.LEAVE_APPLIED -> R.string.msg_leave_applied
+        MsgKind.LEAVE_CANCELLED -> R.string.msg_leave_cancelled
+        MsgKind.LEAVE_PICK_TYPE -> R.string.msg_leave_pick_type
+        MsgKind.LEAVE_PICK_DATES -> R.string.msg_leave_pick_dates
+        MsgKind.LEAVE_INVALID_DATES -> R.string.msg_leave_invalid_dates
+        MsgKind.LEAVE_DATE_TOO_OLD -> R.string.msg_leave_date_too_old
+        MsgKind.LEAVE_DATE_TOO_FAR -> R.string.msg_leave_date_too_far
+        MsgKind.LEAVE_OVERLAP -> R.string.msg_leave_overlap
+        MsgKind.LEAVE_INSUFFICIENT_BALANCE -> R.string.msg_leave_insufficient
+        MsgKind.LEAVE_NO_WORKING_DAYS -> R.string.msg_leave_no_working_days
+        MsgKind.LEAVE_TYPE_UNAVAILABLE -> R.string.msg_leave_type_unavailable
+        MsgKind.LEAVE_NOT_CANCELLABLE -> R.string.msg_leave_not_cancellable
+        MsgKind.LEAVE_NOT_FOUND -> R.string.msg_leave_not_found
     }
     return stringResource(id, *m.args.toTypedArray())
 }
@@ -155,7 +174,7 @@ fun ChangePasswordScreen(vm: ChangePasswordViewModel) {
 }
 
 @Composable
-fun HomeScreen(vm: HomeViewModel) {
+fun HomeScreen(vm: HomeViewModel, onOpenLeave: () -> Unit = {}) {
     val ui by vm.ui.collectAsState()
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
         // Notifications are optional (tracking still runs); precise location is required to check in.
@@ -232,6 +251,7 @@ fun HomeScreen(vm: HomeViewModel) {
         OutlinedButton(onClick = vm::refresh, enabled = !ui.loading && !ui.busy, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.btn_refresh))
         }
+        OutlinedButton(onClick = onOpenLeave, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.btn_leave)) }
         TextButton(onClick = { vm.signOut() }) { Text(stringResource(R.string.btn_sign_out)) }
     }
 }

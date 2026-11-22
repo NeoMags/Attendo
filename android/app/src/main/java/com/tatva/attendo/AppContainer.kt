@@ -10,6 +10,7 @@ import com.tatva.attendo.data.store.JsonTokenStore
 import com.tatva.attendo.data.store.KeystoreBlobStore
 import com.tatva.attendo.domain.AttendanceRepository
 import com.tatva.attendo.domain.DeviceDescriptor
+import com.tatva.attendo.domain.LeaveRepository
 import com.tatva.attendo.data.local.AttendoDb
 import com.tatva.attendo.data.local.RoomLocationQueue
 import com.tatva.attendo.location.FusedLocationProvider
@@ -60,6 +61,8 @@ class AppContainer(context: Context) {
         trackingStore = trackingStore,
         queue = locationQueue,
     )
+
+    val leave = LeaveRepository(session, remote)
 
     val uploader = LocationUploader(locationQueue, remote, session)
     val heartbeat = HeartbeatReporter(AndroidHealthSource(app, locationQueue, trackingStore), remote, session, device)

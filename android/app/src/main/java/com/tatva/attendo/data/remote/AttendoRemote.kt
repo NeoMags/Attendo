@@ -23,4 +23,13 @@ interface AttendoRemote {
     suspend fun reportInterruption(
         accessToken: String, id: String, sessionId: String, startedIso: String, endedIso: String?, reason: String, detail: String?,
     )
+
+    // Leave: reads are filtered by RLS; every write goes through a server-side rule-checking RPC.
+    suspend fun leaveTypes(accessToken: String): List<LeaveTypeDto>
+    suspend fun leaveBalances(accessToken: String, employeeId: String, year: Int): List<LeaveBalanceDto>
+    suspend fun myLeaveRequests(accessToken: String, employeeId: String): List<LeaveRequestDto>
+    suspend fun applyLeave(
+        accessToken: String, leaveTypeId: String, startDate: String, endDate: String, halfDay: Boolean, reason: String?,
+    ): LeaveRequestDto
+    suspend fun cancelLeave(accessToken: String, requestId: String): LeaveRequestDto
 }

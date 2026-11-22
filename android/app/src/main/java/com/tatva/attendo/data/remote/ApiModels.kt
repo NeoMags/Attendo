@@ -39,6 +39,7 @@ data class CompanyRef(val name: String)
 
 @Serializable
 data class EmployeeProfile(
+    val id: String? = null,
     @SerialName("employee_code") val employeeCode: String,
     @SerialName("full_name") val fullName: String,
     @SerialName("preferred_language") val preferredLanguage: String = "en",
@@ -97,3 +98,38 @@ data class IngestResult(
 
 @Serializable
 data class SessionRef(val id: String)
+
+@Serializable
+data class LeaveTypeDto(
+    val id: String,
+    val name: String,
+    @SerialName("annual_quota_days") val annualQuotaDays: Double? = null,
+    @SerialName("is_paid") val isPaid: Boolean = true,
+)
+
+@Serializable
+data class LeaveBalanceDto(
+    @SerialName("leave_type_id") val leaveTypeId: String,
+    val name: String,
+    @SerialName("annual_quota_days") val annualQuotaDays: Double? = null,
+    @SerialName("approved_days") val approvedDays: Double = 0.0,
+    @SerialName("pending_days") val pendingDays: Double = 0.0,
+    @SerialName("remaining_days") val remainingDays: Double? = null,
+)
+
+@Serializable
+data class LeaveTypeRef(val name: String)
+
+@Serializable
+data class LeaveRequestDto(
+    val id: String,
+    @SerialName("start_date") val startDate: String,
+    @SerialName("end_date") val endDate: String,
+    val days: Double,
+    @SerialName("is_half_day") val isHalfDay: Boolean = false,
+    val reason: String? = null,
+    val status: String,
+    @SerialName("manager_note") val managerNote: String? = null,
+    @SerialName("decision_note") val decisionNote: String? = null,
+    @SerialName("leave_types") val leaveType: LeaveTypeRef? = null,
+)

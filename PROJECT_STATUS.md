@@ -109,3 +109,7 @@ Phases 3-11
 - Dashboard: Leave page (queue, approve, reject with reason, leave types for admins); approved leave shows on Attendance calendar and Overview ("Not in yet" excludes on-leave).
 - Rules: balance counts pending + approved days per calendar year; requests cannot span years; max 92 days; up to 30 days back, 366 ahead; working days follow the employee's shift (Mon–Sat if none). Holidays, carry-forward, accrual, admin cancel of approved leave: not built.
 - Not done: Android apply/cancel/balance screens, push of leave notifications (needs Firebase), concurrency stress test.
+
+## Leave management (round 2: Android)
+- App v0.5.0 (code 5): Home → "Leave" opens balances (yearly, per type), apply form (type, start/end date pickers, half day, reason ≤500) and My requests with Cancel (confirm dialog). Client pre-checks mirror server rules; the server (`apply_leave`/`cancel_leave`) stays authoritative. Strings EN/HI/KN (HI/KN leave text needs native-speaker review).
+- Tests: 82 JVM unit tests pass (17 new: rules, repository, 6 API/MockWebServer). Not verified: UI on a real phone/emulator, leave notifications (stored only, not pushed).

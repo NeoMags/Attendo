@@ -154,11 +154,48 @@ class AttendoApi(
     }
 
     override suspend fun profile(accessToken: String): EmployeeProfile? {
-        val url = "$base/rest/v1/employees?select=employee_code,full_name,preferred_language,companies(name)&limit=1"
+        val url = "$base/rest/v1/employees?select=id,employee_code,full_name,preferred_language,companies(name)&limit=1"
         val (status, text) = send(request(url, accessToken).get().build())
         if (status !in 200..299) throw errorFor(status, text)
         return json.decodeFromString<List<EmployeeProfile>>(text).firstOrNull()
     }
+
+    // ----------------------------------------------------------------- leave
+    override suspend fun leaveTypes(accessToken: String): List<LeaveTypeDto> {
+        val url = "$base/rest/v1/leave_types?is_active=eq.true&select=id,name,annual_quota_days,is_paid&order=name"
+        val (status, text) = send(request(url, accessToken).get().build())
+        if (status !in 200..299) throw errorFor(status, text)
+        return decode(text)
+    }
+
+    override suspend fun leaveBalances(accessToken: String, employeeId: String, year: Int): List<LeaveBalanceDto> =
+        decode(rpc(accessToken, "leave_balances", buildJsonObject {
+            put("p_employee_id", employeeId)
+            put("p_year", year)
+        }))
+
+    override suspend fun myLeaveRequests(accessToken: String, employeeId: String): List<LeaveRequestDto> {
+        // Filter by employee explicitly: a manager signing in on the phone could otherwise also receive their team's rows.
+        val url = "$base/rest/v1/leave_requests?employee_id=eq.$employeeId" +
+            "&select=id,start_date,end_date,days,is_half_day,reason,status,manager_note,decision_note,leave_types(name)" +
+            "&order=start_date.desc&limit=100"
+        val (status, text) = send(request(url, accessToken).get().build())
+        if (status !in 200..299) throw errorFor(status, text)
+        return decode(text)
+    }
+
+    override suspend fun applyLeave(
+        accessToken: String, leaveTypeId: String, startDate: String, endDate: String, halfDay: Boolean, reason: String?,
+    ): LeaveRequestDto = decode(rpc(accessToken, "apply_leave", buildJsonObject {
+        put("p_leave_type_id", leaveTypeId)
+        put("p_start", startDate)
+        put("p_end", endDate)
+        put("p_half_day", halfDay)
+        put("p_reason", reason.orNull())
+    }))
+
+    override suspend fun cancelLeave(accessToken: String, requestId: String): LeaveRequestDto =
+        decode(rpc(accessToken, "cancel_leave", buildJsonObject { put("p_request_id", requestId) }))
 
     // -------------------------------------------------------------- plumbing
     private suspend fun rpc(token: String, fn: String, args: JsonObject): String {

@@ -63,7 +63,26 @@ class FakeRemote : AttendoRemote {
     }
     override suspend fun trackingConfig(accessToken: String) = TrackingConfig("2026-11-20T04:00:00Z", config)
     override suspend fun openAttendance(accessToken: String): AttendanceDto? { tokensSeen += accessToken; return open }
-    override suspend fun profile(accessToken: String): EmployeeProfile? = null
+    var profileResult: EmployeeProfile? = null
+    override suspend fun profile(accessToken: String): EmployeeProfile? = profileResult
+
+    var leaveTypesResult: List<LeaveTypeDto> = emptyList()
+    var balancesResult: List<LeaveBalanceDto> = emptyList()
+    var requestsResult: List<LeaveRequestDto> = emptyList()
+    var applyResult: (String, String, String, Boolean, String?) -> LeaveRequestDto = { _, s, e, h, r -> leaveReq("new", s, e, if (h) 0.5 else 1.0, "pending", r) }
+    var cancelResult: (String) -> LeaveRequestDto = { leaveReq(it, "2026-12-01", "2026-12-01", 1.0, "cancelled") }
+    val applyCalls = mutableListOf<List<Any?>>()
+    val cancelCalls = mutableListOf<String>()
+    val leaveBalanceCalls = mutableListOf<Pair<String, Int>>()
+    override suspend fun leaveTypes(accessToken: String) = leaveTypesResult
+    override suspend fun leaveBalances(accessToken: String, employeeId: String, year: Int): List<LeaveBalanceDto> {
+        leaveBalanceCalls += employeeId to year; return balancesResult
+    }
+    override suspend fun myLeaveRequests(accessToken: String, employeeId: String) = requestsResult
+    override suspend fun applyLeave(accessToken: String, leaveTypeId: String, startDate: String, endDate: String, halfDay: Boolean, reason: String?): LeaveRequestDto {
+        applyCalls += listOf(leaveTypeId, startDate, endDate, halfDay, reason); return applyResult(leaveTypeId, startDate, endDate, halfDay, reason)
+    }
+    override suspend fun cancelLeave(accessToken: String, requestId: String): LeaveRequestDto { cancelCalls += requestId; return cancelResult(requestId) }
 
     var sessionLookup: String? = null
     var ingestResult: (String, List<LocationRecordDto>) -> IngestResult = { _, r -> IngestResult(accepted = r.size) }
@@ -115,3 +134,6 @@ class FakeLocation(var next: () -> Fix = { Fix(12.97, 77.59, 15f, false) }) : Lo
     var calls = 0
     override suspend fun current(): Fix { calls++; return next() }
 }
+
+fun leaveReq(id: String, start: String, end: String, days: Double, status: String, reason: String? = null) =
+    LeaveRequestDto(id = id, startDate = start, endDate = end, days = days, status = status, reason = reason)
