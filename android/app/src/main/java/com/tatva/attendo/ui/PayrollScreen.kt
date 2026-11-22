@@ -54,6 +54,7 @@ fun PayrollScreen(vm: PayrollViewModel, onBack: () -> Unit) {
                         Text(stringResource(R.string.pay_adv_line, PayslipFormat.rupees(a.recovered), PayslipFormat.rupees(a.remaining)), style = MaterialTheme.typography.bodySmall)
                         a.monthlyDeduction?.let { Text(stringResource(R.string.pay_adv_installment, PayslipFormat.rupees(it)), style = MaterialTheme.typography.bodySmall) }
                         a.reason?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+                        if (a.voided) Text(stringResource(R.string.pay_voided), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
                     }
                 }
             }
@@ -62,7 +63,7 @@ fun PayrollScreen(vm: PayrollViewModel, onBack: () -> Unit) {
             d.ledger.forEach { l ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Column(Modifier.weight(1f)) {
-                        Text(stringResource(when (l.kind) { "advance_given" -> R.string.pay_tx_advance_given; "advance_recovered" -> R.string.pay_tx_advance_recovered; else -> R.string.pay_tx_salary_paid }), style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(when (l.kind) { "advance_given" -> R.string.pay_tx_advance_given; "advance_recovered" -> R.string.pay_tx_advance_recovered; "advance_voided" -> R.string.pay_tx_advance_voided; else -> R.string.pay_tx_salary_paid }), style = MaterialTheme.typography.bodyMedium)
                         Text(l.entryDate, style = MaterialTheme.typography.bodySmall)
                     }
                     Text(PayslipFormat.rupees(l.amount), style = MaterialTheme.typography.bodyMedium)

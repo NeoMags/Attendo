@@ -16,8 +16,11 @@ import android.print.PrintDocumentAdapter
 import android.print.PrintDocumentInfo
 import android.print.PrintManager
 import androidx.core.content.FileProvider
+import com.tatva.attendo.R
 import com.tatva.attendo.data.remote.PayslipDto
 import com.tatva.attendo.domain.PayslipFormat
+import com.tatva.attendo.domain.PdfLabels
+import java.util.Locale
 import java.io.File
 import java.io.FileOutputStream
 
@@ -28,10 +31,10 @@ object PayslipPdf {
     private const val LEFT = 40f
     private const val RIGHT = W - 40f
 
-    fun render(p: PayslipDto, employeeName: String, employeeCode: String, company: String?, out: File) {
+    fun render(p: PayslipDto, employeeName: String, employeeCode: String, company: String?, L: PdfLabels, locale: Locale, out: File) {
         val doc = PdfDocument()
         val page = doc.startPage(PdfDocument.PageInfo.Builder(W, H, 1).create())
-        draw(page.canvas, p, employeeName, employeeCode, company)
+        draw(page.canvas, p, employeeName, employeeCode, company, L, locale)
         doc.finishPage(page)
         FileOutputStream(out).use { doc.writeTo(it) }
         doc.close()
@@ -40,45 +43,56 @@ object PayslipPdf {
     private fun paint(size: Float, bold: Boolean = false, color: Int = Color.rgb(30, 30, 30)) =
         Paint(Paint.ANTI_ALIAS_FLAG).apply { textSize = size; this.color = color; typeface = if (bold) Typeface.DEFAULT_BOLD else Typeface.DEFAULT }
 
-    private fun draw(c: Canvas, p: PayslipDto, name: String, code: String, company: String?) {
+    private fun draw(c: Canvas, p: PayslipDto, name: String, code: String, company: String?, L: PdfLabels, locale: Locale) {
         var y = 56f
-        c.drawText(company?.takeIf { it.isNotBlank() } ?: "Payslip", LEFT, y, paint(18f, true, Color.rgb(15, 23, 42)))
-        y += 22; c.drawText("Payslip for ${PayslipFormat.monthLabel(p.month)}", LEFT, y, paint(12f))
-        y += 18; c.drawText("Employee: $name ($code)", LEFT, y, paint(11f))
+        c.drawText(company?.takeIf { it.isNotBlank() } ?: L.payslipFor, LEFT, y, paint(18f, true, Color.rgb(15, 23, 42)))
+        y += 22; c.drawText("${L.payslipFor} ${PayslipFormat.monthLabel(p.month, locale)}", LEFT, y, paint(12f))
+        y += 18; c.drawText("${L.employee}: $name ($code)", LEFT, y, paint(11f))
         y += 26
         val small = paint(10f)
-        c.drawText("Working days ${PayslipFormat.days(p.workingDays)}  ·  Present ${PayslipFormat.days(p.presentDays)}  ·  Holidays ${PayslipFormat.days(p.holidayDays)}  ·  Paid leave ${PayslipFormat.days(p.paidLeaveDays)}", LEFT, y, small)
-        y += 14; c.drawText("Unpaid leave ${PayslipFormat.days(p.unpaidLeaveDays)}  ·  Absent ${PayslipFormat.days(p.absentDays)}", LEFT, y, small)
+        c.drawText("${L.working} ${PayslipFormat.days(p.workingDays)}  ·  ${L.present} ${PayslipFormat.days(p.presentDays)}  ·  ${L.holidays} ${PayslipFormat.days(p.holidayDays)}  ·  ${L.paidLeave} ${PayslipFormat.days(p.paidLeaveDays)}", LEFT, y, small)
+        y += 14; c.drawText("${L.unpaidLeave} ${PayslipFormat.days(p.unpaidLeaveDays)}  ·  ${L.absent} ${PayslipFormat.days(p.absentDays)}", LEFT, y, small)
         y += 28
-        y = section(c, y, "Earnings", PayslipFormat.earnings(p))
-        y = section(c, y + 10, "Deductions", PayslipFormat.deductions(p).ifEmpty { listOf("None" to 0.0) })
+        y = section(c, y, L.earnings, PayslipFormat.earnings(p), L)
+        y = section(c, y + 10, L.deductions, PayslipFormat.deductions(p).ifEmpty { listOf("None" to 0.0) }, L)
         y += 20
         c.drawLine(LEFT, y, RIGHT, y, paint(1f))
         y += 22
         val bold = paint(14f, true)
-        c.drawText("Net pay", LEFT, y, bold)
+        c.drawText(L.net, LEFT, y, bold)
         val net = PayslipFormat.rupees(p.net); c.drawText(net, RIGHT - bold.measureText(net), y, bold)
-        if (!p.adjustmentNote.isNullOrBlank()) { y += 24; c.drawText("Note: ${p.adjustmentNote}".take(110), LEFT, y, small) }
+        if (!p.adjustmentNote.isNullOrBlank()) { y += 24; c.drawText("${L.note}: ${p.adjustmentNote}".take(110), LEFT, y, small) }
         y += 24
-        c.drawText(if (p.paidOn != null) "Paid on ${p.paidOn} by ${p.paymentMode}" else "Payment pending", LEFT, y, small)
+        c.drawText(if (p.paidOn != null) L.paidOn(p.paidOn, L.modes[p.paymentMode] ?: (p.paymentMode ?: "")) else L.pending, LEFT, y, small)
     }
 
-    private fun section(c: Canvas, y0: Float, title: String, rows: List<Pair<String, Double>>): Float {
+    private fun section(c: Canvas, y0: Float, title: String, rows: List<Pair<String, Double>>, L: PdfLabels): Float {
         var y = y0
         c.drawText(title, LEFT, y, paint(12f, true)); y += 6
         c.drawLine(LEFT, y, RIGHT, y, paint(1f)); y += 18
         val row = paint(11f)
         rows.forEach { (label, amt) ->
-            c.drawText(label, LEFT, y, row)
-            if (amt != 0.0 || label != "None") { val s = PayslipFormat.rupees(amt); c.drawText(s, RIGHT - row.measureText(s), y, row) }
+            c.drawText(L.row(label), LEFT, y, row)
+            if (!(label == "None" && amt == 0.0)) { val s = PayslipFormat.rupees(amt); c.drawText(s, RIGHT - row.measureText(s), y, row) }
             y += 18
         }
         return y
     }
 
+    private fun labels(ctx: Context) = PdfLabels(
+        payslipFor = ctx.getString(R.string.pdf_payslip_for), employee = ctx.getString(R.string.pdf_employee), working = ctx.getString(R.string.pdf_working),
+        present = ctx.getString(R.string.pdf_present), holidays = ctx.getString(R.string.pdf_holidays), paidLeave = ctx.getString(R.string.pdf_paid_leave),
+        unpaidLeave = ctx.getString(R.string.pdf_unpaid_leave), absent = ctx.getString(R.string.pdf_absent), earnings = ctx.getString(R.string.pdf_earnings),
+        deductions = ctx.getString(R.string.pdf_deductions), salary = ctx.getString(R.string.pdf_salary), wages = ctx.getString(R.string.pdf_wages),
+        bonus = ctx.getString(R.string.pdf_bonus), advance = ctx.getString(R.string.pdf_advance), other = ctx.getString(R.string.pdf_other),
+        none = ctx.getString(R.string.pdf_none), net = ctx.getString(R.string.pdf_net), paidOn = { d, m -> ctx.getString(R.string.pdf_paid_on, d, m) },
+        pending = ctx.getString(R.string.pdf_pending), note = ctx.getString(R.string.pdf_note),
+        modes = mapOf("bank" to ctx.getString(R.string.pdf_mode_bank), "cash" to ctx.getString(R.string.pdf_mode_cash), "upi" to ctx.getString(R.string.pdf_mode_upi), "cheque" to ctx.getString(R.string.pdf_mode_cheque), "other" to ctx.getString(R.string.pdf_mode_other)),
+    )
+
     private fun file(ctx: Context, p: PayslipDto, name: String, code: String, company: String?): File {
         val dir = File(ctx.cacheDir, "payslips").apply { mkdirs() }
-        return File(dir, PayslipFormat.fileName(code, p)).also { render(p, name, code, company, it) }
+        return File(dir, PayslipFormat.fileName(code, p)).also { render(p, name, code, company, labels(ctx), ctx.resources.configuration.locales[0], it) }
     }
 
     /** Opens the share sheet so the PDF can be saved to Downloads/Drive or sent. */

@@ -194,6 +194,7 @@ data class AdvanceDto(
     @SerialName("monthly_deduction") val monthlyDeduction: Double? = null,
     val recovered: Double = 0.0,
     val remaining: Double = 0.0,
+    val voided: Boolean = false,
 )
 
 @Serializable

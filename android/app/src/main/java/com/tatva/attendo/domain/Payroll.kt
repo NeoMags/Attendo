@@ -24,6 +24,20 @@ data class MyMoney(
     val unpaidSalary: Double get() = payslips.filter { it.paidOn == null }.sumOf { it.net }
 }
 
+/** Localized words used on the payslip PDF, filled from string resources so the PDF follows the app language. */
+data class PdfLabels(
+    val payslipFor: String, val employee: String, val working: String, val present: String, val holidays: String, val paidLeave: String,
+    val unpaidLeave: String, val absent: String, val earnings: String, val deductions: String, val salary: String, val wages: String,
+    val bonus: String, val advance: String, val other: String, val none: String, val net: String, val paidOn: (String, String) -> String,
+    val pending: String, val note: String, val modes: Map<String, String>,
+) {
+    /** English row names produced by PayslipFormat → localized text. */
+    fun row(key: String) = when (key) {
+        "Salary for days paid" -> salary; "Wages for days paid" -> wages; "Bonus / other earnings" -> bonus
+        "Advance recovery" -> advance; "Other deductions" -> other; "None" -> none; else -> key
+    }
+}
+
 object PayslipFormat {
     fun rupees(v: Double): String {
         val neg = v < 0
@@ -39,9 +53,9 @@ object PayslipFormat {
 
     fun days(v: Double): String = if (v % 1.0 == 0.0) v.toInt().toString() else v.toString()
 
-    fun monthLabel(m: String): String = runCatching {
+    fun monthLabel(m: String, locale: Locale = Locale.ENGLISH): String = runCatching {
         val d = LocalDate.parse(m)
-        "${d.month.getDisplayName(TextStyle.FULL, Locale.ENGLISH)} ${d.year}"
+        "${d.month.getDisplayName(TextStyle.FULL, locale)} ${d.year}"
     }.getOrDefault(m)
 
     /** Rows for the PDF: (label, amount) earnings and deductions, zero extras omitted. Net = earnings − deductions. */

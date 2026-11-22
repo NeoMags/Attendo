@@ -208,7 +208,7 @@ class AttendoApi(
     }
 
     override suspend fun myAdvances(accessToken: String, employeeId: String): List<AdvanceDto> {
-        val url = "$base/rest/v1/advance_balances?employee_id=eq.$employeeId&select=id,amount,given_on,reason,monthly_deduction,recovered,remaining&order=given_on.desc&limit=100"
+        val url = "$base/rest/v1/advance_balances?employee_id=eq.$employeeId&select=id,amount,given_on,reason,monthly_deduction,recovered,remaining,voided&order=given_on.desc&limit=100"
         val (status, text) = send(request(url, accessToken).get().build())
         if (status !in 200..299) throw errorFor(status, text)
         return decode(text)

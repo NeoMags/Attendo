@@ -65,4 +65,11 @@ class PayrollTest {
         val session = SessionManager(MemTokenStore(StoredSession("a1", "r1", Long.MAX_VALUE / 2, false, "k")), remote)
         try { PayrollRepository(session, remote).load(); fail() } catch (e: ApiException.Server) { assertEquals("EMPLOYEE_NOT_FOUND", e.code) }
     }
+
+    @Test fun pdfLabelsTranslateRowKeysAndMonthFollowsLocale() {
+        val l = com.tatva.attendo.domain.PdfLabels("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "SAL", "WAGE", "BON", "ADV", "OTH", "NONE", "net", { d, m -> "$d/$m" }, "pend", "note", emptyMap())
+        assertEquals("SAL", l.row("Salary for days paid")); assertEquals("ADV", l.row("Advance recovery")); assertEquals("NONE", l.row("None")); assertEquals("x", l.row("x"))
+        assertEquals("February 2026", PayslipFormat.monthLabel("2026-02-01", java.util.Locale.ENGLISH))
+        assertTrue(PayslipFormat.monthLabel("2026-02-01", java.util.Locale("hi")) != "February 2026")
+    }
 }
