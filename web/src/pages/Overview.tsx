@@ -1,12 +1,14 @@
+import { lazy, Suspense } from 'react'
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
 import { Badge, Button, Card, ErrorNote, PersonCell, Select, Spinner, Stat, Table, Td, type IconName } from '@/components/ui'
 import { CARD_CATALOG, DEFAULT_CARDS, moveCard, normalizeLayout, replaceCard, type CardId } from '@/lib/cards'
 import EmployeePanel from '@/components/EmployeePanel'
 import { fmtTime, humanAge, todayIn } from '@/lib/format'
+
+const AttendanceTrendChart = lazy(() => import('@/components/AttendanceTrendChart'))
 
 interface Status {
   employee_id: string; employee_code: string; full_name: string; is_checked_in: boolean; checked_in_at: string | null
@@ -143,14 +145,7 @@ export default function Overview() {
         <div className="lg:col-span-2">
           <Card title="Last 7 days: attendance">
             <div className="h-56">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={d.trend}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="day" /><YAxis allowDecimals={false} /><Tooltip /><Legend />
-                  <Bar dataKey="onTime" name="On time" stackId="a" fill="#10b981" />
-                  <Bar dataKey="late" name="Late" stackId="a" fill="#f59e0b" />
-                </BarChart>
-              </ResponsiveContainer>
+              <Suspense fallback={<Spinner />}><AttendanceTrendChart data={d.trend} /></Suspense>
             </div>
           </Card>
         </div>

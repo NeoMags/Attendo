@@ -1,4 +1,4 @@
-import { lazy } from 'react'
+import { lazy, useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider, useAuth } from '@/lib/auth'
@@ -6,30 +6,60 @@ import { isAdmin, type Role } from '@/lib/roles'
 import { missingEnv } from '@/lib/env'
 import Layout from '@/components/Layout'
 import Login from '@/pages/Login'
-const Overview = lazy(() => import('@/pages/Overview'))
-const Employees = lazy(() => import('@/pages/Employees'))
-const Attendance = lazy(() => import('@/pages/Attendance'))
-const LiveMap = lazy(() => import('@/pages/LiveMap'))
-const FieldSchedule = lazy(() => import('@/pages/FieldSchedule'))
-const Routes_ = lazy(() => import('@/pages/Routes'))
-const Analytics = lazy(() => import('@/pages/Analytics'))
-const Reports = lazy(() => import('@/pages/Reports'))
-const AttendanceCalendar = lazy(() => import('@/pages/AttendanceCalendar'))
-const Leave = lazy(() => import('@/pages/Leave'))
-const Tasks = lazy(() => import('@/pages/Tasks'))
-const Payroll = lazy(() => import('@/pages/Payroll'))
-const Alerts = lazy(() => import('@/pages/Alerts'))
-const Devices = lazy(() => import('@/pages/Devices'))
-const Geofences = lazy(() => import('@/pages/Geofences'))
-const Team = lazy(() => import('@/pages/Team'))
-const Setup = lazy(() => import('@/pages/Setup'))
-const Companies = lazy(() => import('@/pages/Companies'))
+const loadOverview = () => import('@/pages/Overview')
+const Overview = lazy(loadOverview)
+const loadEmployees = () => import('@/pages/Employees')
+const Employees = lazy(loadEmployees)
+const loadAttendance = () => import('@/pages/Attendance')
+const Attendance = lazy(loadAttendance)
+const loadLiveMap = () => import('@/pages/LiveMap')
+const LiveMap = lazy(loadLiveMap)
+const loadFieldSchedule = () => import('@/pages/FieldSchedule')
+const FieldSchedule = lazy(loadFieldSchedule)
+const loadRoutes_ = () => import('@/pages/Routes')
+const Routes_ = lazy(loadRoutes_)
+const loadAnalytics = () => import('@/pages/Analytics')
+const Analytics = lazy(loadAnalytics)
+const loadReports = () => import('@/pages/Reports')
+const Reports = lazy(loadReports)
+const loadAttendanceCalendar = () => import('@/pages/AttendanceCalendar')
+const AttendanceCalendar = lazy(loadAttendanceCalendar)
+const loadLeave = () => import('@/pages/Leave')
+const Leave = lazy(loadLeave)
+const loadTasks = () => import('@/pages/Tasks')
+const Tasks = lazy(loadTasks)
+const loadPayroll = () => import('@/pages/Payroll')
+const Payroll = lazy(loadPayroll)
+const loadAlerts = () => import('@/pages/Alerts')
+const Alerts = lazy(loadAlerts)
+const loadDevices = () => import('@/pages/Devices')
+const Devices = lazy(loadDevices)
+const loadGeofences = () => import('@/pages/Geofences')
+const Geofences = lazy(loadGeofences)
+const loadTeam = () => import('@/pages/Team')
+const Team = lazy(loadTeam)
+const loadSetup = () => import('@/pages/Setup')
+const Setup = lazy(loadSetup)
+const loadCompanies = () => import('@/pages/Companies')
+const Companies = lazy(loadCompanies)
+
+/** Download every page chunk once the user is signed in and the browser is idle, so navigation feels instant. */
+const prefetchPages = () => {
+  const nav = navigator as Navigator & { connection?: { saveData?: boolean } }
+  if (nav.connection?.saveData) return
+  const run = () => { [loadOverview, loadEmployees, loadAttendance, loadLiveMap, loadFieldSchedule, loadRoutes_, loadAnalytics, loadReports, loadAttendanceCalendar, loadLeave, loadTasks, loadPayroll, loadAlerts, loadDevices, loadGeofences, loadTeam, loadSetup, loadCompanies].forEach((f) => { f().catch(() => {}) }) }
+  if ('requestIdleCallback' in window) window.requestIdleCallback(run, { timeout: 4000 }); else setTimeout(run, 1500)
+}
+// The landing page starts downloading right away, in parallel with the sign-in check (instead of after it).
+if (location.pathname === '/') loadOverview().catch(() => {})
+
 import { Spinner } from '@/components/ui'
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 15_000, retry: 1, refetchOnWindowFocus: false } } })
 
 function Protected() {
   const { session, loading } = useAuth()
+  useEffect(() => { if (session) prefetchPages() }, [session])
   if (loading) return <Spinner />
   if (!session) return <Navigate to="/login" replace />
   return <Layout />

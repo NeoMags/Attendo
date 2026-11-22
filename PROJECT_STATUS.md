@@ -167,3 +167,9 @@ Phases 3-11
 - Android: FirebaseMessagingService (data-only messages -> notification, channel "attendo_push"), token stored in prefs and sent via `register_device` (check-in / heartbeat recovery).
 - Backend: trigger `notifications_push` (pg_net) -> Edge Function `send-push` (verify_jwt off; sends only undelivered rows, claims them atomically via delivered_at, clears dead tokens, FCM v1 via service-account JWT). No secret stored in the DB. Notifications with no registered device stay undelivered.
 - Tests: SQL 460/460 local (pg_net absent locally, trigger no-ops), Android unit tests 113/113, live probe of the function returns 200 (secret present). Real delivery to a phone: NOT yet verified.
+
+## Web performance pass
+- Overview chart split into a lazy chunk (recharts no longer blocks the landing page's numbers); landing page chunk preloaded in parallel with the sign-in check; all page chunks idle-prefetched after sign-in (skipped on Save-Data).
+- Measured (build): entry chunk 155.4 -> 153.1 kB gzip; the gain is mainly in load order, not size. No real-browser timing taken.
+- Supabase project region is ap-northeast-1 (Tokyo); users in India pay that round trip on every query (not changed).
+- DB advisor: 48 unindexed composite FKs (INFO) - not added; tables are tiny. Revisit when data grows.
