@@ -1,5 +1,6 @@
 package com.tatva.attendo
 
+import kotlinx.coroutines.launch
 import android.content.Context
 import android.os.Build
 import com.tatva.attendo.data.remote.AttendoApi
@@ -77,6 +78,21 @@ class AppContainer(context: Context) {
 
     val uploader = LocationUploader(locationQueue, remote, session)
     val heartbeat = HeartbeatReporter(AndroidHealthSource(app, locationQueue, trackingStore), remote, session, device)
+
+    private val pushScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO)
+
+    /** Registers the current FCM token with the server if it has not been sent yet. Best effort; needs a signed-in session. */
+    fun registerPush() {
+        val token = com.tatva.attendo.push.PushToken.get(app) ?: return
+        if (token == com.tatva.attendo.push.PushToken.registered(app)) return
+        pushScope.launch {
+            try {
+                session.authed { remote.registerDevice(it, device.uid, device.model, device.osVersion, device.appVersion) }
+                com.tatva.attendo.push.PushToken.markRegistered(app, token)
+            } catch (_: Exception) {
+            }
+        }
+    }
 
     private fun deviceUid(): String {
         val prefs = app.getSharedPreferences("attendo_device", Context.MODE_PRIVATE)

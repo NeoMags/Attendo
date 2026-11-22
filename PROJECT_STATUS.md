@@ -162,7 +162,7 @@ Phases 3-11
 - Web: "Reverse recovery" button on unpaid finalized rows (Run tab); statement label. Android: statement label (EN/HI/KN).
 - Tests: SQL 456/456 local; web vitest 74/74, tsc clean, build OK; Android unit tests + assembleDebug OK.
 
-## Push notifications (v0.12.0, migration 21)
+## Push notifications (v0.12.0, migration 21; v0.12.1 registers the token as soon as it arrives)
 - Firebase project `attendo-eae64`; `android/app/google-services.json` is git-ignored (build works without it, minus push). `FCM_SERVICE_ACCOUNT_JSON` is an Edge Function secret (set by the user in the dashboard).
 - Android: FirebaseMessagingService (data-only messages -> notification, channel "attendo_push"), token stored in prefs and sent via `register_device` (check-in / heartbeat recovery).
 - Backend: trigger `notifications_push` (pg_net) -> Edge Function `send-push` (verify_jwt off; sends only undelivered rows, claims them atomically via delivered_at, clears dead tokens, FCM v1 via service-account JWT). No secret stored in the DB. Notifications with no registered device stay undelivered.
