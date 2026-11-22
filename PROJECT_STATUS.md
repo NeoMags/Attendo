@@ -173,3 +173,4 @@ Phases 3-11
 - Measured (build): entry chunk 155.4 -> 153.1 kB gzip; the gain is mainly in load order, not size. No real-browser timing taken.
 - Supabase project region is ap-northeast-1 (Tokyo); users in India pay that round trip on every query (not changed).
 - DB advisor: 48 unindexed composite FKs (INFO) - not added; tables are tiny. Revisit when data grows.
+- Measured by user (DevTools, Overview): steady-state API calls ~0.5 s, first burst 1.0-1.4 s, ~1 kB payloads. Server-side with RLS: employee_status_v 3 ms, attendance 0.1 ms -> delay is network (Tokyo region), not queries. Added `preconnect` to the API host in index.html (hides DNS+TLS setup). Region move to Mumbai remains the real fix.
