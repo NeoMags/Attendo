@@ -156,4 +156,25 @@
     <string name="msg_task_subtasks_open">ಮೊದಲು ಉಪ-ಕಾರ್ಯಗಳನ್ನು ಪೂರ್ಣಗೊಳಿಸಿ.</string>
     <string name="msg_task_not_found">ಕಾರ್ಯ ಕಂಡುಬಂದಿಲ್ಲ.</string>
     <string name="btn_cancel">ರದ್ದುಮಾಡಿ</string>
+    <string name="pay_open">ವೇತನ ಚೀಟಿ, ಮುಂಗಡ ಮತ್ತು ವಹಿವಾಟುಗಳು</string>
+    <string name="pay_title">ವೇತನ ಚೀಟಿ ಮತ್ತು ವಹಿವಾಟುಗಳು</string>
+    <string name="pay_payslips">ವೇತನ ಚೀಟಿಗಳು</string>
+    <string name="pay_none">ಇನ್ನೂ ವೇತನ ಚೀಟಿ ಇಲ್ಲ. ಕಂಪನಿ ತಿಂಗಳನ್ನು ಅಂತಿಮಗೊಳಿಸಿದ ಮೇಲೆ ಇಲ್ಲಿ ಕಾಣಿಸುತ್ತದೆ.</string>
+    <string name="pay_advances">ಮುಂಗಡಗಳು</string>
+    <string name="pay_no_advances">ಮುಂಗಡಗಳಿಲ್ಲ.</string>
+    <string name="pay_transactions">ವಹಿವಾಟುಗಳು</string>
+    <string name="pay_no_tx">ಇನ್ನೂ ವಹಿವಾಟುಗಳಿಲ್ಲ.</string>
+    <string name="pay_adv_line">ವಸೂಲಿ %1$s · ಬಾಕಿ %2$s</string>
+    <string name="pay_adv_installment">ಮಾಸಿಕ ಕಡಿತ %1$s</string>
+    <string name="pay_outstanding">ಬಾಕಿ ಮುಂಗಡ: %1$s</string>
+    <string name="pay_unpaid">ಅಂತಿಮಗೊಂಡ ಆದರೆ ಇನ್ನೂ ಪಾವತಿಯಾಗದ ವೇತನ: %1$s</string>
+    <string name="pay_slip_days">ಪಾವತಿ ದಿನಗಳು %1$s / %2$s ಕೆಲಸದ ದಿನಗಳು</string>
+    <string name="pay_slip_split">ಒಟ್ಟು %1$s · ಬೋನಸ್ %2$s · ಕಡಿತ %3$s</string>
+    <string name="pay_paid_on">%1$s ರಂದು ಪಾವತಿಸಲಾಗಿದೆ</string>
+    <string name="pay_pending">ಪಾವತಿ ಬಾಕಿ</string>
+    <string name="pay_download">PDF ಡೌನ್‌ಲೋಡ್ / ಹಂಚಿ</string>
+    <string name="pay_print">ಮುದ್ರಿಸಿ</string>
+    <string name="pay_tx_advance_given">ಮುಂಗಡ ನೀಡಲಾಗಿದೆ</string>
+    <string name="pay_tx_advance_recovered">ವೇತನದಿಂದ ಮುಂಗಡ ವಸೂಲಿ</string>
+    <string name="pay_tx_salary_paid">ವೇತನ ಪಾವತಿ</string>
 </resources>

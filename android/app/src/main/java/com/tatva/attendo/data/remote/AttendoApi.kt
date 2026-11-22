@@ -197,6 +197,30 @@ class AttendoApi(
     override suspend fun cancelLeave(accessToken: String, requestId: String): LeaveRequestDto =
         decode(rpc(accessToken, "cancel_leave", buildJsonObject { put("p_request_id", requestId) }))
 
+    // ---------------------------------------------------------- payroll
+    private val payslipCols = "id,month,pay_type,working_days,present_days,holiday_days,paid_leave_days,unpaid_leave_days,absent_days,gross,bonus,other_deduction,advance_deduction,net,adjustment_note,paid_on,payment_mode"
+
+    override suspend fun myPayslips(accessToken: String, employeeId: String): List<PayslipDto> {
+        val url = "$base/rest/v1/payslips?employee_id=eq.$employeeId&finalized=eq.true&select=$payslipCols&order=month.desc&limit=36"
+        val (status, text) = send(request(url, accessToken).get().build())
+        if (status !in 200..299) throw errorFor(status, text)
+        return decode(text)
+    }
+
+    override suspend fun myAdvances(accessToken: String, employeeId: String): List<AdvanceDto> {
+        val url = "$base/rest/v1/advance_balances?employee_id=eq.$employeeId&select=id,amount,given_on,reason,monthly_deduction,recovered,remaining&order=given_on.desc&limit=100"
+        val (status, text) = send(request(url, accessToken).get().build())
+        if (status !in 200..299) throw errorFor(status, text)
+        return decode(text)
+    }
+
+    override suspend fun myLedger(accessToken: String, employeeId: String): List<LedgerDto> {
+        val url = "$base/rest/v1/ledger_entries?employee_id=eq.$employeeId&select=id,entry_date,kind,amount,direction,note&order=entry_date.desc,created_at.desc&limit=200"
+        val (status, text) = send(request(url, accessToken).get().build())
+        if (status !in 200..299) throw errorFor(status, text)
+        return decode(text)
+    }
+
     // ---------------------------------------------------------- tasks
     override suspend fun myTasks(accessToken: String, employeeId: String): List<TaskDto> {
         val url = "$base/rest/v1/tasks?assignee_id=eq.$employeeId&status=neq.cancelled" +

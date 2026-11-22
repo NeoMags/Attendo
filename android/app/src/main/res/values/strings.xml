@@ -157,4 +157,25 @@
     <string name="msg_task_subtasks_open">Finish the subtasks first.</string>
     <string name="msg_task_not_found">Task not found.</string>
     <string name="btn_cancel">Cancel</string>
+    <string name="pay_open">Payslips, advances &amp; transactions</string>
+    <string name="pay_title">Payslips &amp; transactions</string>
+    <string name="pay_payslips">Payslips</string>
+    <string name="pay_none">No payslips yet. They appear here once your company finalizes a month.</string>
+    <string name="pay_advances">Advances</string>
+    <string name="pay_no_advances">No advances.</string>
+    <string name="pay_transactions">Transactions</string>
+    <string name="pay_no_tx">No transactions yet.</string>
+    <string name="pay_adv_line">Recovered %1$s · Outstanding %2$s</string>
+    <string name="pay_adv_installment">Monthly deduction %1$s</string>
+    <string name="pay_outstanding">Advance outstanding: %1$s</string>
+    <string name="pay_unpaid">Salary finalized but not yet paid: %1$s</string>
+    <string name="pay_slip_days">Paid days %1$s of %2$s working days</string>
+    <string name="pay_slip_split">Gross %1$s · Bonus %2$s · Deductions %3$s</string>
+    <string name="pay_paid_on">Paid on %1$s</string>
+    <string name="pay_pending">Payment pending</string>
+    <string name="pay_download">Download / Share PDF</string>
+    <string name="pay_print">Print</string>
+    <string name="pay_tx_advance_given">Advance given</string>
+    <string name="pay_tx_advance_recovered">Advance recovered from salary</string>
+    <string name="pay_tx_salary_paid">Salary paid</string>
 </resources>

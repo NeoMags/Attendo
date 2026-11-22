@@ -163,3 +163,45 @@ data class TaskDto(
     @SerialName("review_note") val reviewNote: String? = null,
 )
 @Serializable data class TaskTitleDto(val id: String, val title: String)
+
+@Serializable
+data class PayslipDto(
+    val id: String,
+    val month: String,
+    @SerialName("pay_type") val payType: String = "monthly",
+    @SerialName("working_days") val workingDays: Double = 0.0,
+    @SerialName("present_days") val presentDays: Double = 0.0,
+    @SerialName("holiday_days") val holidayDays: Double = 0.0,
+    @SerialName("paid_leave_days") val paidLeaveDays: Double = 0.0,
+    @SerialName("unpaid_leave_days") val unpaidLeaveDays: Double = 0.0,
+    @SerialName("absent_days") val absentDays: Double = 0.0,
+    val gross: Double = 0.0,
+    val bonus: Double = 0.0,
+    @SerialName("other_deduction") val otherDeduction: Double = 0.0,
+    @SerialName("advance_deduction") val advanceDeduction: Double = 0.0,
+    val net: Double = 0.0,
+    @SerialName("adjustment_note") val adjustmentNote: String? = null,
+    @SerialName("paid_on") val paidOn: String? = null,
+    @SerialName("payment_mode") val paymentMode: String? = null,
+)
+
+@Serializable
+data class AdvanceDto(
+    val id: String,
+    val amount: Double,
+    @SerialName("given_on") val givenOn: String,
+    val reason: String? = null,
+    @SerialName("monthly_deduction") val monthlyDeduction: Double? = null,
+    val recovered: Double = 0.0,
+    val remaining: Double = 0.0,
+)
+
+@Serializable
+data class LedgerDto(
+    val id: String,
+    @SerialName("entry_date") val entryDate: String,
+    val kind: String,
+    val amount: Double,
+    val direction: String,
+    val note: String? = null,
+)

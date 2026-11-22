@@ -156,4 +156,25 @@
     <string name="msg_task_subtasks_open">पहले उप-कार्य पूरे करें।</string>
     <string name="msg_task_not_found">कार्य नहीं मिला।</string>
     <string name="btn_cancel">रद्द करें</string>
+    <string name="pay_open">वेतन पर्ची, अग्रिम और लेन-देन</string>
+    <string name="pay_title">वेतन पर्ची और लेन-देन</string>
+    <string name="pay_payslips">वेतन पर्चियाँ</string>
+    <string name="pay_none">अभी कोई वेतन पर्ची नहीं। कंपनी महीना अंतिम करते ही यहाँ दिखेगी।</string>
+    <string name="pay_advances">अग्रिम</string>
+    <string name="pay_no_advances">कोई अग्रिम नहीं।</string>
+    <string name="pay_transactions">लेन-देन</string>
+    <string name="pay_no_tx">अभी कोई लेन-देन नहीं।</string>
+    <string name="pay_adv_line">वसूल %1$s · बकाया %2$s</string>
+    <string name="pay_adv_installment">मासिक कटौती %1$s</string>
+    <string name="pay_outstanding">बकाया अग्रिम: %1$s</string>
+    <string name="pay_unpaid">अंतिम वेतन जो अभी चुकाया नहीं गया: %1$s</string>
+    <string name="pay_slip_days">भुगतान योग्य दिन %1$s / %2$s कार्य दिवस</string>
+    <string name="pay_slip_split">सकल %1$s · बोनस %2$s · कटौती %3$s</string>
+    <string name="pay_paid_on">%1$s को भुगतान किया गया</string>
+    <string name="pay_pending">भुगतान लंबित</string>
+    <string name="pay_download">PDF डाउनलोड / शेयर</string>
+    <string name="pay_print">प्रिंट</string>
+    <string name="pay_tx_advance_given">अग्रिम दिया गया</string>
+    <string name="pay_tx_advance_recovered">वेतन से अग्रिम वसूला गया</string>
+    <string name="pay_tx_salary_paid">वेतन का भुगतान</string>
 </resources>

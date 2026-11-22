@@ -113,6 +113,13 @@ class FakeRemote : AttendoRemote {
         return TaskDto(taskId, null, "t", status = status)
     }
 
+    var payslipsResult: List<PayslipDto> = emptyList()
+    var advancesResult: List<AdvanceDto> = emptyList()
+    var ledgerResult: List<LedgerDto> = emptyList()
+    override suspend fun myPayslips(accessToken: String, employeeId: String) = payslipsResult
+    override suspend fun myAdvances(accessToken: String, employeeId: String) = advancesResult
+    override suspend fun myLedger(accessToken: String, employeeId: String) = ledgerResult
+
     var sessionLookup: String? = null
     var ingestResult: (String, List<LocationRecordDto>) -> IngestResult = { _, r -> IngestResult(accepted = r.size) }
     val ingestCalls = mutableListOf<Pair<String, List<LocationRecordDto>>>()

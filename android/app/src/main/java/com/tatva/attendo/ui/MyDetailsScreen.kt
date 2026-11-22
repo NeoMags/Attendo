@@ -44,7 +44,7 @@ private val timeFmt = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withZ
 private fun t(iso: String?): String = iso?.let { runCatching { timeFmt.format(Instant.parse(it)) }.getOrNull() } ?: "—"
 
 @Composable
-fun MyDetailsScreen(vm: MyDetailsViewModel, onBack: () -> Unit) {
+fun MyDetailsScreen(vm: MyDetailsViewModel, onOpenPay: () -> Unit = {}, onBack: () -> Unit) {
     val ui by vm.ui.collectAsState()
     BackHandler(onBack = onBack)
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -101,7 +101,7 @@ fun MyDetailsScreen(vm: MyDetailsViewModel, onBack: () -> Unit) {
             Card(Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(stringResource(R.string.details_transactions), style = MaterialTheme.typography.titleSmall)
-                    Text(stringResource(R.string.details_transactions_soon), style = MaterialTheme.typography.bodySmall)
+                    OutlinedButton(onClick = onOpenPay, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.pay_open)) }
                 }
             }
         }

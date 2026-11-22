@@ -47,4 +47,9 @@ interface AttendoRemote {
     suspend fun myTasks(accessToken: String, employeeId: String): List<TaskDto>
     suspend fun taskTitles(accessToken: String, ids: List<String>): List<TaskTitleDto>
     suspend fun setTaskProgress(accessToken: String, taskId: String, status: String, note: String?): TaskDto
+
+    // Payroll: employees can read only their own finalized payslips, advances and ledger (RLS).
+    suspend fun myPayslips(accessToken: String, employeeId: String): List<PayslipDto>
+    suspend fun myAdvances(accessToken: String, employeeId: String): List<AdvanceDto>
+    suspend fun myLedger(accessToken: String, employeeId: String): List<LedgerDto>
 }

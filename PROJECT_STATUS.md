@@ -131,3 +131,10 @@ Phases 3-11
 - Leave: approver chooses Paid/Unpaid on final approval (`leave_requests.is_paid`, `decide_leave(..., p_paid)`); weekly off = untick day in a shift's working days (`shifts.working_days`).
 - Tasks: table `tasks` (one-level subtasks via parent_id), per-task/subtask assignee, status todo/in_progress/submitted/rework/approved/cancelled. Writes only via RPCs create_task/update_task/cancel_task/set_task_progress/review_task. Parent can't be submitted/approved while subtasks are open. Notifications kind 'task'.
 - Web: Tasks page (create, subtasks, edit, cancel, approve, send back). Android: "Tasks" screen (start / submit with note). Tests: SQL 322, web 59, Android 102.
+
+## Round 4: payroll core (v0.9.0)
+- DB (migration 20261123000015, applied live): company_holidays, payroll_runs, payslips, employee_advances, advance_recoveries, ledger_entries, advance_balances view, payslip_templates; admin-only RPCs generate_payroll, set_payslip_adjustment, finalize_payroll, mark_payslip_paid, give_advance. SQL tests 364/364.
+- Rules: working days = month days on the employee's shift working_days (weekly off per shift). Present > holiday > leave (paid/unpaid) > absent. Monthly: salary x (present+holiday+paid leave)/working days. Daily wage: wage x (present+paid leave), holidays unpaid. Advances recovered oldest first up to the monthly installment, capped at pay; 0 pay => carried over.
+- Web: /payroll (admin only): monthly run (generate/adjust/finalize/mark paid, PDF download + print), advances, holidays, templates, per-employee account statement. 64 vitest pass incl. real PDF generation.
+- Android: Payslips & transactions screen (My details -> button): finalized payslips with PDF share/print, advances, ledger. 107 unit tests pass. PDF rendering (PdfDocument), share sheet and print are NOT run on a device.
+- Open: PDF uses "Rs."; no void/reverse of advances; half-day attendance not modeled; payroll web UI not viewed in a browser.
