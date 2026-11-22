@@ -17,6 +17,7 @@ const Reports = lazy(() => import('@/pages/Reports'))
 const AttendanceCalendar = lazy(() => import('@/pages/AttendanceCalendar'))
 const Leave = lazy(() => import('@/pages/Leave'))
 const Tasks = lazy(() => import('@/pages/Tasks'))
+const Payroll = lazy(() => import('@/pages/Payroll'))
 const Alerts = lazy(() => import('@/pages/Alerts'))
 const Devices = lazy(() => import('@/pages/Devices'))
 const Geofences = lazy(() => import('@/pages/Geofences'))
@@ -62,6 +63,7 @@ export default function App() {
               <Route path="calendar" element={<AttendanceCalendar />} />
               <Route path="leave" element={<Leave />} />
               <Route path="tasks" element={<Tasks />} />
+              <Route path="payroll" element={<RoleGate allow={isAdmin}><Payroll /></RoleGate>} />
               <Route path="schedule" element={<FieldSchedule />} />
               <Route path="alerts" element={<Alerts />} />
               <Route path="devices" element={<Devices />} />

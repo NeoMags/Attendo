@@ -118,10 +118,10 @@ export function Table({ head, children, empty }: { head: string[]; children: Rea
 }
 export const Td = ({ children, className }: { children?: ReactNode; className?: string }) => <td className={cx('px-2 py-2', className)}>{children}</td>
 
-export function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
+export function Modal({ title, onClose, children, wide }: { title: string; onClose: () => void; children: ReactNode; wide?: boolean }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true" aria-label={title}>
-      <div className="w-full max-w-md rounded-lg bg-white p-5 shadow-xl">
+      <div className={`w-full ${wide ? 'max-w-3xl' : 'max-w-md'} max-h-[90vh] overflow-y-auto rounded-lg bg-white p-5 shadow-xl`}>
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-base font-semibold">{title}</h2>
           <button onClick={onClose} aria-label="Close" className="text-slate-500 hover:text-slate-900">✕</button>

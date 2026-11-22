@@ -20,6 +20,7 @@ export const NAV: NavItem[] = [
   { to: '/tasks', label: 'Tasks', roles: ['super_admin', 'company_admin', 'manager'], group: 'People' },
   { to: '/leave', label: 'Leave', roles: ['super_admin', 'company_admin', 'manager'], group: 'People' },
   { to: '/calendar', label: 'Attendance calendar', roles: ['super_admin', 'company_admin', 'manager'], group: 'People' },
+  { to: '/payroll', label: 'Payroll', roles: ['super_admin', 'company_admin'], group: 'People' },
   { to: '/reports', label: 'Reports', roles: ['super_admin', 'company_admin', 'manager'], group: 'People' },
   { to: '/team', label: 'Manager teams', roles: ['super_admin', 'company_admin'], group: 'People' },
   { to: '/geofences', label: 'Geofences', roles: ['super_admin', 'company_admin', 'manager'], group: 'Setup' },
