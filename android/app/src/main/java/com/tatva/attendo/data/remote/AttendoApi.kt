@@ -197,6 +197,28 @@ class AttendoApi(
     override suspend fun cancelLeave(accessToken: String, requestId: String): LeaveRequestDto =
         decode(rpc(accessToken, "cancel_leave", buildJsonObject { put("p_request_id", requestId) }))
 
+    // ---------------------------------------------------------- notifications
+    override suspend fun myNotifications(accessToken: String, employeeId: String): List<NotificationDto> {
+        val url = "$base/rest/v1/notifications?employee_id=eq.$employeeId&select=id,kind,title,body,created_at&order=created_at.desc&limit=50"
+        val (status, text) = send(request(url, accessToken).get().build())
+        if (status !in 200..299) throw errorFor(status, text)
+        return decode(text)
+    }
+
+    override suspend fun notifSeenAt(accessToken: String): String? {
+        val (status, text) = send(request("$base/rest/v1/user_prefs?select=notif_seen_at&limit=1", accessToken).get().build())
+        if (status !in 200..299) throw errorFor(status, text)
+        return decode<List<UserPrefsDto>>(text).firstOrNull()?.notifSeenAt
+    }
+
+    override suspend fun markNotificationsSeen(accessToken: String, isoNow: String) {
+        val req = request("$base/rest/v1/user_prefs?on_conflict=user_id", accessToken)
+            .header("Prefer", "resolution=merge-duplicates,return=minimal")
+            .post(buildJsonObject { put("notif_seen_at", isoNow) }.body()).build()
+        val (status, text) = send(req)
+        if (status !in 200..299) throw errorFor(status, text)
+    }
+
     // -------------------------------------------------------------- plumbing
     private suspend fun rpc(token: String, fn: String, args: JsonObject): String {
         val (status, text) = send(post("$base/rest/v1/rpc/$fn", args, token))

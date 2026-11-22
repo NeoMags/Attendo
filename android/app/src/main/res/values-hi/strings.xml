@@ -104,4 +104,6 @@
     <string name="msg_leave_type_unavailable">यह छुट्टी प्रकार अब उपलब्ध नहीं है।</string>
     <string name="msg_leave_not_cancellable">यह अनुरोध अब रद्द नहीं किया जा सकता।</string>
     <string name="msg_leave_not_found">छुट्टी अनुरोध नहीं मिला।</string>
+    <string name="notif_title">सूचनाएं</string>
+    <string name="notif_none">अभी कोई सूचना नहीं।</string>
 </resources>

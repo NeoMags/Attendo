@@ -152,3 +152,56 @@ class LeaveApiTest {
         assertEquals("r2", json.parseToJsonElement(rec.body.readUtf8()).jsonObject["p_request_id"]!!.jsonPrimitive.content)
     }
 }
+
+class NotificationsTest {
+    private fun n(t: String) = com.tatva.attendo.data.remote.NotificationDto(id = t, title = "x", createdAt = t)
+    private val now = java.time.Instant.parse("2026-11-23T12:00:00Z").toEpochMilli()
+    @Test fun unread_counts_only_newer_than_seen() {
+        val l = listOf(n("2026-11-23T10:00:00Z"), n("2026-11-23T08:00:00Z"))
+        assertEquals(1, com.tatva.attendo.domain.NotificationRules.unread(l, "2026-11-23T09:00:00Z", now))
+        assertEquals(0, com.tatva.attendo.domain.NotificationRules.unread(l, "2026-11-23T11:00:00Z", now))
+    }
+    @Test fun no_seen_time_limits_to_last_week() {
+        val l = listOf(n("2026-11-20T00:00:00Z"), n("2026-10-01T00:00:00Z"), n("bad-date"))
+        assertEquals(1, com.tatva.attendo.domain.NotificationRules.unread(l, null, now))
+    }
+    @Test fun repository_loads_for_profile_employee_and_marks_seen() = runBlocking<Unit> {
+        val remote = FakeRemote().apply {
+            profileResult = com.tatva.attendo.data.remote.EmployeeProfile(id = "emp-1", employeeCode = "E1", fullName = "A")
+            notifsResult = listOf(n("2026-11-23T10:00:00Z"))
+        }
+        val session = SessionManager(MemTokenStore(StoredSession("a1", "r1", Long.MAX_VALUE / 2, false, "acme:e001")), remote)
+        val repo = com.tatva.attendo.domain.NotificationRepository(session, remote) { java.time.Instant.parse("2026-11-23T12:00:00Z") }
+        assertEquals(1, repo.load().items.size)
+        assertEquals("2026-11-23T12:00:00Z", repo.markSeen()); assertEquals(listOf("2026-11-23T12:00:00Z"), remote.seenMarks)
+    }
+}
+
+class NotificationsApiTest {
+    private lateinit var server: MockWebServer
+    private lateinit var api: AttendoApi
+    private val json = Json { ignoreUnknownKeys = true }
+    @Before fun up() { server = MockWebServer().apply { start() }; api = AttendoApi(server.url("/").toString(), "pub", OkHttpClient(), json) }
+    @After fun down() = server.shutdown()
+
+    @Test fun notifications_filter_by_employee() = runBlocking<Unit> {
+        server.enqueue(MockResponse().setBody("""[{"id":"n1","kind":"leave","title":"Approved","body":null,"created_at":"2026-11-23T10:00:00+00:00","x":1}]"""))
+        val r = api.myNotifications("TOK", "emp-1")
+        assertEquals("Approved", r.single().title)
+        assertTrue(server.takeRequest().path!!.contains("employee_id=eq.emp-1"))
+    }
+    @Test fun seen_at_reads_first_row_or_null() = runBlocking<Unit> {
+        server.enqueue(MockResponse().setBody("""[{"notif_seen_at":"2026-11-23T09:00:00+00:00"}]"""))
+        assertEquals("2026-11-23T09:00:00+00:00", api.notifSeenAt("TOK"))
+        server.enqueue(MockResponse().setBody("[]"))
+        assertNull(api.notifSeenAt("TOK"))
+    }
+    @Test fun mark_seen_upserts_with_merge_header() = runBlocking<Unit> {
+        server.enqueue(MockResponse().setResponseCode(201))
+        api.markNotificationsSeen("TOK", "2026-11-23T12:00:00Z")
+        val rec = server.takeRequest()
+        assertEquals("POST", rec.method); assertTrue(rec.path!!.contains("on_conflict=user_id"))
+        assertTrue(rec.getHeader("Prefer")!!.contains("merge-duplicates"))
+        assertEquals("2026-11-23T12:00:00Z", json.parseToJsonElement(rec.body.readUtf8()).jsonObject["notif_seen_at"]!!.jsonPrimitive.content)
+    }
+}

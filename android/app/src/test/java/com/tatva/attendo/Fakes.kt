@@ -74,6 +74,12 @@ class FakeRemote : AttendoRemote {
     val applyCalls = mutableListOf<List<Any?>>()
     val cancelCalls = mutableListOf<String>()
     val leaveBalanceCalls = mutableListOf<Pair<String, Int>>()
+    var notifsResult: List<NotificationDto> = emptyList()
+    var seenResult: String? = null
+    val seenMarks = mutableListOf<String>()
+    override suspend fun myNotifications(accessToken: String, employeeId: String) = notifsResult
+    override suspend fun notifSeenAt(accessToken: String) = seenResult
+    override suspend fun markNotificationsSeen(accessToken: String, isoNow: String) { seenMarks += isoNow; seenResult = isoNow }
     override suspend fun leaveTypes(accessToken: String) = leaveTypesResult
     override suspend fun leaveBalances(accessToken: String, employeeId: String, year: Int): List<LeaveBalanceDto> {
         leaveBalanceCalls += employeeId to year; return balancesResult

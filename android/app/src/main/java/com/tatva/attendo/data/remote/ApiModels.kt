@@ -133,3 +133,6 @@ data class LeaveRequestDto(
     @SerialName("decision_note") val decisionNote: String? = null,
     @SerialName("leave_types") val leaveType: LeaveTypeRef? = null,
 )
+
+@Serializable data class NotificationDto(val id: String, val kind: String = "", val title: String, val body: String? = null, @SerialName("created_at") val createdAt: String)
+@Serializable data class UserPrefsDto(@SerialName("notif_seen_at") val notifSeenAt: String? = null)

@@ -113,3 +113,9 @@ Phases 3-11
 ## Leave management (round 2: Android)
 - App v0.5.0 (code 5): Home → "Leave" opens balances (yearly, per type), apply form (type, start/end date pickers, half day, reason ≤500) and My requests with Cancel (confirm dialog). Client pre-checks mirror server rules; the server (`apply_leave`/`cancel_leave`) stays authoritative. Strings EN/HI/KN (HI/KN leave text needs native-speaker review).
 - Tests: 82 JVM unit tests pass (17 new: rules, repository, 6 API/MockWebServer). Not verified: UI on a real phone/emulator, leave notifications (stored only, not pushed).
+
+## Round 1 (clock, bell, exit alerts, field schedule, custom cards)
+- DB (live, migration 20261123000011): `user_prefs` (notification seen time + dashboard card layout, own-row RLS), `geofences.alert_on_exit`, trigger creating an admin notification on every confirmed geofence exit (managers see their team's only), `field_schedules` (admin/manager write, employee read own). Local SQL suite 249/249.
+- Web: header live day/date/time (company zone) + bell (unread badge, realtime INSERT subscription, mark all read); Overview cards add/remove/replace/reorder per user with 10-card catalogue (incl. Absent), 7-day chart, recent exits; Field schedule calendar (month grid, day list, visit verified by geofence entry); per-geofence exit-alert toggle. Vitest 46/46.
+- Android 0.6.0: live clock/date + bell with unread count on Home, notifications screen (polled every 60 s while the app is open). No phone push yet (needs Firebase). 
+- Not verified: web pages in a browser, realtime delivery live, Android on a device.

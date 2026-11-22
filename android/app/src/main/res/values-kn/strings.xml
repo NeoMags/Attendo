@@ -104,4 +104,6 @@
     <string name="msg_leave_type_unavailable">ಈ ರಜೆ ಪ್ರಕಾರ ಇನ್ನು ಲಭ್ಯವಿಲ್ಲ.</string>
     <string name="msg_leave_not_cancellable">ಈ ವಿನಂತಿಯನ್ನು ಇನ್ನು ರದ್ದುಮಾಡಲಾಗದು.</string>
     <string name="msg_leave_not_found">ರಜೆ ವಿನಂತಿ ಸಿಗಲಿಲ್ಲ.</string>
+    <string name="notif_title">ಅಧಿಸೂಚನೆಗಳು</string>
+    <string name="notif_none">ಇನ್ನೂ ಯಾವುದೇ ಅಧಿಸೂಚನೆಗಳಿಲ್ಲ.</string>
 </resources>

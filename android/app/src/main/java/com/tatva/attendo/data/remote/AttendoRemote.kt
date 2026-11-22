@@ -32,4 +32,8 @@ interface AttendoRemote {
         accessToken: String, leaveTypeId: String, startDate: String, endDate: String, halfDay: Boolean, reason: String?,
     ): LeaveRequestDto
     suspend fun cancelLeave(accessToken: String, requestId: String): LeaveRequestDto
+
+    suspend fun myNotifications(accessToken: String, employeeId: String): List<NotificationDto>
+    suspend fun notifSeenAt(accessToken: String): String?
+    suspend fun markNotificationsSeen(accessToken: String, isoNow: String)
 }

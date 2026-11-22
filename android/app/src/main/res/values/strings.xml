@@ -105,4 +105,6 @@
     <string name="msg_leave_type_unavailable">This leave type is no longer available.</string>
     <string name="msg_leave_not_cancellable">This request can no longer be cancelled.</string>
     <string name="msg_leave_not_found">Leave request not found.</string>
+    <string name="notif_title">Notifications</string>
+    <string name="notif_none">No notifications yet.</string>
 </resources>

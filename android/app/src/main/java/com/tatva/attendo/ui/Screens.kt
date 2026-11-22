@@ -12,6 +12,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.delay
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
@@ -73,9 +75,15 @@ fun AttendoRoot(container: AppContainer) {
                 SessionState.MustChangePassword -> ChangePasswordScreen(viewModel(factory = factory))
                 SessionState.LoggedIn -> {
                     val owner = container.session.ownerKey()
-                    var showLeave by rememberSaveable { mutableStateOf(false) }
-                    if (showLeave) LeaveScreen(viewModel(key = "leave-$owner", factory = factory)) { showLeave = false }
-                    else HomeScreen(viewModel(key = owner, factory = factory)) { showLeave = true }
+                    var screen by rememberSaveable { mutableStateOf("home") }
+                    val notifVm: NotificationsViewModel = viewModel(key = "notif-$owner", factory = factory)
+                    val nUi by notifVm.ui.collectAsState()
+                    LaunchedEffect(owner) { while (true) { notifVm.refresh(); delay(60_000) } }
+                    when (screen) {
+                        "leave" -> LeaveScreen(viewModel(key = "leave-$owner", factory = factory)) { screen = "home" }
+                        "notifs" -> NotificationsScreen(notifVm) { screen = "home" }
+                        else -> HomeScreen(viewModel(key = owner, factory = factory), unread = nUi.unread, onOpenNotifications = { screen = "notifs" }) { screen = "leave" }
+                    }
                 }
             }
         }
@@ -174,7 +182,7 @@ fun ChangePasswordScreen(vm: ChangePasswordViewModel) {
 }
 
 @Composable
-fun HomeScreen(vm: HomeViewModel, onOpenLeave: () -> Unit = {}) {
+fun HomeScreen(vm: HomeViewModel, unread: Int = 0, onOpenNotifications: () -> Unit = {}, onOpenLeave: () -> Unit = {}) {
     val ui by vm.ui.collectAsState()
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
         // Notifications are optional (tracking still runs); precise location is required to check in.
@@ -196,6 +204,7 @@ fun HomeScreen(vm: HomeViewModel, onOpenLeave: () -> Unit = {}) {
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        NowHeader(unread, onOpenNotifications)
         ui.profile?.let { Text(stringResource(R.string.home_welcome, it.fullName), style = MaterialTheme.typography.titleLarge) }
         ui.profile?.companies?.let { Text(it.name) }
         Spacer(Modifier.height(8.dp))
