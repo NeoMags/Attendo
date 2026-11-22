@@ -63,7 +63,7 @@ fun PayrollScreen(vm: PayrollViewModel, onBack: () -> Unit) {
             d.ledger.forEach { l ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Column(Modifier.weight(1f)) {
-                        Text(stringResource(when (l.kind) { "advance_given" -> R.string.pay_tx_advance_given; "advance_recovered" -> R.string.pay_tx_advance_recovered; "advance_voided" -> R.string.pay_tx_advance_voided; else -> R.string.pay_tx_salary_paid }), style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(when (l.kind) { "advance_given" -> R.string.pay_tx_advance_given; "advance_recovered" -> R.string.pay_tx_advance_recovered; "advance_voided" -> R.string.pay_tx_advance_voided; "advance_reversed" -> R.string.pay_tx_advance_reversed; else -> R.string.pay_tx_salary_paid }), style = MaterialTheme.typography.bodyMedium)
                         Text(l.entryDate, style = MaterialTheme.typography.bodySmall)
                     }
                     Text(PayslipFormat.rupees(l.amount), style = MaterialTheme.typography.bodyMedium)

@@ -97,7 +97,7 @@ export const PAY_ERR: Record<string, string> = {
   FORBIDDEN: 'Only a company admin can do that.', MONTH_IN_FUTURE: 'You cannot run payroll for a future month.', RUN_FINALIZED: 'This month is already finalized.',
   NO_PAYSLIPS: 'Generate the payroll first.', ADVANCE_CHANGED: 'An advance changed while finalizing. Regenerate and try again.',
   DEDUCTION_EXCEEDS_PAY: 'Other deductions cannot exceed the pay.', INVALID_AMOUNT: 'Enter a valid amount.', INVALID_INSTALLMENT: 'The monthly deduction cannot be more than the advance.',
-  INVALID_DATE: 'Enter a valid date.', INVALID_MODE: 'Choose how it was paid.', ALREADY_PAID: 'Already marked as paid.', RUN_NOT_FINALIZED: 'Finalize the month first.',
+  INVALID_DATE: 'Enter a valid date.', INVALID_MODE: 'Choose how it was paid.', ALREADY_PAID: 'Already marked as paid; an advance recovery cannot be reversed after payment.', NOTHING_TO_REVERSE: 'No active advance recovery on this payslip.', RUN_NOT_FINALIZED: 'Finalize the month first.',
   EMPLOYEE_NOT_FOUND: 'Employee not found or inactive.', ALREADY_VOIDED: 'This advance is already voided.', NOTHING_TO_VOID: 'Nothing is left to void.', ADVANCE_NOT_FOUND: 'Advance not found.',
 }
 export const payError = (m: string) => { const k = Object.keys(PAY_ERR).find((c) => m.includes(c)); return k ? PAY_ERR[k] : m }

@@ -204,6 +204,7 @@
     <string name="pdf_mode_other">अन्य</string>
     <string name="pay_voided">रद्द / माफ़</string>
     <string name="pay_tx_advance_voided">अग्रिम रद्द / माफ़</string>
+    <string name="pay_tx_advance_reversed">अग्रिम वसूली उलटी गई</string>
     <string name="tax_open">आयकर घोषणा</string>
     <string name="tax_title">आयकर</string>
     <string name="tax_note">आपके वेतन और घोषणा के आधार पर वार्षिक अनुमान। इस ऐप से अभी TDS नहीं काटा जाता।</string>

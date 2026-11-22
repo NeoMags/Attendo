@@ -95,6 +95,7 @@ export default function RunTab({ companyId, companyName, onOpenEmployee }: { com
                       <td className="space-x-1 whitespace-nowrap px-3 py-2 text-right">
                         {draft && <Button variant="ghost" onClick={() => setAdjust(p)}>Adjust</Button>}
                         {!draft && !p.paid_on && <Button variant="ghost" onClick={() => setPay(p)}>Mark paid</Button>}
+                        {!draft && !p.paid_on && Number(p.advance_deduction) > 0 && <Button variant="ghost" onClick={() => { const r = window.prompt(`Reverse the advance recovery of ${inr(p.advance_deduction)}? The advance balance is restored and recovered in a later month. Reason (optional):`); if (r !== null) rpc.mutate({ fn: 'reverse_advance_recovery', args: { p_payslip: p.id, p_reason: r.trim() || null } }) }}>Reverse recovery</Button>}
                         <Button variant="ghost" onClick={() => pdf(p, false)}>PDF</Button>
                         <Button variant="ghost" onClick={() => pdf(p, true)}>Print</Button>
                       </td>

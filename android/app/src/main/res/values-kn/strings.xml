@@ -204,6 +204,7 @@
     <string name="pdf_mode_other">ಇತರೆ</string>
     <string name="pay_voided">ರದ್ದು / ಮನ್ನಾ</string>
     <string name="pay_tx_advance_voided">ಮುಂಗಡ ರದ್ದು / ಮನ್ನಾ</string>
+    <string name="pay_tx_advance_reversed">ಮುಂಗಡ ವಸೂಲಿ ಹಿಂತಿರುಗಿಸಲಾಗಿದೆ</string>
     <string name="tax_open">ಆದಾಯ ತೆರಿಗೆ ಘೋಷಣೆ</string>
     <string name="tax_title">ಆದಾಯ ತೆರಿಗೆ</string>
     <string name="tax_note">ನಿಮ್ಮ ಸಂಬಳ ಮತ್ತು ಘೋಷಣೆಯ ಆಧಾರದ ಮೇಲೆ ವಾರ್ಷಿಕ ಅಂದಾಜು. ಈ ಅಪ್ಲಿಕೇಶನ್ ಮೂಲಕ ಇನ್ನೂ TDS ಕಡಿತಗೊಳಿಸುವುದಿಲ್ಲ.</string>

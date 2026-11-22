@@ -23,7 +23,7 @@ export default function EmployeeStatement({ employeeId, name, onClose }: { emplo
   const d = q.data
   const outstanding = (d?.adv ?? []).reduce((s, x) => s + Number(x.remaining), 0)
   const unpaid = (d?.slips ?? []).filter((p) => p.finalized && !p.paid_on).reduce((s, p) => s + Number(p.net), 0)
-  const KIND: Record<string, string> = { advance_given: 'Advance given', advance_recovered: 'Advance recovered', salary_paid: 'Salary paid', advance_voided: 'Advance voided / written off' }
+  const KIND: Record<string, string> = { advance_given: 'Advance given', advance_recovered: 'Advance recovered', salary_paid: 'Salary paid', advance_voided: 'Advance voided / written off', advance_reversed: 'Advance recovery reversed' }
   return (
     <Modal title={`Account · ${name}`} onClose={onClose} wide>
       {q.isLoading ? <Spinner /> : q.error ? <ErrorNote error={q.error} /> : d && (

@@ -205,6 +205,7 @@
     <string name="pdf_mode_other">other</string>
     <string name="pay_voided">Voided / written off</string>
     <string name="pay_tx_advance_voided">Advance voided / written off</string>
+    <string name="pay_tx_advance_reversed">Advance recovery reversed</string>
     <string name="tax_open">Income tax declaration</string>
     <string name="tax_title">Income tax</string>
     <string name="tax_note">Yearly estimate based on your salary and declaration. TDS is not deducted through this app yet.</string>

@@ -154,3 +154,10 @@ Phases 3-11
 - Verified from official pages: PF ceiling Rs 25,000 from 17-Sep-2026 (S.O. 5109(E)); ESI ceiling Rs 21,000 and 0.75%/3.25%; new-regime slabs (s.202), 87A/156 rebate (new: Rs 60,000 up to Rs 12L, with marginal relief; old: Rs 12,500 up to Rs 5L), standard deduction Rs 75,000 new / Rs 50,000 old.
 - NOT verified (flagged `verified=false` in tables): PF 12/8.33/0.5/0.5% split, ESI Rs 176/day exemption, ESI round-up rule, ESIC upload CSV headers, day-weighted PF ceiling for Sept 2026, old-regime slabs for 2026-27, cess 4%, 80C/80D/home-loan caps.
 - Not modelled: surcharge, senior-citizen slabs, PAN-missing higher TDS, HRA calculation, EPF voluntary higher wages, ESI contribution-period continuity, admin-charge minimum.
+
+## Advance reversal (v0.11.1, migration 20)
+- `reverse_advance_recovery(payslip, reason)`: admin-only, finalized + unpaid payslip only. Marks that payslip's recoveries reversed, sets advance_deduction=0 and net=gross+bonus-other, restores the advance balance (recovered again in a later month), ledger kind `advance_reversed`, employee notified. Errors: PAYSLIP_NOT_FOUND, FORBIDDEN, RUN_NOT_FINALIZED, ALREADY_PAID, NOTHING_TO_REVERSE.
+- Already-paid payslips cannot be reversed (would double-charge); cash-refund flow not built.
+- Fix: `advance_recoveries` select policy now lets the employee read own recoveries (their "remaining" was showing the full advance).
+- Web: "Reverse recovery" button on unpaid finalized rows (Run tab); statement label. Android: statement label (EN/HI/KN).
+- Tests: SQL 456/456 local; web vitest 74/74, tsc clean, build OK; Android unit tests + assembleDebug OK.
