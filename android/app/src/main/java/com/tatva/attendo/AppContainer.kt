@@ -47,6 +47,7 @@ class AppContainer(context: Context) {
             .writeTimeout(20, TimeUnit.SECONDS)
             .build(),
         json = json,
+        pushToken = { com.tatva.attendo.push.PushToken.get(app) },
     )
 
     val session = SessionManager(JsonTokenStore(blobs, json), remote)

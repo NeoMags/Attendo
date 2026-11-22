@@ -32,6 +32,8 @@ class AttendoApi(
     private val apiKey: String,
     private val client: OkHttpClient,
     private val json: Json,
+    /** Latest FCM token, if push is configured; sent with device registration. */
+    private val pushToken: () -> String? = { null },
 ) : AttendoRemote {
     private val base = baseUrl.trimEnd('/')
     private val jsonType = "application/json; charset=utf-8".toMediaType()
@@ -80,7 +82,7 @@ class AttendoApi(
             put("p_model", model.orNull())
             put("p_os_version", osVersion.orNull())
             put("p_app_version", appVersion.orNull())
-            put("p_fcm_token", JsonNull)
+            put("p_fcm_token", pushToken().orNull())
         })
         return parse(text).jsonPrimitive.content
     }

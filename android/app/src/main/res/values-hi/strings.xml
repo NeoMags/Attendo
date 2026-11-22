@@ -52,6 +52,7 @@
     <string name="tracking_notif_title">Attendo आपकी कार्य-स्थान लोकेशन दर्ज कर रहा है</string>
     <string name="tracking_notif_text">आपकी शिफ्ट जारी है</string>
     <string name="tracking_channel">शिफ्ट ट्रैकिंग</string>
+    <string name="push_channel">सूचनाएँ</string>
     <string name="banner_bg_location">सही ट्रैकिंग के लिए लोकेशन को "हमेशा अनुमति दें" पर सेट करें।</string>
     <string name="banner_battery">बैटरी सेवर ट्रैकिंग रोक सकता है। Attendo को "अप्रतिबंधित" करें।</string>
     <string name="banner_notifications">सूचनाएँ बंद हैं। ट्रैकिंग चालू रखने के लिए उन्हें चालू करें।</string>

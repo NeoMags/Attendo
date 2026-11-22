@@ -52,6 +52,7 @@
     <string name="tracking_notif_title">Attendo ನಿಮ್ಮ ಕೆಲಸದ ಸ್ಥಳವನ್ನು ದಾಖಲಿಸುತ್ತಿದೆ</string>
     <string name="tracking_notif_text">ನಿಮ್ಮ ಶಿಫ್ಟ್ ನಡೆಯುತ್ತಿದೆ</string>
     <string name="tracking_channel">ಶಿಫ್ಟ್ ಟ್ರ್ಯಾಕಿಂಗ್</string>
+    <string name="push_channel">ಅಧಿಸೂಚನೆಗಳು</string>
     <string name="banner_bg_location">ಸರಿಯಾದ ಟ್ರ್ಯಾಕಿಂಗ್‌ಗಾಗಿ ಸ್ಥಳವನ್ನು "ಯಾವಾಗಲೂ ಅನುಮತಿಸಿ" ಎಂದು ಹೊಂದಿಸಿ.</string>
     <string name="banner_battery">ಬ್ಯಾಟರಿ ಸೇವರ್ ಟ್ರ್ಯಾಕಿಂಗ್ ನಿಲ್ಲಿಸಬಹುದು. Attendo ಅನ್ನು "ನಿರ್ಬಂಧರಹಿತ" ಮಾಡಿ.</string>
     <string name="banner_notifications">ಅಧಿಸೂಚನೆಗಳು ಆಫ್ ಆಗಿವೆ. ಟ್ರ್ಯಾಕಿಂಗ್ ಸಕ್ರಿಯವಾಗಿರಲು ಅವನ್ನು ಆನ್ ಮಾಡಿ.</string>

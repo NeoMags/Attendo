@@ -161,3 +161,9 @@ Phases 3-11
 - Fix: `advance_recoveries` select policy now lets the employee read own recoveries (their "remaining" was showing the full advance).
 - Web: "Reverse recovery" button on unpaid finalized rows (Run tab); statement label. Android: statement label (EN/HI/KN).
 - Tests: SQL 456/456 local; web vitest 74/74, tsc clean, build OK; Android unit tests + assembleDebug OK.
+
+## Push notifications (v0.12.0, migration 21)
+- Firebase project `attendo-eae64`; `android/app/google-services.json` is git-ignored (build works without it, minus push). `FCM_SERVICE_ACCOUNT_JSON` is an Edge Function secret (set by the user in the dashboard).
+- Android: FirebaseMessagingService (data-only messages -> notification, channel "attendo_push"), token stored in prefs and sent via `register_device` (check-in / heartbeat recovery).
+- Backend: trigger `notifications_push` (pg_net) -> Edge Function `send-push` (verify_jwt off; sends only undelivered rows, claims them atomically via delivered_at, clears dead tokens, FCM v1 via service-account JWT). No secret stored in the DB. Notifications with no registered device stay undelivered.
+- Tests: SQL 460/460 local (pg_net absent locally, trigger no-ops), Android unit tests 113/113, live probe of the function returns 200 (secret present). Real delivery to a phone: NOT yet verified.

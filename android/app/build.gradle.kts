@@ -25,8 +25,8 @@ android {
         applicationId = "com.tatva.attendo"
         minSdk = 26
         targetSdk = 35
-        versionCode = 11
-        versionName = "0.11.0"
+        versionCode = 12
+        versionName = "0.12.0"
         buildConfigField("String", "SUPABASE_URL", "\"${cfg("supabase.url", "https://ehwlqttwkmbgfttqvtcd.supabase.co")}\"")
         buildConfigField("String", "SUPABASE_KEY", "\"${cfg("supabase.key", "sb_publishable_vCes1It94XI541vLLhtjPg_rgMMoQwP")}\"")
     }
@@ -73,6 +73,8 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
     implementation(libs.play.services.location)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
@@ -84,3 +86,6 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.okhttp.mockwebserver)
 }
+
+// Push is optional: without google-services.json (not committed) the app builds and runs, just without FCM.
+if (file("google-services.json").exists()) apply(plugin = "com.google.gms.google-services")

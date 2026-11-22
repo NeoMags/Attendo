@@ -53,6 +53,7 @@
     <string name="tracking_notif_title">Attendo is recording your work location</string>
     <string name="tracking_notif_text">Your shift is in progress</string>
     <string name="tracking_channel">Shift tracking</string>
+    <string name="push_channel">Notifications</string>
     <string name="banner_bg_location">For reliable tracking, set Location to "Allow all the time".</string>
     <string name="banner_battery">Battery saver may stop tracking. Set Attendo to "Unrestricted".</string>
     <string name="banner_notifications">Notifications are off. Turn them on so tracking stays active.</string>
