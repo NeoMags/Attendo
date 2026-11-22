@@ -10,6 +10,7 @@ const Overview = lazy(() => import('@/pages/Overview'))
 const Employees = lazy(() => import('@/pages/Employees'))
 const Attendance = lazy(() => import('@/pages/Attendance'))
 const LiveMap = lazy(() => import('@/pages/LiveMap'))
+const FieldSchedule = lazy(() => import('@/pages/FieldSchedule'))
 const Routes_ = lazy(() => import('@/pages/Routes'))
 const Analytics = lazy(() => import('@/pages/Analytics'))
 const Reports = lazy(() => import('@/pages/Reports'))
@@ -59,6 +60,7 @@ export default function App() {
               <Route path="reports" element={<Reports />} />
               <Route path="calendar" element={<AttendanceCalendar />} />
               <Route path="leave" element={<Leave />} />
+              <Route path="schedule" element={<FieldSchedule />} />
               <Route path="alerts" element={<Alerts />} />
               <Route path="devices" element={<Devices />} />
               <Route path="geofences" element={<Geofences />} />

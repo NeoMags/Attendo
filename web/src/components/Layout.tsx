@@ -3,9 +3,11 @@ import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { navFor, canUseDashboard, NAV_GROUPS } from '@/lib/roles'
 import { Button, Select, Spinner } from '@/components/ui'
+import Clock from '@/components/Clock'
+import NotificationBell from '@/components/NotificationBell'
 
 export default function Layout() {
-  const { role, session, signOut, companies, companyId, setCompanyId } = useAuth()
+  const { role, session, signOut, companies, companyId, setCompanyId, company } = useAuth()
 
   if (!canUseDashboard(role)) {
     return (
@@ -61,7 +63,9 @@ export default function Layout() {
             )}
           </div>
           <div className="flex items-center gap-3 text-sm text-slate-600">
-            <span className="hidden sm:inline">{session?.user.email} · {role?.replace('_', ' ')}</span>
+            <Clock timeZone={company?.timezone} />
+            <NotificationBell />
+            <span className="hidden lg:inline">{session?.user.email} · {role?.replace('_', ' ')}</span>
             <Button variant="ghost" onClick={signOut}>Sign out</Button>
           </div>
         </header>

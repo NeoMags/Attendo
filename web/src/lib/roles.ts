@@ -11,6 +11,7 @@ export const NAV: NavItem[] = [
   { to: '/', label: 'Overview', roles: ['super_admin', 'company_admin', 'manager'], group: 'Monitor' },
   { to: '/map', label: 'Live map', roles: ['super_admin', 'company_admin', 'manager'], group: 'Monitor' },
   { to: '/routes', label: 'Route history', roles: ['super_admin', 'company_admin', 'manager'], group: 'Monitor' },
+  { to: '/schedule', label: 'Field schedule', roles: ['super_admin', 'company_admin', 'manager'], group: 'Monitor' },
   { to: '/alerts', label: 'Geofence alerts', roles: ['super_admin', 'company_admin', 'manager'], group: 'Monitor' },
   { to: '/devices', label: 'Device health', roles: ['super_admin', 'company_admin', 'manager'], group: 'Monitor' },
   { to: '/analytics', label: 'Analytics', roles: ['super_admin', 'company_admin', 'manager'], group: 'Monitor' },
