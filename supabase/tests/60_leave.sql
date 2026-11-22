@@ -91,9 +91,11 @@ begin
   perform t.login(t.id('uAA'));
   r := public.decide_leave(t.id('lv1'), true, null);
   perform t.ok(r.status = 'approved' and r.decided_by is not null, 'admin gives final approval');
+  perform t.ok(r.is_paid = (select lt.is_paid from public.leave_types lt where lt.id = r.leave_type_id), 'paid flag defaults to the leave type');
   perform t.throws(format($q$select public.decide_leave(%L, false, 'changed my mind')$q$, t.id('lv1')), 'INVALID_STATE', 'a final decision cannot be changed');
-  r := public.decide_leave(t.id('lv3'), true, null);
+  r := public.decide_leave(t.id('lv3'), true, null, not (select lt.is_paid from public.leave_types lt join public.leave_requests q on q.leave_type_id = lt.id where q.id = t.id('lv3')));
   perform t.ok(r.status = 'approved', 'admin can approve directly (no manager assigned)');
+  perform t.ok(r.is_paid is distinct from (select lt.is_paid from public.leave_types lt where lt.id = r.leave_type_id), 'admin can override paid/unpaid when approving');
   perform t.logout();
 
   -- self approval: admin AA is also an employee
@@ -155,3 +157,4 @@ begin
   perform t.throws($q$select * from public.leave_requests$q$, 'permission denied', 'anon cannot read leave requests');
   perform t.logout();
 end $$;
+

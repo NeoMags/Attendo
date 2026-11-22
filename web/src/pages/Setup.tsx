@@ -85,7 +85,7 @@ export default function Setup() {
             <Field label="End"><Input required type="time" value={shift.end_time} onChange={(e) => setShift({ ...shift, end_time: e.target.value })} /></Field>
           </div>
           <Field label="Grace (minutes)"><Input type="number" min={0} max={180} value={shift.grace_minutes} onChange={(e) => setShift({ ...shift, grace_minutes: Math.min(180, Math.max(0, Number(e.target.value) || 0)) })} /></Field>
-          <div className="flex flex-wrap gap-1" role="group" aria-label="Working days">
+          <div className="flex flex-wrap gap-1" role="group" aria-label="Working days (untick a day for the weekly off)">
             {DAYS.map((d, i) => (
               <button key={d} type="button" aria-pressed={shift.working_days.includes(i + 1)} onClick={() => toggleDay(i + 1)}
                 className={`rounded-md border px-2 py-1 text-xs ${shift.working_days.includes(i + 1) ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300'}`}>{d}</button>

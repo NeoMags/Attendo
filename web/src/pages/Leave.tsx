@@ -8,8 +8,8 @@ import { Badge, Button, Card, ErrorNote, Field, Input, Modal, PersonCell, Select
 type Status = 'pending' | 'manager_approved' | 'approved' | 'rejected' | 'cancelled'
 interface Req {
   id: string; employee_id: string; start_date: string; end_date: string; days: number; is_half_day: boolean; reason: string | null
-  status: Status; manager_note: string | null; decision_note: string | null; created_at: string
-  employees: { full_name: string; employee_code: string } | null; leave_types: { name: string } | null
+  status: Status; is_paid: boolean | null; manager_note: string | null; decision_note: string | null; created_at: string
+  employees: { full_name: string; employee_code: string } | null; leave_types: { name: string; is_paid: boolean } | null
 }
 interface LType { id: string; name: string; annual_quota_days: number | null; is_paid: boolean; is_active: boolean }
 
@@ -128,7 +128,7 @@ export default function Leave() {
     queryKey: ['leave-requests', companyId, filter, admin], enabled: !!companyId, refetchInterval: 60_000,
     queryFn: async () => {
       let query = supabase.from('leave_requests')
-        .select('id, employee_id, start_date, end_date, days, is_half_day, reason, status, manager_note, decision_note, created_at, employees(full_name, employee_code), leave_types(name)')
+        .select('id, employee_id, start_date, end_date, days, is_half_day, reason, status, is_paid, manager_note, decision_note, created_at, employees(full_name, employee_code), leave_types(name, is_paid)')
         .eq('company_id', companyId!).order('start_date', { ascending: false }).limit(300)
       if (filter === 'action') query = query.in('status', actionable)
       else if (filter !== 'all') query = query.eq('status', filter)
@@ -137,10 +137,11 @@ export default function Leave() {
       return data as unknown as Req[]
     },
   })
+  const [paidFor, setPaidFor] = useState<Record<string, boolean>>({})
   const refresh = () => qc.invalidateQueries({ queryKey: ['leave-requests'] })
   const decide = useMutation({
-    mutationFn: async (a: { id: string; approve: boolean; note?: string }) => {
-      const { error } = await supabase.rpc('decide_leave', { p_request_id: a.id, p_approve: a.approve, p_note: a.note ?? null })
+    mutationFn: async (a: { id: string; approve: boolean; note?: string; paid?: boolean }) => {
+      const { error } = await supabase.rpc('decide_leave', { p_request_id: a.id, p_approve: a.approve, p_note: a.note ?? null, p_paid: a.paid ?? null })
       if (error) throw new Error(friendly(error.message))
     },
     onSuccess: () => { setRejecting(null); setNote(''); setModalErr(null); refresh() },
@@ -173,7 +174,7 @@ export default function Leave() {
                 <Td>{r.leave_types?.name}</Td>
                 <Td>{range(r)}{r.is_half_day ? ' (half day)' : ''}</Td>
                 <Td>{r.days}</Td>
-                <Td><Badge tone={TONE[r.status]}>{LABEL[r.status]}</Badge></Td>
+                <Td><Badge tone={TONE[r.status]}>{LABEL[r.status]}</Badge>{r.status === 'approved' && <div className="mt-1 text-xs text-slate-500">{r.is_paid === false ? 'Unpaid' : 'Paid'}</div>}</Td>
                 <Td className="max-w-xs text-xs text-slate-500">
                   {r.reason && <div>“{r.reason}”</div>}
                   {r.manager_note && <div>Manager: {r.manager_note}</div>}
@@ -182,7 +183,8 @@ export default function Leave() {
                 <Td className="whitespace-nowrap text-right">
                   {canAct(r) && (
                     <>
-                      <Button disabled={decide.isPending} onClick={() => decide.mutate({ id: r.id, approve: true })}>Approve</Button>{' '}
+                      {admin && <label className="mr-2 text-xs"><input type="checkbox" className="mr-1" checked={paidFor[r.id] ?? r.leave_types?.is_paid ?? true} onChange={(e) => setPaidFor({ ...paidFor, [r.id]: e.target.checked })} />Paid</label>}
+                      <Button disabled={decide.isPending} onClick={() => decide.mutate({ id: r.id, approve: true, paid: admin ? paidFor[r.id] ?? r.leave_types?.is_paid ?? true : undefined })}>Approve</Button>{' '}
                       <Button variant="ghost" disabled={decide.isPending} onClick={() => { setRejecting(r); setNote(''); setModalErr(null) }}>Reject</Button>
                     </>
                   )}
