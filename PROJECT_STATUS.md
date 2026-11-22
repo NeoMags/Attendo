@@ -142,7 +142,7 @@ Phases 3-11
 ## Round 4 follow-ups (v0.10.0)
 - Half-day attendance: shifts have optional `full_day_minutes` / `half_day_minutes`; worked time maps to 1 / 0.5 / 0 per day; admin can override a day's value (Attendance correction modal). Payroll counts fractions.
 - Advances can be voided/written off (remaining balance only; recoveries already made on finalized payslips are not reversed).
-- Shifts can be edited/deleted (Setup). Paid leave counts as paid. Holidays: Payroll -> Holidays tab (paid for monthly staff, not for daily wage).
+- Shifts can be edited/deleted (Setup). Paid leave counts as paid. Holidays: Payroll -> Holidays tab (a holiday is excluded from working days; migration 19).
 - Payslip PDFs in English/Hindi/Kannada on web (pdfmake + Noto fonts in web/public/fonts) and Android (string-resource labels, system fonts).
 
 ## Round 5: statutory (v0.11.0)

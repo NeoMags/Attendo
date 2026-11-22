@@ -26,7 +26,7 @@ export default function HolidaysTab({ companyId }: { companyId: string }) {
   })
   return (
     <div className="space-y-4">
-      <p className="text-sm text-slate-600">Holidays on a working day are paid for monthly-salary employees (daily-wage employees are not paid for holidays). Re-run payroll for a draft month after changing holidays.</p>
+      <p className="text-sm text-slate-600">A holiday is not a working day: it is left out of the month's working days for everyone, so it neither adds pay nor counts as absence (attendance on a holiday is ignored). Re-run payroll for a draft month after changing holidays.</p>
       <form className="flex flex-wrap items-end gap-3" onSubmit={(e: FormEvent) => { e.preventDefault(); add.mutate() }}>
         <Field label="Date"><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></Field>
         <Field label="Name"><Input value={name} maxLength={120} onChange={(e) => setName(e.target.value)} placeholder="e.g. Diwali" /></Field>

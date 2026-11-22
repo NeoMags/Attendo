@@ -40,25 +40,25 @@ begin
   run := public.generate_payroll(ca, '2026-02-17');
   perform t.ok(run.month = '2026-02-01' and run.status = 'draft', 'run is for the first of the month, as a draft');
   select * into ps from public.payslips where run_id = run.id and employee_id = a1;
-  perform t.ok(ps.working_days = 24 and ps.present_days = 3 and ps.holiday_days = 1 and ps.paid_leave_days = 1 and ps.unpaid_leave_days = 1 and ps.absent_days = 18,
-    'day classification: 24 working, 3 present (Sunday visit ignored), 1 holiday, 1 paid leave, 1 unpaid leave, 18 absent',
+  perform t.ok(ps.working_days = 23 and ps.present_days = 3 and ps.holiday_days = 0 and ps.paid_leave_days = 1 and ps.unpaid_leave_days = 1 and ps.absent_days = 18,
+    'day classification: 23 working (holiday excluded), 3 present (Sunday visit ignored), 1 paid leave, 1 unpaid leave, 18 absent',
     format('%s/%s/%s/%s/%s/%s', ps.working_days, ps.present_days, ps.holiday_days, ps.paid_leave_days, ps.unpaid_leave_days, ps.absent_days));
-  perform t.ok(ps.gross = 5000, 'monthly pay = 24000 / 24 x (3 + 1 + 1) = 5000', ps.gross::text);
-  perform t.ok(ps.advance_deduction = 1000 and ps.net = 4000, 'monthly installment of 1000 is deducted', format('%s / %s', ps.advance_deduction, ps.net));
+  perform t.ok(ps.gross = 4173.91, 'monthly pay = 24000 / 23 x (3 + 1) = 4173.91 (holiday is not a working day)', ps.gross::text);
+  perform t.ok(ps.advance_deduction = 1000 and ps.net = 3173.91, 'monthly installment of 1000 is deducted', format('%s / %s', ps.advance_deduction, ps.net));
   select * into ps2 from public.payslips where run_id = run.id and employee_id = a2;
   perform t.ok(ps2.gross = 1300 and ps2.net = 1300, 'daily wage = 650 x 2 present days', ps2.gross::text);
 
   ps := public.set_payslip_adjustment(ps.id, 200, 0, 'festival bonus', false);
-  perform t.ok(ps.bonus = 200 and ps.net = 4200, 'bonus raises net', ps.net::text);
+  perform t.ok(ps.bonus = 200 and ps.net = 3373.91, 'bonus raises net', ps.net::text);
   perform t.throws(format($q$select public.set_payslip_adjustment(%L, 0, 99999)$q$, ps.id), 'DEDUCTION_EXCEEDS_PAY', 'other deduction cannot exceed pay');
   ps := public.set_payslip_adjustment(ps.id, 200, 0, 'festival bonus', true);
-  perform t.ok(ps.advance_deduction = 0 and ps.net = 5200, 'advance recovery can be skipped for a month', ps.net::text);
+  perform t.ok(ps.advance_deduction = 0 and ps.net = 4373.91, 'advance recovery can be skipped for a month', ps.net::text);
   ps := public.set_payslip_adjustment(ps.id, 200, 0, 'festival bonus', false);
 
   -- regenerate keeps adjustments
   run := public.generate_payroll(ca, '2026-02-01');
   select * into ps from public.payslips where run_id = run.id and employee_id = a1;
-  perform t.ok(ps.bonus = 200 and ps.net = 4200, 'regenerating a draft keeps manual adjustments');
+  perform t.ok(ps.bonus = 200 and ps.net = 3373.91, 'regenerating a draft keeps manual adjustments');
   perform t.logout();
 
   -- employee cannot see a draft payslip
@@ -78,7 +78,7 @@ begin
   perform t.ok(exists (select 1 from public.notifications where employee_id = a1 and kind = 'payslip'), 'employee is notified');
   perform t.throws(format($q$select public.mark_payslip_paid(%L, current_date, 'gold')$q$, ps.id), 'INVALID_MODE', 'payment mode validated');
   ps := public.mark_payslip_paid(ps.id, current_date, 'bank');
-  perform t.ok(ps.paid_on is not null and exists (select 1 from public.ledger_entries where kind = 'salary_paid' and employee_id = a1 and amount = 4200), 'paying writes a salary entry for the net amount');
+  perform t.ok(ps.paid_on is not null and exists (select 1 from public.ledger_entries where kind = 'salary_paid' and employee_id = a1 and amount = 3373.91), 'paying writes a salary entry for the net amount');
   perform t.throws(format($q$select public.mark_payslip_paid(%L, current_date, 'bank')$q$, ps.id), 'ALREADY_PAID', 'cannot pay twice');
   perform t.throws(format($q$update public.payslips set gross = 1 where id = %L$q$, ps.id), 'permission denied', 'clients cannot edit payslips directly');
   perform t.throws(format($q$insert into public.ledger_entries (company_id, employee_id, entry_date, kind, amount, direction) values (%L, %L, current_date, 'salary_paid', 1, 'to_employee')$q$, ca, a1), 'permission denied', 'clients cannot write the ledger');
@@ -93,7 +93,7 @@ begin
 
   -- visibility after finalize
   perform t.login(t.id('uA1'));
-  perform t.ok((select count(*) from public.payslips) = 1 and (select net from public.payslips) = 4200, 'employee sees only their own finalized payslip');
+  perform t.ok((select count(*) from public.payslips) = 1 and (select net from public.payslips) = 3373.91, 'employee sees only their own finalized payslip');
   perform t.ok((select count(*) from public.ledger_entries) = 3, 'employee sees own ledger (advance, recovery, salary)', (select count(*) from public.ledger_entries)::text);
   perform t.ok((select count(*) from public.payroll_runs) = 0, 'employee cannot see payroll runs');
   perform t.logout();
