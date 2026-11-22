@@ -12,7 +12,7 @@ interface Profile {
   date_of_birth: string | null; designation: string | null; emergency_name: string | null; emergency_phone: string | null; leave_request_limit_override: number | null
 }
 interface Pay {
-  pay_type: 'monthly' | 'daily'; monthly_salary: number | null; daily_wage: number | null; pf_eligible: boolean; pf_uan: string | null
+  pay_type: 'monthly' | 'daily'; monthly_salary: number | null; daily_wage: number | null; pf_eligible: boolean; eps_eligible?: boolean; pf_uan: string | null
   esi_eligible: boolean; esi_ip_number: string | null; aadhaar_last4: string | null; aadhaar_path: string | null
   bank_name: string | null; bank_account: string | null; bank_ifsc: string | null
 }
@@ -33,7 +33,7 @@ export default function EmployeeDetails({ companyId, employeeId, name, onClose }
   const [aadhaarFile, setAadhaarFile] = useState<File | null>(null)
   const [aadhaarNo, setAadhaarNo] = useState('')
   const [f, setF] = useState<Record<string, string> | null>(null)
-  const [flags, setFlags] = useState({ pf: false, esi: false, payType: 'monthly' as 'monthly' | 'daily' })
+  const [flags, setFlags] = useState({ pf: false, eps: true, esi: false, payType: 'monthly' as 'monthly' | 'daily' })
   const [err, setErr] = useState<string | null>(null)
 
   const load = useQuery({
@@ -52,7 +52,7 @@ export default function EmployeeDetails({ companyId, employeeId, name, onClose }
         amount: String(pi?.pay_type === 'daily' ? pi.daily_wage ?? '' : pi?.monthly_salary ?? ''),
         uan: pi?.pf_uan ?? '', esi: pi?.esi_ip_number ?? '', bank: pi?.bank_name ?? '', acct: pi?.bank_account ?? '', ifsc: pi?.bank_ifsc ?? '',
       })
-      setFlags({ pf: pi?.pf_eligible ?? false, esi: pi?.esi_eligible ?? false, payType: pi?.pay_type ?? 'monthly' })
+      setFlags({ pf: pi?.pf_eligible ?? false, eps: pi?.eps_eligible ?? true, esi: pi?.esi_eligible ?? false, payType: pi?.pay_type ?? 'monthly' })
       return { prof, pi, photoUrl: await signed(prof?.photo_path ?? null), aadhaarUrl: await signed(pi?.aadhaar_path ?? null) }
     },
   })
@@ -102,7 +102,7 @@ export default function EmployeeDetails({ companyId, employeeId, name, onClose }
       const p2 = await supabase.from('employee_payroll_info').upsert({
         employee_id: employeeId, company_id: companyId, pay_type: flags.payType,
         monthly_salary: flags.payType === 'monthly' ? amount : null, daily_wage: flags.payType === 'daily' ? amount : null,
-        pf_eligible: flags.pf, pf_uan: v.uan.trim() || null, esi_eligible: flags.esi, esi_ip_number: v.esi.trim() || null,
+        pf_eligible: flags.pf, eps_eligible: flags.eps, pf_uan: v.uan.trim() || null, esi_eligible: flags.esi, esi_ip_number: v.esi.trim() || null,
         aadhaar_last4: aadhaarNo.trim() ? aadhaarLast4(aadhaarNo) : load.data?.pi?.aadhaar_last4 ?? null, aadhaar_path: aPath,
         bank_name: v.bank.trim() || null, bank_account: v.acct.trim() || null, bank_ifsc: v.ifsc.trim().toUpperCase() || null,
       }, { onConflict: 'employee_id' })
@@ -159,6 +159,7 @@ export default function EmployeeDetails({ companyId, employeeId, name, onClose }
           </Section>
           <Section title="PF and ESI">
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={flags.pf} onChange={(e) => setFlags({ ...flags, pf: e.target.checked })} /> Eligible for PF</label>
+            {flags.pf && <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={flags.eps} onChange={(e) => setFlags({ ...flags, eps: e.target.checked })} /> EPS (pension) member <span className="text-xs text-slate-500">- untick if wages were above the PF ceiling at joining</span></label>}
             {flags.pf && <Field label="UAN (12 digits)"><Input inputMode="numeric" value={f.uan} onChange={set('uan')} /></Field>}
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={flags.esi} onChange={(e) => setFlags({ ...flags, esi: e.target.checked })} /> Eligible for ESI</label>
             {flags.esi && <Field label="ESI IP number" hint="10 or 17 digits"><Input inputMode="numeric" value={f.esi} onChange={set('esi')} /></Field>}
