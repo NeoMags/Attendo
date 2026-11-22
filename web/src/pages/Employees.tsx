@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { callFunction, supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
 import { isAdmin } from '@/lib/roles'
+import EmployeeDetails from '@/components/EmployeeDetails'
 import { Badge, Button, Card, ErrorNote, Field, Input, Modal, Select, Spinner, Table, Td } from '@/components/ui'
 
 interface Emp {
@@ -16,6 +17,7 @@ export default function Employees() {
   const qc = useQueryClient()
   const [adding, setAdding] = useState(false)
   const [resetFor, setResetFor] = useState<Emp | null>(null)
+  const [detailsFor, setDetailsFor] = useState<{ id: string; name: string } | null>(null)
   const [search, setSearch] = useState('')
 
   const list = useQuery({
@@ -65,6 +67,7 @@ export default function Employees() {
                 <Td className="text-right">
                   {admin && (
                     <span className="inline-flex gap-2">
+                      <Button variant="ghost" onClick={() => setDetailsFor({ id: e.id, name: e.full_name })}>Details</Button>
                       <Button variant="ghost" onClick={() => setResetFor(e)}>Reset password</Button>
                       <Button variant="ghost" disabled={toggle.isPending} onClick={() => toggle.mutate(e)}>{e.is_active ? 'Deactivate' : 'Activate'}</Button>
                     </span>
@@ -76,13 +79,14 @@ export default function Employees() {
         )}
         <ErrorNote error={toggle.error} />
       </Card>
-      {adding && <AddEmployee companyId={companyId} onClose={() => setAdding(false)} onDone={() => { setAdding(false); qc.invalidateQueries({ queryKey: ['employees', companyId] }) }} />}
+      {adding && <AddEmployee companyId={companyId} onClose={() => setAdding(false)} onDone={(created) => { setAdding(false); qc.invalidateQueries({ queryKey: ['employees', companyId] }); setDetailsFor({ id: created.employee_id, name: created.full_name }) }} />}
+      {detailsFor && <EmployeeDetails companyId={companyId} employeeId={detailsFor.id} name={detailsFor.name} onClose={() => setDetailsFor(null)} />}
       {resetFor && <ResetPassword emp={resetFor} onClose={() => setResetFor(null)} />}
     </div>
   )
 }
 
-function AddEmployee({ companyId, onClose, onDone }: { companyId: string; onClose: () => void; onDone: () => void }) {
+function AddEmployee({ companyId, onClose, onDone }: { companyId: string; onClose: () => void; onDone: (c: { employee_id: string; full_name: string }) => void }) {
   const [f, setF] = useState({ employee_code: '', full_name: '', password: '', role: 'employee', department_id: '', shift_id: '', preferred_language: 'en' })
   const opts = useQuery({
     queryKey: ['dept-shift', companyId],
@@ -96,11 +100,11 @@ function AddEmployee({ companyId, onClose, onDone }: { companyId: string; onClos
     },
   })
   const m = useMutation({
-    mutationFn: () => callFunction('admin-create-employee', {
+    mutationFn: () => callFunction<{ employee_id: string }>('admin-create-employee', {
       company_id: companyId, employee_code: f.employee_code.trim(), full_name: f.full_name.trim(), password: f.password,
       role: f.role, department_id: f.department_id || null, shift_id: f.shift_id || null, preferred_language: f.preferred_language,
     }),
-    onSuccess: onDone,
+    onSuccess: (r) => onDone({ employee_id: r.employee_id, full_name: f.full_name.trim() }),
   })
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value })
   return (

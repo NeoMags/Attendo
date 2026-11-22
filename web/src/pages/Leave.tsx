@@ -23,6 +23,42 @@ const ERR: Record<string, string> = {
 const friendly = (m: string) => { const k = Object.keys(ERR).find((c) => m.includes(c)); return k ? ERR[k] : m }
 const range = (r: Req) => (r.start_date === r.end_date ? r.start_date : `${r.start_date} → ${r.end_date}`)
 
+function RequestLimit({ companyId }: { companyId: string }) {
+  const qc = useQueryClient()
+  const [val, setVal] = useState<string | null>(null)
+  const q = useQuery({
+    queryKey: ['company-settings', companyId],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('company_settings').select('monthly_leave_request_limit').eq('company_id', companyId).maybeSingle()
+      if (error) throw error
+      return (data?.monthly_leave_request_limit ?? null) as number | null
+    },
+  })
+  const save = useMutation({
+    mutationFn: async () => {
+      const t = (val ?? '').trim()
+      const n = t === '' ? null : Number(t)
+      if (n !== null && !(Number.isInteger(n) && n >= 0 && n <= 31)) throw new Error('Enter a whole number from 0 to 31, or leave empty for no limit.')
+      const { error } = await supabase.from('company_settings').upsert({ company_id: companyId, monthly_leave_request_limit: n }, { onConflict: 'company_id' })
+      if (error) throw error
+    },
+    onSuccess: () => { setVal(null); void qc.invalidateQueries({ queryKey: ['company-settings', companyId] }) },
+  })
+  if (q.isLoading) return null
+  const shown = val ?? (q.data == null ? '' : String(q.data))
+  return (
+    <Card title="Leave request limit">
+      <form className="flex flex-wrap items-end gap-3" onSubmit={(e) => { e.preventDefault(); save.mutate() }}>
+        <Field label="Requests per employee per month" hint="Counts pending and approved requests by start date. Empty = no limit. You can override it per employee in Employees → Details.">
+          <Input inputMode="numeric" value={shown} onChange={(e) => setVal(e.target.value)} className="w-32" />
+        </Field>
+        <Button type="submit" disabled={save.isPending || val === null}>Save</Button>
+      </form>
+      <ErrorNote error={save.error} />
+    </Card>
+  )
+}
+
 function LeaveTypes({ companyId }: { companyId: string }) {
   const qc = useQueryClient()
   const [f, setF] = useState({ name: '', quota: '', paid: true })
@@ -159,6 +195,7 @@ export default function Leave() {
         {rows.length === 300 && <p className="mt-2 text-xs text-amber-700">Showing the latest 300 requests. Use the filter to narrow.</p>}
       </Card>
       {admin && <LeaveTypes companyId={companyId} />}
+      {admin && <RequestLimit companyId={companyId} />}
       {rejecting && (
         <Modal title={`Reject leave — ${rejecting.employees?.full_name ?? ''}`} onClose={() => setRejecting(null)}>
           <form onSubmit={(e) => { e.preventDefault(); if (note.trim().length < 3) { setModalErr(ERR.NOTE_REQUIRED); return } decide.mutate({ id: rejecting.id, approve: false, note: note.trim() }) }} className="space-y-3">
