@@ -1,4 +1,4 @@
-export type DayKind = 'present' | 'late' | 'open' | 'absent' | 'off' | 'future'
+export type DayKind = 'present' | 'late' | 'open' | 'leave' | 'absent' | 'off' | 'future'
 
 const pad = (n: number) => String(n).padStart(2, '0')
 
@@ -27,12 +27,13 @@ export function shiftMonth(ym: string, delta: number): string {
 
 export interface DayRecord { late_minutes: number | null; open: boolean }
 
-/** `today` is the company-local date. Days with no record are 'absent' only on past working days. */
-export function classifyDay(date: string, today: string, workingDays: number[], recs: DayRecord[]): DayKind {
+/** `today` is the company-local date; `onLeave` = an approved leave covers the date. Days with no record are 'absent' only on past working days. */
+export function classifyDay(date: string, today: string, workingDays: number[], recs: DayRecord[], onLeave = false): DayKind {
   if (recs.length) {
     if (recs.some((r) => r.open)) return 'open'
     return recs.some((r) => (r.late_minutes ?? 0) > 0) ? 'late' : 'present'
   }
+  if (onLeave) return 'leave'   // approved leave wins over absent/future, but a real attendance record wins over leave
   if (date > today) return 'future'
   if (!workingDays.includes(isoWeekday(date))) return 'off'
   return date === today ? 'future' : 'absent'

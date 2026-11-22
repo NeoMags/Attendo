@@ -9,10 +9,10 @@ import { Button, Card, ErrorNote, Field, Select, Spinner, Stat } from '@/compone
 interface Rec { work_date: string; late_minutes: number | null; status: string }
 const WD = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 const STYLE: Record<DayKind, string> = {
-  present: 'bg-emerald-100 text-emerald-900', late: 'bg-amber-100 text-amber-900', open: 'bg-sky-100 text-sky-900',
+  leave: 'bg-violet-100 text-violet-900', present: 'bg-emerald-100 text-emerald-900', late: 'bg-amber-100 text-amber-900', open: 'bg-sky-100 text-sky-900',
   absent: 'bg-red-100 text-red-900', off: 'bg-slate-100 text-slate-400', future: 'bg-white text-slate-400',
 }
-const LABEL: Record<DayKind, string> = { present: 'Present', late: 'Late', open: 'Checked in', absent: 'Absent', off: 'Day off', future: 'Upcoming / pending' }
+const LABEL: Record<DayKind, string> = { present: 'Present', late: 'Late', open: 'Checked in', leave: 'On leave', absent: 'Absent', off: 'Day off', future: 'Upcoming / pending' }
 
 export default function AttendanceCalendar() {
   const { companyId, company } = useAuth()
@@ -40,12 +40,23 @@ export default function AttendanceCalendar() {
     },
   })
 
+  const leave = useQuery({
+    queryKey: ['cal-leave', companyId, empId, ym], enabled: !!companyId && !!empId,
+    queryFn: async () => {
+      const { data, error } = await supabase.from('leave_requests').select('start_date, end_date')
+        .eq('company_id', companyId!).eq('employee_id', empId).eq('status', 'approved').lte('start_date', days[days.length - 1]).gte('end_date', days[0])
+      if (error) throw error
+      return data as { start_date: string; end_date: string }[]
+    },
+  })
+
   const emp = emps.data?.find((e) => e.id === empId)
   // Without an assigned shift we do not know working days, so absence is not asserted: every no-record past day shows as a day off.
   const workingDays = emp?.shifts?.working_days ?? []
   const byDay = new Map<string, Rec[]>()
   att.data?.forEach((r) => byDay.set(r.work_date, [...(byDay.get(r.work_date) ?? []), r]))
-  const kinds = days.map((d) => classifyDay(d, today, workingDays, (byDay.get(d) ?? []).map((r) => ({ late_minutes: r.late_minutes, open: r.status === 'open' }))))
+  const kinds = days.map((d) => classifyDay(d, today, workingDays, (byDay.get(d) ?? []).map((r) => ({ late_minutes: r.late_minutes, open: r.status === 'open' })),
+    (leave.data ?? []).some((l) => d >= l.start_date && d <= l.end_date)))
   const count = (k: DayKind) => kinds.filter((x) => x === k).length
   const monthLabel = new Date(`${ym}-01T00:00:00Z`).toLocaleDateString([], { month: 'long', year: 'numeric', timeZone: 'UTC' })
 
@@ -66,14 +77,14 @@ export default function AttendanceCalendar() {
           <Button variant="ghost" aria-label="Next month" onClick={() => setYm(shiftMonth(ym, 1))}>›</Button>
         </div>
       </div>
-      <ErrorNote error={emps.error ?? att.error} />
+      <ErrorNote error={emps.error ?? att.error ?? leave.error} />
       {!empId ? <Card><p className="py-8 text-center text-sm text-slate-500">Choose an employee to see their month.</p></Card> : att.isLoading ? <Spinner /> : (
         <>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <Stat label="Present" value={count('present') + count('late') + count('open')} tone="good" icon="check" />
             <Stat label="Late" value={count('late')} tone={count('late') ? 'warn' : undefined} icon="clock" />
             <Stat label="Absent" value={count('absent')} tone={count('absent') ? 'bad' : undefined} icon="userx" />
-            <Stat label="Days off" value={count('off')} icon="calendar" />
+            <Stat label="On leave" value={count('leave')} icon="calendar" hint={`${count('off')} days off`} />
           </div>
           <Card>
             <div className="grid grid-cols-7 gap-1.5 text-center text-xs">
@@ -87,7 +98,7 @@ export default function AttendanceCalendar() {
               {(Object.keys(LABEL) as DayKind[]).map((k) => <span key={k} className="inline-flex items-center gap-1.5"><span className={`h-3 w-3 rounded ${STYLE[k]} border border-slate-200`} />{LABEL[k]}</span>)}
             </div>
             {!workingDays.length && <p className="mt-3 text-xs text-amber-700">This employee has no shift assigned, so working days are unknown and absences are not shown.</p>}
-            <p className="mt-2 text-xs text-slate-500">Leave and holidays are not tracked yet, so an approved leave day would currently show as absent.</p>
+            <p className="mt-2 text-xs text-slate-500">Approved leave is shown. Public holidays are not tracked yet, so a holiday on a working day shows as absent.</p>
           </Card>
         </>
       )}

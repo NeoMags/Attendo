@@ -102,3 +102,10 @@ Phases 3-11
 - New: Attendance calendar page, Geofence alerts page (reads geofence_events), Employee side panel (day summary, distance, battery; writes a route_history audit entry), Under/Over columns on Attendance + CSV (computed vs shift length; unpaid breaks not modelled), "Not in yet" stat on Overview. Routes page now accepts ?emp=&date=.
 - Tests: lib/worktime.test.ts (6). Total vitest 38. Not verified in a browser; the geofence_events embeds (employees, geofences) are unverified against live PostgREST.
 - Not done: Leave, shift roster, payroll, claims, appraisal, applicant tracking, Wi-Fi restriction, push notifications.
+
+## Leave management (round 1: backend + dashboard)
+- Migration `20261122000010_leave_management.sql` (applied live): leave_types (yearly quota, null = unlimited), leave_requests (status pending → manager_approved → approved | rejected | cancelled; overlap blocked by exclusion constraint), RPCs apply_leave / decide_leave / cancel_leave / leave_balances. Clients cannot write leave_requests directly. Status changes audit-logged; notifications rows created (not pushed yet).
+- Tests: supabase/tests/60_leave.sql (55). SQL total 233/233 locally. Live smoke test (rolled back): apply, self-decide blocked, visibility, balance verified.
+- Dashboard: Leave page (queue, approve, reject with reason, leave types for admins); approved leave shows on Attendance calendar and Overview ("Not in yet" excludes on-leave).
+- Rules: balance counts pending + approved days per calendar year; requests cannot span years; max 92 days; up to 30 days back, 366 ahead; working days follow the employee's shift (Mon–Sat if none). Holidays, carry-forward, accrual, admin cancel of approved leave: not built.
+- Not done: Android apply/cancel/balance screens, push of leave notifications (needs Firebase), concurrency stress test.

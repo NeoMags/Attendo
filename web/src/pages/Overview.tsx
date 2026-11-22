@@ -25,14 +25,15 @@ export default function Overview() {
     enabled: !!companyId,
     refetchInterval: 30_000,
     queryFn: async () => {
-      const [emps, status, att] = await Promise.all([
+      const [emps, status, att, lv] = await Promise.all([
         supabase.from('employees').select('id', { count: 'exact', head: true }).eq('company_id', companyId!).eq('is_active', true),
         supabase.from('employee_status_v').select('*').eq('company_id', companyId!),
         supabase.from('attendance').select('id, employee_id, late_minutes').eq('company_id', companyId!).eq('work_date', today),
+        supabase.from('leave_requests').select('employee_id').eq('company_id', companyId!).eq('status', 'approved').lte('start_date', today).gte('end_date', today),
       ])
-      const err = emps.error ?? status.error ?? att.error
+      const err = emps.error ?? status.error ?? att.error ?? lv.error
       if (err) throw err
-      return { total: emps.count ?? 0, status: (status.data ?? []) as Status[], att: att.data ?? [] }
+      return { total: emps.count ?? 0, status: (status.data ?? []) as Status[], att: att.data ?? [], leave: (lv.data ?? []).map((l) => l.employee_id as string) }
     },
   })
 
@@ -44,7 +45,8 @@ export default function Overview() {
   const live = d.status.filter((s) => s.is_checked_in)
   const issues = live.filter((s) => s.health_status && s.health_status !== 'healthy')
   const late = d.att.filter((a) => (a.late_minutes ?? 0) > 0).length
-  const notIn = Math.max(0, d.total - new Set(d.att.map((a) => a.employee_id)).size)
+  const accounted = new Set([...d.att.map((a) => a.employee_id as string), ...d.leave])
+  const notIn = Math.max(0, d.total - accounted.size)
 
   return (
     <div className="space-y-4">
@@ -52,7 +54,7 @@ export default function Overview() {
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
         <Stat label="Active employees" value={d.total} icon="users" />
         <Stat label="Checked in now" value={live.length} tone="good" icon="check" />
-        <Stat label="Not in yet" value={notIn} icon="userx" hint="No check-in today" />
+        <Stat label="Not in yet" value={notIn} icon="userx" hint={`${new Set(d.leave).size} on leave`} />
         <Stat label="Late today" value={late} tone={late ? 'warn' : undefined} icon="clock" />
         <Stat label="Device issues" value={issues.length} tone={issues.length ? 'bad' : undefined} icon="alert" />
       </div>

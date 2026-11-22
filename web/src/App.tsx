@@ -14,6 +14,7 @@ const Routes_ = lazy(() => import('@/pages/Routes'))
 const Analytics = lazy(() => import('@/pages/Analytics'))
 const Reports = lazy(() => import('@/pages/Reports'))
 const AttendanceCalendar = lazy(() => import('@/pages/AttendanceCalendar'))
+const Leave = lazy(() => import('@/pages/Leave'))
 const Alerts = lazy(() => import('@/pages/Alerts'))
 const Devices = lazy(() => import('@/pages/Devices'))
 const Geofences = lazy(() => import('@/pages/Geofences'))
@@ -57,6 +58,7 @@ export default function App() {
               <Route path="analytics" element={<Analytics />} />
               <Route path="reports" element={<Reports />} />
               <Route path="calendar" element={<AttendanceCalendar />} />
+              <Route path="leave" element={<Leave />} />
               <Route path="alerts" element={<Alerts />} />
               <Route path="devices" element={<Devices />} />
               <Route path="geofences" element={<Geofences />} />

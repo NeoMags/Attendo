@@ -43,5 +43,8 @@ describe('calendar', () => {
     expect(classifyDay('2026-11-15', today, wd, [])).toBe('off') // Sunday
     expect(classifyDay('2026-11-20', today, wd, [])).toBe('future') // today, not yet in
     expect(classifyDay('2026-11-25', today, wd, [])).toBe('future')
+    expect(classifyDay('2026-11-09', today, wd, [], true)).toBe('leave')
+    expect(classifyDay('2026-11-25', today, wd, [], true)).toBe('leave')
+    expect(classifyDay('2026-11-10', today, wd, [{ late_minutes: 0, open: false }], true)).toBe('present')
   })
 })
