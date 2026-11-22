@@ -25,8 +25,8 @@ android {
         applicationId = "com.tatva.attendo"
         minSdk = 26
         targetSdk = 35
-        versionCode = 10
-        versionName = "0.10.0"
+        versionCode = 11
+        versionName = "0.11.0"
         buildConfigField("String", "SUPABASE_URL", "\"${cfg("supabase.url", "https://ehwlqttwkmbgfttqvtcd.supabase.co")}\"")
         buildConfigField("String", "SUPABASE_KEY", "\"${cfg("supabase.key", "sb_publishable_vCes1It94XI541vLLhtjPg_rgMMoQwP")}\"")
     }

@@ -302,6 +302,27 @@ class AttendoApi(
         }
     }
 
+    override suspend fun taxProjection(accessToken: String, employeeId: String, taxYear: Int): TaxProjectionDto =
+        decode(rpc(accessToken, "tax_projection", buildJsonObject { put("p_employee", employeeId); put("p_tax_year", taxYear) }))
+
+    override suspend fun myTaxDeclaration(accessToken: String, employeeId: String, taxYear: Int): TaxDeclarationDto? {
+        val url = "$base/rest/v1/tax_declarations?employee_id=eq.$employeeId&tax_year=eq.$taxYear&select=regime,sec_80c,sec_80ccd1b,sec_80d_self,sec_80d_parents,parents_senior,hra_exemption,home_loan_interest,other_deductions,prev_employer_income,prev_employer_tds&limit=1"
+        val (status, text) = send(request(url, accessToken).get().build())
+        if (status !in 200..299) throw errorFor(status, text)
+        return decode<List<TaxDeclarationDto>>(text).firstOrNull()
+    }
+
+    override suspend fun saveTaxDeclaration(accessToken: String, employeeId: String, taxYear: Int, d: TaxDeclarationDto) {
+        rpc(accessToken, "save_tax_declaration", buildJsonObject {
+            put("p_employee", employeeId); put("p_tax_year", taxYear); put("p_regime", d.regime)
+            put("p_values", buildJsonObject {
+                put("sec_80c", d.sec80c); put("sec_80ccd1b", d.sec80ccd1b); put("sec_80d_self", d.sec80dSelf); put("sec_80d_parents", d.sec80dParents)
+                put("parents_senior", d.parentsSenior); put("hra_exemption", d.hraExemption); put("home_loan_interest", d.homeLoanInterest)
+                put("other_deductions", d.otherDeductions); put("prev_employer_income", d.prevEmployerIncome); put("prev_employer_tds", d.prevEmployerTds)
+            })
+        })
+    }
+
     override suspend fun leaveUsage(accessToken: String, year: Int, month: Int): LeaveUsageDto? =
         decode<List<LeaveUsageDto>>(rpc(accessToken, "leave_request_usage", buildJsonObject { put("p_year", year); put("p_month", month) })).firstOrNull()
 

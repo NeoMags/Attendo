@@ -52,4 +52,7 @@ interface AttendoRemote {
     suspend fun myPayslips(accessToken: String, employeeId: String): List<PayslipDto>
     suspend fun myAdvances(accessToken: String, employeeId: String): List<AdvanceDto>
     suspend fun myLedger(accessToken: String, employeeId: String): List<LedgerDto>
+    suspend fun taxProjection(accessToken: String, employeeId: String, taxYear: Int): TaxProjectionDto
+    suspend fun myTaxDeclaration(accessToken: String, employeeId: String, taxYear: Int): TaxDeclarationDto?
+    suspend fun saveTaxDeclaration(accessToken: String, employeeId: String, taxYear: Int, d: TaxDeclarationDto)
 }

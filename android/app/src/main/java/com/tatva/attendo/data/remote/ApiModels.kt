@@ -206,3 +206,39 @@ data class LedgerDto(
     val direction: String,
     val note: String? = null,
 )
+
+@Serializable
+data class TaxScenarioDto(
+    val regime: String = "new",
+    val deductions: Double = 0.0,
+    val taxable: Double = 0.0,
+    val total: Double = 0.0,
+)
+
+@Serializable
+data class TaxProjectionDto(
+    @SerialName("tax_year") val taxYear: Int = 0,
+    @SerialName("months_left") val monthsLeft: Int = 0,
+    val regime: String = "new",
+    @SerialName("annual_gross") val annualGross: Double = 0.0,
+    val selected: TaxScenarioDto = TaxScenarioDto(),
+    val new: TaxScenarioDto = TaxScenarioDto(),
+    val old: TaxScenarioDto = TaxScenarioDto("old"),
+    @SerialName("monthly_tds") val monthlyTds: Double = 0.0,
+    val warnings: List<String> = emptyList(),
+)
+
+@Serializable
+data class TaxDeclarationDto(
+    val regime: String = "new",
+    @SerialName("sec_80c") val sec80c: Double = 0.0,
+    @SerialName("sec_80ccd1b") val sec80ccd1b: Double = 0.0,
+    @SerialName("sec_80d_self") val sec80dSelf: Double = 0.0,
+    @SerialName("sec_80d_parents") val sec80dParents: Double = 0.0,
+    @SerialName("parents_senior") val parentsSenior: Boolean = false,
+    @SerialName("hra_exemption") val hraExemption: Double = 0.0,
+    @SerialName("home_loan_interest") val homeLoanInterest: Double = 0.0,
+    @SerialName("other_deductions") val otherDeductions: Double = 0.0,
+    @SerialName("prev_employer_income") val prevEmployerIncome: Double = 0.0,
+    @SerialName("prev_employer_tds") val prevEmployerTds: Double = 0.0,
+)

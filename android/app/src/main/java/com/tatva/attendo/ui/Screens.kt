@@ -84,7 +84,8 @@ fun AttendoRoot(container: AppContainer) {
                         "notifs" -> NotificationsScreen(notifVm) { screen = "home" }
                         "tasks" -> TasksScreen(viewModel(key = "tasks-$owner", factory = factory)) { screen = "home" }
                         "pay" -> PayrollScreen(viewModel(key = "pay-$owner", factory = factory)) { screen = "details" }
-                        "details" -> MyDetailsScreen(viewModel(key = "details-$owner", factory = factory), onOpenPay = { screen = "pay" }) { screen = "home" }
+                        "tax" -> TaxScreen(viewModel(key = "tax-$owner", factory = factory)) { screen = "details" }
+                        "details" -> MyDetailsScreen(viewModel(key = "details-$owner", factory = factory), onOpenPay = { screen = "pay" }, onOpenTax = { screen = "tax" }) { screen = "home" }
                         else -> HomeScreen(viewModel(key = owner, factory = factory), unread = nUi.unread, onOpenNotifications = { screen = "notifs" }, onOpenDetails = { screen = "details" }, onOpenTasks = { screen = "tasks" }) { screen = "leave" }
                     }
                 }

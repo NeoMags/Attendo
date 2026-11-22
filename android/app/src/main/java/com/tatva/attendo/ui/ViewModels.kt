@@ -204,6 +204,7 @@ class VmFactory(private val c: AppContainer) : ViewModelProvider.Factory {
         LeaveViewModel::class.java -> LeaveViewModel(c.leave)
         TasksViewModel::class.java -> TasksViewModel(c.tasks)
         PayrollViewModel::class.java -> PayrollViewModel(c.payroll)
+        TaxViewModel::class.java -> TaxViewModel(c.tax)
         MyDetailsViewModel::class.java -> MyDetailsViewModel(c.myDetails)
         NotificationsViewModel::class.java -> NotificationsViewModel(c.notifications)
         else -> error("Unknown ViewModel ${modelClass.name}")

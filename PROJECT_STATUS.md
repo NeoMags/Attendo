@@ -138,3 +138,19 @@ Phases 3-11
 - Web: /payroll (admin only): monthly run (generate/adjust/finalize/mark paid, PDF download + print), advances, holidays, templates, per-employee account statement. 64 vitest pass incl. real PDF generation.
 - Android: Payslips & transactions screen (My details -> button): finalized payslips with PDF share/print, advances, ledger. 107 unit tests pass. PDF rendering (PdfDocument), share sheet and print are NOT run on a device.
 - Open: PDF uses "Rs."; no void/reverse of advances; half-day attendance not modeled; payroll web UI not viewed in a browser.
+
+## Round 4 follow-ups (v0.10.0)
+- Half-day attendance: shifts have optional `full_day_minutes` / `half_day_minutes`; worked time maps to 1 / 0.5 / 0 per day; admin can override a day's value (Attendance correction modal). Payroll counts fractions.
+- Advances can be voided/written off (remaining balance only; recoveries already made on finalized payslips are not reversed).
+- Shifts can be edited/deleted (Setup). Paid leave counts as paid. Holidays: Payroll -> Holidays tab (paid for monthly staff, not for daily wage).
+- Payslip PDFs in English/Hindi/Kannada on web (pdfmake + Noto fonts in web/public/fonts) and Android (string-resource labels, system fonts).
+
+## Round 5: statutory (v0.11.0)
+- Migration 17: `statutory_params` (versioned rates, each with `verified` + `source`), `employee_payroll_info.eps_eligible`, `statutory_filings`, RPCs `statutory_contributions`, `statutory_summary`, `record_statutory_filing`.
+- Migration 18: `tax_slabs`, `tax_declarations`, RPCs `save_tax_declaration`, `tax_projection`, `tax_projection_all` (+ app.tax_breakdown / tax_scenario). Projection only: payslips do NOT deduct TDS.
+- Web: Payroll -> "PF / ESI" (summary, ECR `#~#` file, ESI CSV, payment record) and "Income tax" (projection table + declaration editor). Employee form has an EPS flag.
+- Android: My details -> "Income tax declaration" (projection + declaration form).
+- Tests: SQL 443/443, web 74, Android 113.
+- Verified from official pages: PF ceiling Rs 25,000 from 17-Sep-2026 (S.O. 5109(E)); ESI ceiling Rs 21,000 and 0.75%/3.25%; new-regime slabs (s.202), 87A/156 rebate (new: Rs 60,000 up to Rs 12L, with marginal relief; old: Rs 12,500 up to Rs 5L), standard deduction Rs 75,000 new / Rs 50,000 old.
+- NOT verified (flagged `verified=false` in tables): PF 12/8.33/0.5/0.5% split, ESI Rs 176/day exemption, ESI round-up rule, ESIC upload CSV headers, day-weighted PF ceiling for Sept 2026, old-regime slabs for 2026-27, cess 4%, 80C/80D/home-loan caps.
+- Not modelled: surcharge, senior-citizen slabs, PAN-missing higher TDS, HRA calculation, EPF voluntary higher wages, ESI contribution-period continuity, admin-charge minimum.

@@ -7,9 +7,10 @@ const AdvancesTab = lazy(() => import('@/components/payroll/AdvancesTab'))
 const HolidaysTab = lazy(() => import('@/components/payroll/HolidaysTab'))
 const TemplatesTab = lazy(() => import('@/components/payroll/TemplatesTab'))
 const StatutoryTab = lazy(() => import('@/components/payroll/StatutoryTab'))
+const TaxTab = lazy(() => import('@/components/payroll/TaxTab'))
 const EmployeeStatement = lazy(() => import('@/components/payroll/EmployeeStatement'))
 
-const TABS = [['run', 'Monthly payroll'], ['advances', 'Advances'], ['holidays', 'Holidays'], ['statutory', 'PF / ESI'], ['templates', 'Payslip templates']] as const
+const TABS = [['run', 'Monthly payroll'], ['advances', 'Advances'], ['holidays', 'Holidays'], ['statutory', 'PF / ESI'], ['tax', 'Income tax'], ['templates', 'Payslip templates']] as const
 
 export default function Payroll() {
   const { companyId, company } = useAuth()
@@ -28,6 +29,7 @@ export default function Payroll() {
         {tab === 'advances' && <AdvancesTab companyId={companyId} onOpenEmployee={open} />}
         {tab === 'holidays' && <HolidaysTab companyId={companyId} />}
         {tab === 'statutory' && <StatutoryTab companyId={companyId} />}
+        {tab === 'tax' && <TaxTab companyId={companyId} />}
         {tab === 'templates' && <TemplatesTab companyId={companyId} />}
         {who && <EmployeeStatement employeeId={who.id} name={who.name} onClose={() => setWho(null)} />}
       </Suspense>

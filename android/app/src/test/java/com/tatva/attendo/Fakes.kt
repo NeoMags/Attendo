@@ -120,6 +120,17 @@ class FakeRemote : AttendoRemote {
     override suspend fun myAdvances(accessToken: String, employeeId: String) = advancesResult
     override suspend fun myLedger(accessToken: String, employeeId: String) = ledgerResult
 
+    var taxProjectionResult = TaxProjectionDto()
+    var taxDeclarationResult: TaxDeclarationDto? = null
+    val taxSaves = mutableListOf<Triple<String, Int, TaxDeclarationDto>>()
+    var taxSaveError: ApiException? = null
+    override suspend fun taxProjection(accessToken: String, employeeId: String, taxYear: Int) = taxProjectionResult
+    override suspend fun myTaxDeclaration(accessToken: String, employeeId: String, taxYear: Int) = taxDeclarationResult
+    override suspend fun saveTaxDeclaration(accessToken: String, employeeId: String, taxYear: Int, d: TaxDeclarationDto) {
+        taxSaveError?.let { throw it }
+        taxSaves += Triple(employeeId, taxYear, d)
+    }
+
     var sessionLookup: String? = null
     var ingestResult: (String, List<LocationRecordDto>) -> IngestResult = { _, r -> IngestResult(accepted = r.size) }
     val ingestCalls = mutableListOf<Pair<String, List<LocationRecordDto>>>()

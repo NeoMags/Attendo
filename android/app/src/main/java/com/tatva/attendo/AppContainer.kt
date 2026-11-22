@@ -13,6 +13,7 @@ import com.tatva.attendo.domain.DeviceDescriptor
 import com.tatva.attendo.domain.LeaveRepository
 import com.tatva.attendo.domain.MyDetailsRepository
 import com.tatva.attendo.domain.PayrollRepository
+import com.tatva.attendo.domain.TaxRepository
 import com.tatva.attendo.domain.TasksRepository
 import com.tatva.attendo.domain.NotificationRepository
 import com.tatva.attendo.data.local.AttendoDb
@@ -71,6 +72,7 @@ class AppContainer(context: Context) {
     val myDetails = MyDetailsRepository(session, remote)
     val tasks = TasksRepository(session, remote)
     val payroll = PayrollRepository(session, remote)
+    val tax = TaxRepository(session, remote)
 
     val uploader = LocationUploader(locationQueue, remote, session)
     val heartbeat = HeartbeatReporter(AndroidHealthSource(app, locationQueue, trackingStore), remote, session, device)
