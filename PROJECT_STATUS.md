@@ -174,3 +174,12 @@ Phases 3-11
 - Supabase project region is ap-northeast-1 (Tokyo); users in India pay that round trip on every query (not changed).
 - DB advisor: 48 unindexed composite FKs (INFO) - not added; tables are tiny. Revisit when data grows.
 - Measured by user (DevTools, Overview): steady-state API calls ~0.5 s, first burst 1.0-1.4 s, ~1 kB payloads. Server-side with RLS: employee_status_v 3 ms, attendance 0.1 ms -> delay is network (Tokyo region), not queries. Added `preconnect` to the API host in index.html (hides DNS+TLS setup). Region move to Mumbai remains the real fix.
+
+## Region move: Tokyo -> Mumbai (2026-11-26)
+- New Supabase project `mijyuhjmernciujisrwm` (Attendo-Mumbai, ap-south-1) replaces `ehwlqttwkmbgfttqvtcd` (Tokyo, ap-northeast-1) because the Tokyo round-trip was the cause of the slow dashboard.
+- Schema replayed from migrations 1-22 (the migration history table on the new project is empty, because the SQL was replayed directly); data and auth users copied DB-to-DB; row counts and md5 fingerprints matched.
+- All 5 Edge Functions redeployed (verify_jwt off). Push trigger URL updated (migration 22).
+- Vercel env vars re-pointed and production redeployed; Android v0.12.2 (versionCode 14) points at Mumbai; 113 unit tests pass.
+- OPEN: `FCM_SERVICE_ACCOUNT_JSON` secret on Mumbai (needs the Firebase service-account key for project attendo-eae64); push delivery still unverified on a phone.
+- OPEN: Tokyo project kept until cut-over is confirmed; universal-business-app was paused to free a free-plan slot.
+- Temporary migration helper `tmp_exec` still to be dropped on Mumbai after verification.
