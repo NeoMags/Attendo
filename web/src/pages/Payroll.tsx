@@ -1,6 +1,6 @@
 import { lazy, Suspense, useState } from 'react'
 import { useAuth } from '@/lib/auth'
-import { Spinner } from '@/components/ui'
+import { Skeleton } from '@/components/ui'
 
 const RunTab = lazy(() => import('@/components/payroll/RunTab'))
 const AdvancesTab = lazy(() => import('@/components/payroll/AdvancesTab'))
@@ -24,7 +24,7 @@ export default function Payroll() {
       <div role="tablist" className="flex flex-wrap gap-1 border-b border-slate-200">
         {TABS.map(([k, l]) => <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)} className={`px-3 py-2 text-sm ${tab === k ? 'border-b-2 border-slate-900 font-medium' : 'text-slate-500'}`}>{l}</button>)}
       </div>
-      <Suspense fallback={<Spinner />}>
+      <Suspense fallback={<Skeleton />}>
         {tab === 'run' && <RunTab companyId={companyId} companyName={company?.name ?? ''} onOpenEmployee={open} />}
         {tab === 'advances' && <AdvancesTab companyId={companyId} onOpenEmployee={open} />}
         {tab === 'holidays' && <HolidaysTab companyId={companyId} />}

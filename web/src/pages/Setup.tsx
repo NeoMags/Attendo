@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
-import { Button, Card, ErrorNote, Field, Input, Spinner, Table, Td } from '@/components/ui'
+import { Button, Card, ErrorNote, Field, Input, Skeleton, Table, Td } from '@/components/ui'
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
@@ -69,7 +69,7 @@ export default function Setup() {
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <Card title="Departments">
-        {depts.isLoading ? <Spinner /> : (
+        {depts.isLoading ? <Skeleton /> : (
           <Table head={['Name']} empty={depts.data?.length ? undefined : 'No departments yet.'}>
             {depts.data?.map((d) => <tr key={d.id}><Td>{d.name}</Td></tr>)}
           </Table>
@@ -82,7 +82,7 @@ export default function Setup() {
       </Card>
 
       <Card title="Shifts">
-        {shifts.isLoading ? <Spinner /> : (
+        {shifts.isLoading ? <Skeleton /> : (
           <Table head={['Name', 'Hours', 'Grace', 'Days', 'Full / half day', '']} empty={shifts.data?.length ? undefined : 'No shifts yet. Late minutes are only calculated for employees with a shift.'}>
             {shifts.data?.map((s) => (
               <tr key={s.id}>

@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
-import { Badge, Button, Card, ErrorNote, PersonCell, Select, Spinner, Stat, Table, Td, type IconName } from '@/components/ui'
+import { Badge, Button, Card, ErrorNote, PersonCell, Select, Skeleton, Stat, Table, Td, type IconName } from '@/components/ui'
 import { CARD_CATALOG, DEFAULT_CARDS, moveCard, normalizeLayout, replaceCard, type CardId } from '@/lib/cards'
 import EmployeePanel from '@/components/EmployeePanel'
 import { fmtTime, humanAge, todayIn } from '@/lib/format'
@@ -78,7 +78,7 @@ export default function Overview() {
   })
 
   if (!companyId) return <p className="text-sm text-slate-600">Select or create a company to begin.</p>
-  if (q.isLoading) return <Spinner />
+  if (q.isLoading) return <Skeleton />
   if (q.error) return <ErrorNote error={q.error} />
 
   const d = q.data!
@@ -145,7 +145,7 @@ export default function Overview() {
         <div className="lg:col-span-2">
           <Card title="Last 7 days: attendance">
             <div className="h-56">
-              <Suspense fallback={<Spinner />}><AttendanceTrendChart data={d.trend} /></Suspense>
+              <Suspense fallback={<Skeleton />}><AttendanceTrendChart data={d.trend} /></Suspense>
             </div>
           </Card>
         </div>

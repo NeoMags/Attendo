@@ -7,7 +7,7 @@ import {
   dailyReport, download, fileName, productivityReport, summaryReport, toCsv, toPdf, toXlsx,
   type AttendanceDetail, type ProductivityRow, type ReportTable,
 } from '@/lib/reports'
-import { Button, Card, ErrorNote, Field, Input, Select, Spinner, Table, Td } from '@/components/ui'
+import { Button, Card, ErrorNote, Field, Input, Select, Skeleton, Table, Td } from '@/components/ui'
 
 type Kind = 'summary' | 'daily' | 'activity'
 const PAGE = 1000, MAX_PAGES = 20
@@ -80,7 +80,7 @@ export default function Reports() {
       {bad && <ErrorNote error={new Error('Choose a range of at most 92 days, with the start before the end.')} />}
       {kind === 'activity' && <p className="text-xs text-slate-500">Measurements only: presence, tracked time, distance and tracking interruptions. No score or ranking is calculated. Distance ignores inaccurate, mock and implausible fixes.</p>}
       <Card title={t ? `${t.title} · ${t.rows.length} rows` : 'Preview'}>
-        {q.isLoading ? <Spinner /> : q.error ? <ErrorNote error={q.error} /> : t && (
+        {q.isLoading ? <Skeleton /> : q.error ? <ErrorNote error={q.error} /> : t && (
           <>
             <div className="mb-3 flex flex-wrap gap-2">
               <Button variant="ghost" disabled={busy || !t.rows.length} onClick={() => exportAs('csv')}>CSV</Button>

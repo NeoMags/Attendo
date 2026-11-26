@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
 import { todayIn } from '@/lib/format'
-import { Badge, Card, ErrorNote, Field, Icon, Input, Select, Spinner, Table, Td } from '@/components/ui'
+import { Badge, Card, ErrorNote, Field, Icon, Input, Select, Skeleton, Table, Td } from '@/components/ui'
 
 interface Ev {
   id: string; event_type: 'enter' | 'exit'; occurred_at: string; confirmed_at: string
@@ -61,7 +61,7 @@ export default function Alerts() {
       </div>
       {bad && <ErrorNote error={new Error('The start date must not be after the end date.')} />}
       <Card>
-        {q.isLoading ? <Spinner /> : q.error ? <ErrorNote error={q.error} /> : (
+        {q.isLoading ? <Skeleton /> : q.error ? <ErrorNote error={q.error} /> : (
           <>
             <Table head={['When', 'Employee', 'Event', 'Place']} empty={rows.length ? undefined : 'No geofence events in this period.'}>
               {rows.map((e) => (

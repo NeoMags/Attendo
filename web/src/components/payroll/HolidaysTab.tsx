@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-import { Button, Card, ErrorNote, Field, Input, Spinner, Table, Td } from '@/components/ui'
+import { Button, Card, ErrorNote, Field, Input, Skeleton, Table, Td } from '@/components/ui'
 
 export default function HolidaysTab({ companyId }: { companyId: string }) {
   const qc = useQueryClient()
@@ -34,7 +34,7 @@ export default function HolidaysTab({ companyId }: { companyId: string }) {
       </form>
       {err && <p role="alert" className="text-sm text-red-700">{err}</p>}
       <Card>
-        {q.isLoading ? <Spinner /> : q.error ? <ErrorNote error={q.error} /> : (
+        {q.isLoading ? <Skeleton /> : q.error ? <ErrorNote error={q.error} /> : (
           <Table head={['Date', 'Holiday', '']} empty={q.data?.length ? undefined : 'No holidays added.'}>
             {(q.data ?? []).map((h) => <tr key={h.id}><Td>{h.holiday_date}</Td><Td>{h.name}</Td><Td className="text-right"><Button variant="ghost" onClick={() => { if (window.confirm(`Remove ${h.name}?`)) del.mutate(h.id) }}>Remove</Button></Td></tr>)}
           </Table>

@@ -53,14 +53,14 @@ const prefetchPages = () => {
 // The landing page starts downloading right away, in parallel with the sign-in check (instead of after it).
 if (location.pathname === '/') loadOverview().catch(() => {})
 
-import { Spinner } from '@/components/ui'
+import { Skeleton } from '@/components/ui'
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 15_000, retry: 1, refetchOnWindowFocus: false } } })
 
 function Protected() {
   const { session, loading } = useAuth()
   useEffect(() => { if (session) prefetchPages() }, [session])
-  if (loading) return <Spinner />
+  if (loading) return <Skeleton />
   if (!session) return <Navigate to="/login" replace />
   return <Layout />
 }

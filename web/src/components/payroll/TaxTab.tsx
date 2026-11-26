@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-import { Badge, Button, Card, ErrorNote, Field, Input, Modal, Select, Spinner, Table, Td } from '@/components/ui'
+import { Badge, Button, Card, ErrorNote, Field, Input, Modal, Select, Skeleton, Table, Td } from '@/components/ui'
 import { AMOUNT_FIELDS, EMPTY_DECL, TAX_WARNING, taxError, taxYearLabel, taxYearOf, type Declaration, type Projection } from '@/lib/tax'
 
 type Row = { employee_id: string; employee_code: string; full_name: string; projection: Projection }
@@ -19,7 +19,7 @@ export default function TaxTab({ companyId }: { companyId: string }) {
       <p className="text-sm text-slate-600">Projected annual income tax and the monthly TDS needed, from each employee&apos;s salary and investment declaration. This is a <b>projection only</b>: payslips do not deduct TDS yet. Slabs, rebate and standard deduction come from the Income-tax Act 2025 pages; the old-regime slabs and several deduction limits are flagged unverified in the parameter table.</p>
       <Field label="Tax year"><Select value={year} onChange={(e) => setYear(Number(e.target.value))}>{[year - 1, year, year + 1].filter((y) => y >= 2026).map((y) => <option key={y} value={y}>{taxYearLabel(y)}</option>)}</Select></Field>
       <Card>
-        {q.isLoading ? <Spinner /> : q.error ? <ErrorNote error={q.error} /> : (
+        {q.isLoading ? <Skeleton /> : q.error ? <ErrorNote error={q.error} /> : (
           <Table head={['Employee', 'Regime', 'Annual income', 'Taxable', 'Annual tax', 'Monthly TDS', '']} empty={q.data?.length ? undefined : 'No employees with salary details.'}>
             {(q.data ?? []).map((r) => (
               <tr key={r.employee_id}>
@@ -57,7 +57,7 @@ function DeclarationModal({ row, year, onClose }: { row: Row; year: number; onCl
   const p = row.projection
   return (
     <Modal title={`Tax declaration - ${row.full_name}`} onClose={onClose} wide>
-      {load.isLoading || !d ? <Spinner /> : (
+      {load.isLoading || !d ? <Skeleton /> : (
         <div className="space-y-3">
           <Field label="Regime"><Select value={d.regime} onChange={(e) => setD({ ...d, regime: e.target.value as 'old' | 'new' })}><option value="new">New regime (default)</option><option value="old">Old regime (with deductions)</option></Select></Field>
           {AMOUNT_FIELDS.filter((f) => !f.oldOnly || d.regime === 'old').map((f) => (

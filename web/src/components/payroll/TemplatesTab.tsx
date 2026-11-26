@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-import { Badge, Button, Card, ErrorNote, Field, Input, Modal, Spinner, Table, Td } from '@/components/ui'
+import { Badge, Button, Card, ErrorNote, Field, Input, Modal, Skeleton, Table, Td } from '@/components/ui'
 import type { Template } from '@/lib/payroll'
 
 type Draft = Omit<Template, 'id'> & { id?: string }
@@ -26,7 +26,7 @@ export default function TemplatesTab({ companyId }: { companyId: string }) {
         <Button onClick={() => setEdit({ ...BLANK })}>New template</Button>
       </div>
       <Card>
-        {q.isLoading ? <Spinner /> : q.error ? <ErrorNote error={q.error} /> : (
+        {q.isLoading ? <Skeleton /> : q.error ? <ErrorNote error={q.error} /> : (
           <Table head={['Name', 'Header', 'Sections', '']} empty={q.data?.length ? undefined : 'No templates — payslips use a plain layout.'}>
             {(q.data ?? []).map((t) => (
               <tr key={t.id}>

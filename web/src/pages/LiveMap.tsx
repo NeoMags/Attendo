@@ -6,7 +6,7 @@ import { useAuth } from '@/lib/auth'
 import { env } from '@/lib/env'
 import { humanAge } from '@/lib/format'
 import { TONE_COLOR, toPins, type LiveStatus } from '@/lib/livemap'
-import { Badge, Card, ErrorNote, Spinner, Table, Td } from '@/components/ui'
+import { Badge, Card, ErrorNote, Skeleton, Table, Td } from '@/components/ui'
 
 export default function LiveMap() {
   const { companyId } = useAuth()
@@ -26,7 +26,7 @@ export default function LiveMap() {
   const selected = pins.find((p) => p.employee_id === sel)
 
   if (!companyId) return <p className="text-sm text-slate-600">Select a company first.</p>
-  if (q.isLoading) return <Spinner />
+  if (q.isLoading) return <Skeleton />
   if (q.error) return <ErrorNote error={q.error} />
   const noPos = (q.data ?? []).length - pins.length
 

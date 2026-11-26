@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-import { Button, Card, ErrorNote, Field, Input, Modal, Select, Spinner, Table, Td } from '@/components/ui'
+import { Button, Card, ErrorNote, Field, Input, Modal, Select, Skeleton, Table, Td } from '@/components/ui'
 import { inr, payError } from '@/lib/payroll'
 
 interface Bal { id: string; employee_id: string; amount: number; given_on: string; reason: string | null; monthly_deduction: number | null; recovered: number; remaining: number; voided: boolean; void_reason: string | null; employees: { full_name: string; employee_code: string } | null }
@@ -27,7 +27,7 @@ export default function AdvancesTab({ companyId, onOpenEmployee }: { companyId: 
         <Button onClick={() => setOpen(true)}>Give advance</Button>
       </div>
       <Card>
-        {q.isLoading ? <Spinner /> : q.error ? <ErrorNote error={q.error} /> : (
+        {q.isLoading ? <Skeleton /> : q.error ? <ErrorNote error={q.error} /> : (
           <Table head={['Employee', 'Given on', 'Amount', 'Monthly deduction', 'Recovered', 'Outstanding', 'Reason', '']} empty={rows.length ? undefined : 'No advances.'}>
             {rows.map((r) => (
               <tr key={r.id}>

@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
 import { isAdmin } from '@/lib/roles'
-import { Badge, Button, Card, ErrorNote, Field, Input, Modal, PersonCell, Select, Spinner, Table, Td } from '@/components/ui'
+import { Badge, Button, Card, ErrorNote, Field, Input, Modal, PersonCell, Select, Skeleton, Table, Td } from '@/components/ui'
 
 type Status = 'pending' | 'manager_approved' | 'approved' | 'rejected' | 'cancelled'
 interface Req {
@@ -90,7 +90,7 @@ function LeaveTypes({ companyId }: { companyId: string }) {
   })
   return (
     <Card title="Leave types">
-      {q.isLoading ? <Spinner /> : q.error ? <ErrorNote error={q.error} /> : (
+      {q.isLoading ? <Skeleton /> : q.error ? <ErrorNote error={q.error} /> : (
         <Table head={['Name', 'Days per year', 'Paid', 'Status', '']} empty={q.data?.length ? undefined : 'No leave types yet. Add one below so employees can apply.'}>
           {q.data?.map((t) => (
             <tr key={t.id}>
@@ -166,7 +166,7 @@ export default function Leave() {
         Employees apply in the mobile app. A manager approves first, then an administrator gives final approval{admin ? ' (you can approve directly)' : ''}.
       </p>
       <Card>
-        {q.isLoading ? <Spinner /> : q.error ? <ErrorNote error={q.error} /> : (
+        {q.isLoading ? <Skeleton /> : q.error ? <ErrorNote error={q.error} /> : (
           <Table head={['Employee', 'Type', 'Dates', 'Days', 'Status', 'Notes', '']} empty={rows.length ? undefined : filter === 'action' ? 'Nothing is waiting for your decision.' : 'No requests.'}>
             {rows.map((r) => (
               <tr key={r.id}>

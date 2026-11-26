@@ -2,18 +2,32 @@ import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAt
 
 const cx = (...a: Array<string | false | undefined>) => a.filter(Boolean).join(' ')
 
-export function Button({ variant = 'primary', className, ...p }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'ghost' | 'danger' }) {
+export function Spinner({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
+  const dim = size === 'sm' ? 'h-4 w-4' : size === 'lg' ? 'h-8 w-8' : 'h-5 w-5'
+  return (
+    <svg aria-hidden className={cx('animate-spin', dim)} fill="none" viewBox="0 0 24 24">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.4 0 0 5.4 0 12h4z" />
+    </svg>
+  )
+}
+
+export function Button({ variant = 'primary', loading, className, children, disabled, ...p }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'ghost' | 'danger'; loading?: boolean }) {
   return (
     <button
       {...p}
+      disabled={disabled || loading}
       className={cx(
-        'inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50',
+        'inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50',
         variant === 'primary' && 'bg-amber-400 text-slate-900 shadow-sm hover:bg-amber-300',
         variant === 'ghost' && 'border border-slate-300 bg-white text-slate-800 hover:bg-slate-50',
         variant === 'danger' && 'bg-red-600 text-white hover:bg-red-700',
         className,
       )}
-    />
+    >
+      {loading && <Spinner size="sm" />}
+      {children}
+    </button>
   )
 }
 
@@ -56,6 +70,7 @@ const ICONS: Record<string, string> = {
   pin: 'M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6',
   route: 'M6 19a3 3 0 1 0 0-6 3 3 0 0 0 0 6M18 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6M9 16h5a3 3 0 0 0 3-3v-2',
   userx: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M17 8l5 5M22 8l-5 5',
+  x: 'M18 6 6 18M6 6l12 12',
 }
 export type IconName = keyof typeof ICONS
 export function Icon({ name, className }: { name: IconName; className?: string }) {
@@ -124,7 +139,7 @@ export function Modal({ title, onClose, children, wide }: { title: string; onClo
       <div className={`w-full ${wide ? 'max-w-3xl' : 'max-w-md'} max-h-[90vh] overflow-y-auto rounded-lg bg-white p-5 shadow-xl`}>
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-base font-semibold">{title}</h2>
-          <button onClick={onClose} aria-label="Close" className="text-slate-500 hover:text-slate-900">✕</button>
+          <button onClick={onClose} aria-label="Close" className="text-slate-500 hover:text-slate-900"><Icon name="x" /></button>
         </div>
         {children}
       </div>
@@ -138,7 +153,7 @@ export function ErrorNote({ error }: { error: unknown }) {
   return <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{msg}</p>
 }
 
-export const Spinner = () => (
+export const Skeleton = () => (
   <div role="status" aria-label="Loading" className="space-y-3 py-6">
     {[70, 100, 85].map((w) => <div key={w} className="h-4 animate-pulse rounded bg-slate-200" style={{ width: `${w}%` }} />)}
   </div>

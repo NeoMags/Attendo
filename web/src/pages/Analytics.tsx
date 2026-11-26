@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
 import { todayIn } from '@/lib/format'
 import { dailyStats, type AttRow } from '@/lib/analytics'
-import { Card, ErrorNote, Field, Input, Spinner, Stat } from '@/components/ui'
+import { Card, ErrorNote, Field, Input, Skeleton, Stat } from '@/components/ui'
 
 const addDays = (iso: string, n: number) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10) }
 const PAGE = 1000, MAX_PAGES = 10
@@ -45,7 +45,7 @@ export default function Analytics() {
         </div>
       </div>
       {bad && <ErrorNote error={new Error('Choose a range of at most 92 days, with the start before the end.')} />}
-      {q.isLoading ? <Spinner /> : q.error ? <ErrorNote error={q.error} /> : (
+      {q.isLoading ? <Skeleton /> : q.error ? <ErrorNote error={q.error} /> : (
         <>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
             <Stat label="Days with attendance" value={days.length} />

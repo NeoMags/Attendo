@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { download } from '@/lib/reports'
-import { Badge, Button, Card, ErrorNote, Field, Input, Spinner, Table, Td } from '@/components/ui'
+import { Badge, Button, Card, ErrorNote, Field, Input, Skeleton, Table, Td } from '@/components/ui'
 import { currentYm, inr, monthLabel, monthStart, payError } from '@/lib/payroll'
 import { ecrText, esiCsv, WARNING_TEXT, type StatRow, type StatSummary } from '@/lib/statutory'
 
@@ -52,7 +52,7 @@ export default function StatutoryTab({ companyId }: { companyId: string }) {
           {(['pf', 'esi'] as const).map((k) => <button key={k} role="tab" aria-selected={kind === k} onClick={() => setKind(k)} className={`rounded px-3 py-1.5 text-sm ${kind === k ? 'bg-slate-900 text-white' : 'bg-slate-100'}`}>{k === 'pf' ? 'PF (EPF / EPS / EDLI)' : 'ESI'}</button>)}
         </div>
       </div>
-      {q.isLoading ? <Spinner /> : q.error ? <ErrorNote error={q.error} /> : data && (
+      {q.isLoading ? <Skeleton /> : q.error ? <ErrorNote error={q.error} /> : data && (
         <>
           {flagged.length > 0 && (
             <Card title="Needs attention">

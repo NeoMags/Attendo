@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
 import { isAdmin } from '@/lib/roles'
 import { GEOFENCE_TYPES, validateGeofence } from '@/lib/geofence'
-import { Badge, Button, Card, ErrorNote, Field, Input, Select, Spinner, Table, Td } from '@/components/ui'
+import { Badge, Button, Card, ErrorNote, Field, Input, Select, Skeleton, Table, Td } from '@/components/ui'
 
 interface Fence { id: string; name: string; type: string; latitude: number; longitude: number; radius_m: number; hysteresis_fixes: number; is_active: boolean; alert_on_exit: boolean }
 
@@ -50,7 +50,7 @@ export default function Geofences() {
     <div className="grid gap-4 lg:grid-cols-3">
       <div className="lg:col-span-2">
         <Card title="Geofences">
-          {q.isLoading ? <Spinner /> : q.error ? <ErrorNote error={q.error} /> : (
+          {q.isLoading ? <Skeleton /> : q.error ? <ErrorNote error={q.error} /> : (
             <Table head={['Name', 'Type', 'Centre', 'Radius', 'Status', 'Exit alert', '']} empty={q.data?.length ? undefined : 'No geofences yet.'}>
               {q.data?.map((g) => (
                 <tr key={g.id}>

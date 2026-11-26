@@ -4,7 +4,7 @@ import { callFunction, supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
 import { isAdmin } from '@/lib/roles'
 import EmployeeDetails from '@/components/EmployeeDetails'
-import { Badge, Button, Card, ErrorNote, Field, Input, Modal, Select, Spinner, Table, Td } from '@/components/ui'
+import { Badge, Button, Card, ErrorNote, Field, Input, Modal, Select, Skeleton, Table, Td } from '@/components/ui'
 
 interface Emp {
   id: string; employee_code: string; full_name: string; is_active: boolean; preferred_language: string
@@ -55,7 +55,7 @@ export default function Employees() {
         </div>
       </div>
       <Card>
-        {list.isLoading ? <Spinner /> : list.error ? <ErrorNote error={list.error} /> : (
+        {list.isLoading ? <Skeleton /> : list.error ? <ErrorNote error={list.error} /> : (
           <Table head={['ID', 'Name', 'Department', 'Shift', 'Status', '']} empty={rows.length ? undefined : 'No employees found.'}>
             {rows.map((e) => (
               <tr key={e.id}>

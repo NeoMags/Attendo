@@ -2,7 +2,7 @@ import { Suspense } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { navFor, canUseDashboard, NAV_GROUPS } from '@/lib/roles'
-import { Button, Select, Spinner } from '@/components/ui'
+import { Button, Select, Skeleton } from '@/components/ui'
 import Clock from '@/components/Clock'
 import NotificationBell from '@/components/NotificationBell'
 
@@ -74,7 +74,7 @@ export default function Layout() {
             <NavLink key={n.to} to={n.to} end={n.to === '/'} className={({ isActive }) => `whitespace-nowrap rounded-md px-3 py-1.5 text-sm ${isActive ? 'bg-amber-100 font-medium text-slate-900' : 'text-slate-700'}`}>{n.label}</NavLink>
           ))}
         </nav>
-        <main className="min-w-0 flex-1 p-4 md:p-6"><Suspense fallback={<Spinner />}><Outlet /></Suspense></main>
+        <main className="min-w-0 flex-1 p-4 md:p-6"><Suspense fallback={<Skeleton />}><Outlet /></Suspense></main>
       </div>
     </div>
   )

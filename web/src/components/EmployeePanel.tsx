@@ -6,7 +6,7 @@ import { useAuth } from '@/lib/auth'
 import { fmtDuration, fmtTime, humanAge, todayIn } from '@/lib/format'
 import { summarize, type TrackPoint } from '@/lib/route'
 import { shiftSeconds, underOver } from '@/lib/worktime'
-import { Avatar, Badge, ErrorNote, Icon, Spinner, type IconName } from '@/components/ui'
+import { Avatar, Badge, ErrorNote, Icon, Skeleton, type IconName } from '@/components/ui'
 
 interface Emp {
   id: string; employee_code: string; full_name: string
@@ -95,7 +95,7 @@ export default function EmployeePanel({ employeeId, onClose }: { employeeId: str
           </div>
           <button onClick={onClose} aria-label="Close" className="text-slate-500 hover:text-slate-900">✕</button>
         </div>
-        {q.isLoading ? <Spinner /> : q.error ? <ErrorNote error={q.error} /> : d && (
+        {q.isLoading ? <Skeleton /> : q.error ? <ErrorNote error={q.error} /> : d && (
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <Badge tone={d.live?.is_checked_in ? 'good' : 'muted'}>{d.live?.is_checked_in ? 'Checked in' : d.att.length ? 'Checked out' : 'Not in today'}</Badge>

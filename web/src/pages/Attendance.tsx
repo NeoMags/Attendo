@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
-import { Badge, Button, Card, ErrorNote, Field, Input, Modal, PersonCell, Select, Spinner, Table, Td } from '@/components/ui'
+import { Badge, Button, Card, ErrorNote, Field, Input, Modal, PersonCell, Select, Skeleton, Table, Td } from '@/components/ui'
 import EmployeePanel from '@/components/EmployeePanel'
 import { shiftSeconds, underOver } from '@/lib/worktime'
 import { isAdmin } from '@/lib/roles'
@@ -136,7 +136,7 @@ export default function Attendance() {
       </div>
       {bad && <ErrorNote error={new Error('The start date must not be after the end date.')} />}
       <Card>
-        {q.isLoading ? <Spinner /> : q.error ? <ErrorNote error={q.error} /> : (
+        {q.isLoading ? <Skeleton /> : q.error ? <ErrorNote error={q.error} /> : (
           <>
             <Table head={['Date', 'Employee', 'Check-in', 'Check-out', 'Late', 'Worked', 'Under', 'Over', 'Status', '']} empty={rows.length ? undefined : 'No attendance in this period.'}>
               {rows.map((r) => (

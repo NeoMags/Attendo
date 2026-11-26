@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
 import { isAdmin } from '@/lib/roles'
-import { Button, Card, ErrorNote, Field, Select, Spinner, Table, Td } from '@/components/ui'
+import { Button, Card, ErrorNote, Field, Select, Skeleton, Table, Td } from '@/components/ui'
 
 interface Emp { id: string; employee_code: string; full_name: string; user_id: string | null; is_active: boolean }
 interface Link { manager_employee_id: string; employee_id: string }
@@ -39,7 +39,7 @@ export default function Team() {
   })
 
   if (!companyId) return <p className="text-sm text-slate-600">Select a company first.</p>
-  if (data.isLoading) return <Spinner />
+  if (data.isLoading) return <Skeleton />
   if (data.error) return <ErrorNote error={data.error} />
   const { emps, managerUsers, links } = data.data!
   const managers = emps.filter((e) => e.user_id && managerUsers.has(e.user_id))

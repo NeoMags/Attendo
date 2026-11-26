@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { prepareUpload } from '@/lib/image'
 import { aadhaarLast4, aadhaarStatus, docPath, formatAadhaar, isEsiIp, isIfsc, isUan, normalizePhone } from '@/lib/identity'
-import { Button, ErrorNote, Field, Input, Modal, Select, Spinner } from '@/components/ui'
+import { Button, ErrorNote, Field, Input, Modal, Select, Skeleton } from '@/components/ui'
 
 const BUCKET = 'employee-docs'
 
@@ -115,7 +115,7 @@ export default function EmployeeDetails({ companyId, employeeId, name, onClose }
   const set = (k: string) => (e: { target: { value: string } }) => setF({ ...f!, [k]: e.target.value })
   return (
     <Modal title={`Details · ${name}`} onClose={onClose}>
-      {load.isLoading || !f ? <Spinner /> : load.error ? <ErrorNote error={load.error} /> : (
+      {load.isLoading || !f ? <Skeleton /> : load.error ? <ErrorNote error={load.error} /> : (
         <form onSubmit={(e: FormEvent) => { e.preventDefault(); setErr(null); save.mutate() }} className="max-h-[75vh] space-y-3 overflow-y-auto pr-1">
           <Section title="Photo">
             <div className="flex items-center gap-3">

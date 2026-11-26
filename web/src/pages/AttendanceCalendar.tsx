@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
 import { todayIn } from '@/lib/format'
 import { classifyDay, leadingBlanks, monthDays, shiftMonth, type DayKind } from '@/lib/calendar'
-import { Button, Card, ErrorNote, Field, Select, Spinner, Stat } from '@/components/ui'
+import { Button, Card, ErrorNote, Field, Select, Skeleton, Stat } from '@/components/ui'
 
 interface Rec { work_date: string; late_minutes: number | null; status: string }
 const WD = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -78,7 +78,7 @@ export default function AttendanceCalendar() {
         </div>
       </div>
       <ErrorNote error={emps.error ?? att.error ?? leave.error} />
-      {!empId ? <Card><p className="py-8 text-center text-sm text-slate-500">Choose an employee to see their month.</p></Card> : att.isLoading ? <Spinner /> : (
+      {!empId ? <Card><p className="py-8 text-center text-sm text-slate-500">Choose an employee to see their month.</p></Card> : att.isLoading ? <Skeleton /> : (
         <>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <Stat label="Present" value={count('present') + count('late') + count('open')} tone="good" icon="check" />

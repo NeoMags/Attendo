@@ -7,7 +7,7 @@ import { useAuth } from '@/lib/auth'
 import { env } from '@/lib/env'
 import { fmtDuration, fmtTime, todayIn } from '@/lib/format'
 import { cleanTrack, projectToBox, summarize, type TrackPoint } from '@/lib/route'
-import { Badge, Button, Card, ErrorNote, Field, Input, Select, Spinner, Stat, Table, Td } from '@/components/ui'
+import { Badge, Button, Card, ErrorNote, Field, Input, Select, Skeleton, Stat, Table, Td } from '@/components/ui'
 
 interface Rec { latitude: number; longitude: number; accuracy: number | null; is_mock: boolean; recorded_at: string }
 interface Intr { id: string; started_at: string; ended_at: string | null; reason: string }
@@ -93,7 +93,7 @@ export default function Routes() {
       </div>
       <ErrorNote error={emps.error} />
       {!empId ? <p className="text-sm text-slate-600">Choose an employee and a date.</p>
-        : day.isLoading ? <Spinner /> : day.error ? <ErrorNote error={day.error} />
+        : day.isLoading ? <Skeleton /> : day.error ? <ErrorNote error={day.error} />
         : !day.data!.att.length ? <p className="text-sm text-slate-600">No attendance on this date.</p> : (
           <>
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">

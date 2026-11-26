@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { download } from '@/lib/reports'
-import { Badge, Button, Card, ErrorNote, Field, Input, Modal, Select, Spinner } from '@/components/ui'
+import { Badge, Button, Card, ErrorNote, Field, Input, Modal, Select, Skeleton } from '@/components/ui'
 import { asLang, LANGS, type Lang } from '@/lib/payslipI18n'
 import { currentYm, inr, monthLabel, monthStart, openForPrint, payError, payslipLines, payslipPdf, type Payslip, type Template } from '@/lib/payroll'
 
@@ -73,7 +73,7 @@ export default function RunTab({ companyId, companyName, onOpenEmployee }: { com
       {err && <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{err}</p>}
       {d && d.missing.length > 0 && <p className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">No pay details yet for: {d.missing.map((m) => m.full_name).join(', ')}. Add them in Employees → Details.</p>}
       <Card title={d?.run ? `${monthLabel(month)} · ${draft ? 'Draft' : 'Finalized'}` : monthLabel(month)}>
-        {q.isLoading ? <Spinner /> : q.error ? <ErrorNote error={q.error} /> : !d?.run ? <p className="p-4 text-sm text-slate-500">Not generated yet.</p> : (
+        {q.isLoading ? <Skeleton /> : q.error ? <ErrorNote error={q.error} /> : !d?.run ? <p className="p-4 text-sm text-slate-500">Not generated yet.</p> : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead className="border-b border-slate-200 text-xs uppercase text-slate-500"><tr>

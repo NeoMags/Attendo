@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
-import { Badge, Button, Card, ErrorNote, Field, Input, Modal, Select, Spinner } from '@/components/ui'
+import { Badge, Button, Card, ErrorNote, Field, Input, Modal, Select, Skeleton } from '@/components/ui'
 import { STATUS_LABEL, STATUS_TONE, groupTasks, isOverdue, subProgress, taskError, type TaskRow, type TaskStatus } from '@/lib/tasks'
 
 interface Emp { id: string; full_name: string; employee_code: string }
@@ -161,7 +161,7 @@ export default function Tasks() {
       <p className="text-sm text-slate-600">Assign tasks and subtasks to employees. They update progress in the mobile app and submit finished work; you approve it or send it back with a reason.</p>
       {err && <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{err}</p>}
       <Card>
-        {q.isLoading ? <Spinner /> : q.error ? <ErrorNote error={q.error} /> : shown.length === 0 ? <p className="p-4 text-sm text-slate-500">No tasks match.</p> : (
+        {q.isLoading ? <Skeleton /> : q.error ? <ErrorNote error={q.error} /> : shown.length === 0 ? <p className="p-4 text-sm text-slate-500">No tasks match.</p> : (
           <div className="divide-y divide-slate-100">
             {shown.map((t) => {
               const p = subProgress(t.subs)

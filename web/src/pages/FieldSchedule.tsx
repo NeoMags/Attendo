@@ -5,7 +5,7 @@ import { useAuth } from '@/lib/auth'
 import { todayIn } from '@/lib/format'
 import { isoWeekday, leadingBlanks, monthDays, shiftMonth } from '@/lib/calendar'
 import { hhmm, visitStatus, type EnterEvt, type Sched, type VisitStatus } from '@/lib/schedule'
-import { Badge, Button, Card, ErrorNote, Field, Input, Modal, Select, Spinner } from '@/components/ui'
+import { Badge, Button, Card, ErrorNote, Field, Input, Modal, Select, Skeleton } from '@/components/ui'
 
 interface Emp { id: string; full_name: string; employee_code: string }
 interface Fence { id: string; name: string }
@@ -62,7 +62,7 @@ export default function FieldSchedule() {
   })
 
   if (!companyId) return <p className="text-sm text-slate-600">Select a company first.</p>
-  if (base.isLoading || data.isLoading) return <Spinner />
+  if (base.isLoading || data.isLoading) return <Skeleton />
   if (base.error || data.error) return <ErrorNote error={base.error ?? data.error} />
 
   const emps = base.data!.emps, fences = base.data!.fences

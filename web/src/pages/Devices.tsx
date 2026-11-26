@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
 import { humanAge } from '@/lib/format'
-import { Badge, Card, ErrorNote, PersonCell, Spinner, Stat, Table, Td } from '@/components/ui'
+import { Badge, Card, ErrorNote, PersonCell, Skeleton, Stat, Table, Td } from '@/components/ui'
 import EmployeePanel from '@/components/EmployeePanel'
 
 interface Row {
@@ -28,7 +28,7 @@ export default function Devices() {
     },
   })
   if (!companyId) return <p className="text-sm text-slate-600">Select a company first.</p>
-  if (q.isLoading) return <Spinner />
+  if (q.isLoading) return <Skeleton />
   if (q.error) return <ErrorNote error={q.error} />
   const live = q.data!.filter((r) => r.is_checked_in)
   const count = (h: Row['health_status']) => live.filter((r) => r.health_status === h).length

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-import { Badge, ErrorNote, Modal, Spinner, Table, Td } from '@/components/ui'
+import { Badge, ErrorNote, Modal, Skeleton, Table, Td } from '@/components/ui'
 import { inr, monthLabel } from '@/lib/payroll'
 
 /** One employee's money picture: salary history, advances, outstanding balance and the full ledger. */
@@ -26,7 +26,7 @@ export default function EmployeeStatement({ employeeId, name, onClose }: { emplo
   const KIND: Record<string, string> = { advance_given: 'Advance given', advance_recovered: 'Advance recovered', salary_paid: 'Salary paid', advance_voided: 'Advance voided / written off', advance_reversed: 'Advance recovery reversed' }
   return (
     <Modal title={`Account · ${name}`} onClose={onClose} wide>
-      {q.isLoading ? <Spinner /> : q.error ? <ErrorNote error={q.error} /> : d && (
+      {q.isLoading ? <Skeleton /> : q.error ? <ErrorNote error={q.error} /> : d && (
         <div className="space-y-5">
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div className="rounded-md bg-amber-50 p-3"><div className="text-xs text-slate-500">Advance outstanding (employee owes company)</div><div className="text-lg font-semibold">{inr(outstanding)}</div></div>
