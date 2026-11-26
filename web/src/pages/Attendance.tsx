@@ -140,7 +140,7 @@ export default function Attendance() {
           <>
             <Table head={['Date', 'Employee', 'Check-in', 'Check-out', 'Late', 'Worked', 'Under', 'Over', 'Status', '']} empty={rows.length ? undefined : 'No attendance in this period.'}>
               {rows.map((r) => (
-                <tr key={r.id}>
+                <tr key={r.id} className="tr-hoverable">
                   <Td>{r.work_date}</Td>
                   <Td><PersonCell name={r.employees?.full_name ?? '—'} code={r.employees?.employee_code} onClick={() => setOpenEmp(r.employee_id)} /></Td>
                   <Td>{fmtTime(r.check_in_at, tz)}</Td>

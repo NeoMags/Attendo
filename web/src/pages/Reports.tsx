@@ -90,7 +90,7 @@ export default function Reports() {
             <ErrorNote error={exportErr} />
             {q.data!.truncated && <p className="mb-2 text-xs text-amber-700">Too many rows: output was cut off. Narrow the date range.</p>}
             <Table head={t.columns} empty={t.rows.length ? undefined : 'No data in this period.'}>
-              {t.rows.slice(0, 200).map((r, i) => <tr key={i}>{r.map((c, j) => <Td key={j}>{c}</Td>)}</tr>)}
+              {t.rows.slice(0, 200).map((r, i) => <tr key={i} className="tr-hoverable">{r.map((c, j) => <Td key={j}>{c}</Td>)}</tr>)}
             </Table>
             {t.rows.length > 200 && <p className="mt-2 text-xs text-slate-500">Preview shows the first 200 rows; exports contain all {t.rows.length}.</p>}
             <p className="mt-2 text-xs text-slate-500">PDF uses a Latin font: Kannada/Hindi names may not display in PDF. Use Excel or CSV for those.</p>

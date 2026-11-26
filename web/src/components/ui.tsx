@@ -28,7 +28,7 @@ export function Button({
       {...p}
       disabled={disabled || loading}
       className={cx(
-        'inline-flex items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+        'inline-flex items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 btn-pressable',
         variant === 'primary' && 'shadow-sm',
         variant === 'ghost' && 'border',
         variant === 'danger' && 'shadow-sm',
@@ -148,7 +148,7 @@ export function Card({
 }) {
   return (
     <section
-      className={cx('rounded-xl p-5', className)}
+      className={cx('rounded-xl p-5 card-lift', className)}
       style={{
         background: 'var(--color-bg-surface)',
         border: '1px solid var(--color-border)',

@@ -29,7 +29,7 @@ export default function Companies() {
       <Card>
         <Table head={['Code', 'Name', 'Timezone', 'Status', '']} empty={companies.length ? undefined : 'No companies yet.'}>
           {companies.map((c) => (
-            <tr key={c.id}>
+            <tr key={c.id} className="tr-hoverable">
               <Td className="font-mono">{c.code}</Td>
               <Td>{c.name}</Td>
               <Td>{c.timezone}</Td>

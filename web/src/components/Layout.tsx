@@ -253,7 +253,7 @@ export default function Layout() {
         </header>
 
         {/* Page content */}
-        <main className="min-w-0 flex-1 p-4 md:p-6">
+        <main className="min-w-0 flex-1 p-4 md:p-6 animate-page">
           <Suspense fallback={<Skeleton />}>
             <Outlet />
           </Suspense>

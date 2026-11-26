@@ -60,7 +60,7 @@ export default function LiveMap() {
       <Card title="Positions">
         <Table head={['Employee', 'Last fix', 'Status', 'Coordinates']} empty={pins.length ? undefined : 'No checked-in employee has a position yet.'}>
           {pins.map((p) => (
-            <tr key={p.employee_id} className="cursor-pointer" onClick={() => setSel(p.employee_id)}>
+            <tr key={p.employee_id} className="cursor-pointer tr-hoverable" onClick={() => setSel(p.employee_id)}>
               <Td>{p.full_name} <span className="text-slate-400">({p.employee_code})</span></Td>
               <Td>{humanAge(p.seconds_since_fix)}</Td>
               <Td><Badge tone={p.tone === 'stale' ? 'muted' : p.tone}>{p.tone === 'stale' ? 'stale' : p.health_status ?? 'ok'}</Badge></Td>

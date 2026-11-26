@@ -53,7 +53,7 @@ export default function Geofences() {
           {q.isLoading ? <Skeleton /> : q.error ? <ErrorNote error={q.error} /> : (
             <Table head={['Name', 'Type', 'Centre', 'Radius', 'Status', 'Exit alert', '']} empty={q.data?.length ? undefined : 'No geofences yet.'}>
               {q.data?.map((g) => (
-                <tr key={g.id}>
+                <tr key={g.id} className="tr-hoverable">
                   <Td>{g.name}</Td><Td>{g.type.replace('_', ' ')}</Td>
                   <Td className="font-mono text-xs">{g.latitude.toFixed(5)}, {g.longitude.toFixed(5)}</Td>
                   <Td>{g.radius_m} m</Td>

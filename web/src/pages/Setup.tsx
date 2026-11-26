@@ -71,7 +71,7 @@ export default function Setup() {
       <Card title="Departments">
         {depts.isLoading ? <Skeleton /> : (
           <Table head={['Name']} empty={depts.data?.length ? undefined : 'No departments yet.'}>
-            {depts.data?.map((d) => <tr key={d.id}><Td>{d.name}</Td></tr>)}
+            {depts.data?.map((d) => <tr key={d.id} className="tr-hoverable"><Td>{d.name}</Td></tr>)}
           </Table>
         )}
         <form onSubmit={(e: FormEvent) => { e.preventDefault(); addDept.mutate() }} className="mt-3 flex gap-2">
@@ -85,7 +85,7 @@ export default function Setup() {
         {shifts.isLoading ? <Skeleton /> : (
           <Table head={['Name', 'Hours', 'Grace', 'Days', 'Full / half day', '']} empty={shifts.data?.length ? undefined : 'No shifts yet. Late minutes are only calculated for employees with a shift.'}>
             {shifts.data?.map((s) => (
-              <tr key={s.id}>
+              <tr key={s.id} className="tr-hoverable">
                 <Td>{s.name}</Td>
                 <Td>{s.start_time.slice(0, 5)}–{s.end_time.slice(0, 5)}</Td>
                 <Td>{s.grace_minutes} min</Td>

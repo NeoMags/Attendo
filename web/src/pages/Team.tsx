@@ -62,7 +62,7 @@ export default function Team() {
         {mgr && (
           <div className="mt-4 space-y-3">
             <Table head={['Assigned employee', '']} empty={assigned.length ? undefined : 'Nobody assigned yet.'}>
-              {assigned.map((e) => <tr key={e.id}><Td>{e.full_name} <span className="text-slate-400">({e.employee_code})</span></Td><Td className="text-right">{admin && <Button variant="ghost" disabled={remove.isPending} onClick={() => remove.mutate(e.id)}>Remove</Button>}</Td></tr>)}
+              {assigned.map((e) => <tr key={e.id} className="tr-hoverable"><Td>{e.full_name} <span className="text-slate-400">({e.employee_code})</span></Td><Td className="text-right">{admin && <Button variant="ghost" disabled={remove.isPending} onClick={() => remove.mutate(e.id)}>Remove</Button>}</Td></tr>)}
             </Table>
             {admin && (
               <div className="flex items-end gap-2">

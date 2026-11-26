@@ -121,12 +121,12 @@ export default function Routes() {
             <div className="grid gap-4 lg:grid-cols-2">
               <Card title="Stops">
                 <Table head={['From', 'To', 'Duration']} empty={sum.stops.length ? undefined : 'No stops of 5 minutes or more.'}>
-                  {sum.stops.map((s) => <tr key={s.start}><Td>{fmtTime(new Date(s.start).toISOString(), tz)}</Td><Td>{fmtTime(new Date(s.end).toISOString(), tz)}</Td><Td>{fmtDuration(s.durationS)}</Td></tr>)}
+                  {sum.stops.map((s) => <tr key={s.start} className="tr-hoverable"><Td>{fmtTime(new Date(s.start).toISOString(), tz)}</Td><Td>{fmtTime(new Date(s.end).toISOString(), tz)}</Td><Td>{fmtDuration(s.durationS)}</Td></tr>)}
                 </Table>
               </Card>
               <Card title="Tracking interruptions">
                 <Table head={['From', 'To', 'Reason']} empty={day.data!.intr.length ? undefined : 'None recorded.'}>
-                  {day.data!.intr.map((i) => <tr key={i.id}><Td>{fmtTime(i.started_at, tz)}</Td><Td>{i.ended_at ? fmtTime(i.ended_at, tz) : <Badge tone="warn">ongoing</Badge>}</Td><Td>{i.reason.replaceAll('_', ' ')}</Td></tr>)}
+                  {day.data!.intr.map((i) => <tr key={i.id} className="tr-hoverable"><Td>{fmtTime(i.started_at, tz)}</Td><Td>{i.ended_at ? fmtTime(i.ended_at, tz) : <Badge tone="warn">ongoing</Badge>}</Td><Td>{i.reason.replaceAll('_', ' ')}</Td></tr>)}
                 </Table>
               </Card>
             </div>

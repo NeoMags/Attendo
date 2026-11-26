@@ -58,7 +58,7 @@ export default function Employees() {
         {list.isLoading ? <Skeleton /> : list.error ? <ErrorNote error={list.error} /> : (
           <Table head={['ID', 'Name', 'Department', 'Shift', 'Status', '']} empty={rows.length ? undefined : 'No employees found.'}>
             {rows.map((e) => (
-              <tr key={e.id}>
+              <tr key={e.id} className="tr-hoverable">
                 <Td className="font-mono">{e.employee_code}</Td>
                 <Td>{e.full_name}</Td>
                 <Td>{e.departments?.name ?? '—'}</Td>

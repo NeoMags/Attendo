@@ -169,7 +169,7 @@ export default function Leave() {
         {q.isLoading ? <Skeleton /> : q.error ? <ErrorNote error={q.error} /> : (
           <Table head={['Employee', 'Type', 'Dates', 'Days', 'Status', 'Notes', '']} empty={rows.length ? undefined : filter === 'action' ? 'Nothing is waiting for your decision.' : 'No requests.'}>
             {rows.map((r) => (
-              <tr key={r.id}>
+              <tr key={r.id} className="tr-hoverable">
                 <Td><PersonCell name={r.employees?.full_name ?? '—'} code={r.employees?.employee_code} /></Td>
                 <Td>{r.leave_types?.name}</Td>
                 <Td>{range(r)}{r.is_half_day ? ' (half day)' : ''}</Td>

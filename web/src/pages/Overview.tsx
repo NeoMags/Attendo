@@ -123,8 +123,8 @@ export default function Overview() {
       {saveLayout.error && <ErrorNote error={saveLayout.error} />}
       {layout.length === 0 && <p className="rounded-lg border border-dashed border-slate-300 p-4 text-sm text-slate-600">No cards selected. Use Customize to add some.</p>}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-        {layout.map((id) => (
-          <div key={id} className="space-y-1">
+        {layout.map((id, i) => (
+          <div key={id} className={`space-y-1 animate-enter animate-delay-${Math.min(i + 1, 6)}`}>
             <Stat label={label(id)} {...cardView[id]} />
             {editing && (
               <div className="flex items-center gap-1 text-xs">
@@ -142,14 +142,14 @@ export default function Overview() {
         ))}
       </div>
       <div className="grid gap-3 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 animate-enter animate-delay-1">
           <Card title="Last 7 days: attendance">
             <div className="h-56">
               <Suspense fallback={<Skeleton />}><AttendanceTrendChart data={d.trend} /></Suspense>
             </div>
           </Card>
         </div>
-        <Card title="Recent location exits">
+        <Card title="Recent location exits" className="animate-enter animate-delay-2">
           {d.recent.length === 0 ? <p className="text-sm text-slate-500">No exits recorded.</p> : (
             <ul className="space-y-2 text-sm">
               {d.recent.map((r) => (
@@ -159,7 +159,7 @@ export default function Overview() {
           )}
         </Card>
       </div>
-      <Card title="Checked-in employees">
+      <Card title="Checked-in employees" className="animate-enter animate-delay-3">
         <Table head={['Employee', 'Since', 'Last location', 'Device health']} empty={live.length ? undefined : 'Nobody is checked in.'}>
           {live.map((s) => (
             <tr key={s.employee_id}>

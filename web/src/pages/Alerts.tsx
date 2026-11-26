@@ -65,7 +65,7 @@ export default function Alerts() {
           <>
             <Table head={['When', 'Employee', 'Event', 'Place']} empty={rows.length ? undefined : 'No geofence events in this period.'}>
               {rows.map((e) => (
-                <tr key={e.id}>
+                <tr key={e.id} className="tr-hoverable">
                   <Td>{fmt(e.occurred_at)}</Td>
                   <Td>{e.employees?.full_name} <span className="text-slate-400">({e.employees?.employee_code})</span></Td>
                   <Td><Badge tone={e.event_type === 'enter' ? 'good' : 'warn'}>{e.event_type === 'enter' ? 'Entered' : 'Exited'}</Badge></Td>

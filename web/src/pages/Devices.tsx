@@ -45,7 +45,7 @@ export default function Devices() {
       <Card title="Employees (checked-in first, problems first)">
         <Table head={['Employee', 'Checked in', 'Health', 'Battery', 'Last heartbeat', 'Last fix']} empty={q.data!.length ? undefined : 'No employees.'}>
           {q.data!.map((r) => (
-            <tr key={r.employee_id}>
+            <tr key={r.employee_id} className="tr-hoverable">
               <Td><PersonCell name={r.full_name} code={r.employee_code} onClick={() => setOpenEmp(r.employee_id)} /></Td>
               <Td>{r.is_checked_in ? 'Yes' : 'No'}</Td>
               <Td>
