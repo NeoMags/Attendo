@@ -113,7 +113,7 @@ function AddEmployee({ companyId, onClose, onDone }: { companyId: string; onClos
         <Field label="Employee ID" hint="Used to sign in to the app."><Input required value={f.employee_code} onChange={set('employee_code')} /></Field>
         <Field label="Full name"><Input required value={f.full_name} onChange={set('full_name')} /></Field>
         <Field label="Temporary password" hint="8–72 characters, letters and digits. The employee must change it at first sign-in."><Input required type="text" autoComplete="off" value={f.password} onChange={set('password')} /></Field>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Field label="Role"><Select value={f.role} onChange={set('role')}><option value="employee">Employee</option><option value="manager">Manager</option></Select></Field>
           <Field label="Language"><Select value={f.preferred_language} onChange={set('preferred_language')}><option value="en">English</option><option value="kn">ಕನ್ನಡ</option><option value="hi">हिन्दी</option></Select></Field>
           <Field label="Department"><Select value={f.department_id} onChange={set('department_id')}><option value="">—</option>{opts.data?.depts.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}</Select></Field>

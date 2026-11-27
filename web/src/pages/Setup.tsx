@@ -100,12 +100,12 @@ export default function Setup() {
           </Table>
         )}
         <form onSubmit={(e: FormEvent) => { e.preventDefault(); saveShift.mutate() }} className="mt-3 space-y-3">
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <Field label="Name"><Input required value={shift.name} onChange={(e) => setShift({ ...shift, name: e.target.value })} /></Field>
             <Field label="Start"><Input required type="time" value={shift.start_time} onChange={(e) => setShift({ ...shift, start_time: e.target.value })} /></Field>
             <Field label="End"><Input required type="time" value={shift.end_time} onChange={(e) => setShift({ ...shift, end_time: e.target.value })} /></Field>
           </div>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <Field label="Grace (minutes)"><Input type="number" min={0} max={180} value={shift.grace_minutes} onChange={(e) => setShift({ ...shift, grace_minutes: Math.min(180, Math.max(0, Number(e.target.value) || 0)) })} /></Field>
             <Field label="Full day (hours)" hint="Optional"><Input inputMode="decimal" value={shift.full_h} onChange={(e) => setShift({ ...shift, full_h: e.target.value })} placeholder="e.g. 8" /></Field>
             <Field label="Half day (hours)" hint="Optional"><Input inputMode="decimal" value={shift.half_h} onChange={(e) => setShift({ ...shift, half_h: e.target.value })} placeholder="e.g. 4" /></Field>

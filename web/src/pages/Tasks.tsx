@@ -39,7 +39,7 @@ function TaskForm({ companyId, emps, parent, edit, onClose }: { companyId: strin
             {emps.map((m) => <option key={m.id} value={m.id}>{m.full_name} ({m.employee_code})</option>)}
           </Select>
         </Field>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Field label="Priority"><Select value={d.priority} onChange={(e) => setD({ ...d, priority: e.target.value as Draft['priority'] })}><option value="low">Low</option><option value="normal">Normal</option><option value="high">High</option></Select></Field>
           <Field label="Due date"><Input type="date" value={d.due} onChange={(e) => setD({ ...d, due: e.target.value })} /></Field>
         </div>

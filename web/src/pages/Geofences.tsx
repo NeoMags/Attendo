@@ -73,11 +73,11 @@ export default function Geofences() {
           <form onSubmit={(e: FormEvent) => { e.preventDefault(); add.mutate() }} className="space-y-3">
             <Field label="Name"><Input required value={f.name} onChange={set('name')} /></Field>
             <Field label="Type"><Select value={f.type} onChange={set('type')}>{GEOFENCE_TYPES.map((t) => <option key={t} value={t}>{t.replace('_', ' ')}</option>)}</Select></Field>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <Field label="Latitude"><Input required inputMode="decimal" value={f.latitude} onChange={set('latitude')} placeholder="14.7921" /></Field>
               <Field label="Longitude"><Input required inputMode="decimal" value={f.longitude} onChange={set('longitude')} placeholder="75.4044" /></Field>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <Field label="Radius (m)" hint="10 – 50,000"><Input required inputMode="numeric" value={f.radius_m} onChange={set('radius_m')} /></Field>
               <Field label="Confirming fixes" hint="1 – 10"><Input required inputMode="numeric" value={f.hysteresis_fixes} onChange={set('hysteresis_fixes')} /></Field>
             </div>
