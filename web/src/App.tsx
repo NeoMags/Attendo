@@ -42,6 +42,8 @@ const loadSetup = () => import('@/pages/Setup')
 const Setup = lazy(loadSetup)
 const loadCompanies = () => import('@/pages/Companies')
 const Companies = lazy(loadCompanies)
+const SubscriptionRequests = lazy(() => import('@/pages/SubscriptionRequests'))
+const PlatformSettings = lazy(() => import('@/pages/PlatformSettings'))
 const Plans = lazy(() => import('@/pages/public/Plans'))
 const Subscribe = lazy(() => import('@/pages/public/Subscribe'))
 
@@ -104,6 +106,8 @@ export default function App() {
               <Route path="geofences" element={<Geofences />} />
               <Route path="team" element={<RoleGate allow={isAdmin}><Team /></RoleGate>} />
               <Route path="setup" element={<RoleGate allow={isAdmin}><Setup /></RoleGate>} />
+              <Route path="subscriptions" element={<RoleGate allow={(r) => r === 'super_admin'}><SubscriptionRequests /></RoleGate>} />
+              <Route path="settings" element={<RoleGate allow={(r) => r === 'super_admin'}><PlatformSettings /></RoleGate>} />
               <Route path="companies" element={<RoleGate allow={(r) => r === 'super_admin'}><Companies /></RoleGate>} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />

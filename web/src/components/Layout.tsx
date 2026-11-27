@@ -2,6 +2,7 @@ import { Suspense, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { navFor, canUseDashboard, NAV_GROUPS, type Role } from '@/lib/roles'
+import { platformNavFor } from '@/lib/platformNav'
 import { Avatar, Button, Select, Skeleton, Icon } from '@/components/ui'
 import Clock from '@/components/Clock'
 import NotificationBell from '@/components/NotificationBell'
@@ -19,7 +20,8 @@ export function BrandMark({ size = 32 }: { size?: number }) {
 }
 
 function SidebarContent({ role, onNav }: { role: string | null; onNav?: () => void }) {
-  const all = navFor((role as Role | undefined) ?? undefined)
+  const r = (role as Role | undefined) ?? undefined
+  const all = [...navFor(r), ...platformNavFor(r)]
   return (
     <>
       <div className="mb-6 flex items-center gap-2.5 px-2.5">
