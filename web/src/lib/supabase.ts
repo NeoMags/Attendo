@@ -45,6 +45,17 @@ const FRIENDLY: Record<string, string> = {
   EMPLOYEE_CREATE_FAILED: 'Could not create the employee. The Employee ID may already exist.',
   AUTH_USER_CREATE_FAILED: 'Could not create the login. It may already exist.',
   NOT_FOUND: 'Not found.',
+  PLAN_NOT_AVAILABLE: 'That plan is no longer available. Pick another plan.',
+  INVALID_COMPANY_NAME: 'Please enter your company name.',
+  INVALID_PHONE: 'Enter a phone number with 10 to 15 digits.',
+  INVALID_UTR: 'Enter the UTR from your payment, 12 to 22 letters or digits.',
+  INVALID_RECEIPT: 'The receipt could not be accepted. Attach it again.',
+  UTR_ALREADY_USED: 'This UTR has already been submitted. Check the number, or contact support if you believe this is a mistake.',
+  REQUEST_ALREADY_PENDING: 'A request for this email is already waiting for review. You will be contacted once it is verified.',
+  RECEIPT_REQUIRED: 'Attach a screenshot or PDF of your payment.',
+  RECEIPT_TOO_LARGE: 'The receipt must be 3 MB or smaller.',
+  RECEIPT_TYPE: 'The receipt must be a JPG, PNG, WebP or PDF file.',
+  TOO_MANY_ATTEMPTS: 'Too many requests from this network. Try again in an hour.',
 }
 
 export function friendlyError(code: string, fallback: string): string {

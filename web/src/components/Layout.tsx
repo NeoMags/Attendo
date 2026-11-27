@@ -6,7 +6,7 @@ import { Avatar, Button, Select, Skeleton, Icon } from '@/components/ui'
 import Clock from '@/components/Clock'
 import NotificationBell from '@/components/NotificationBell'
 
-function BrandMark({ size = 32 }: { size?: number }) {
+export function BrandMark({ size = 32 }: { size?: number }) {
   return (
     <svg aria-hidden width={size} height={size} viewBox="0 0 32 32">
       <rect width="32" height="32" rx="9" fill="var(--color-primary-600)" />

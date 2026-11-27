@@ -1,4 +1,4 @@
-import { lazy, useEffect } from 'react'
+import { Suspense, lazy, useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider, useAuth } from '@/lib/auth'
@@ -42,6 +42,8 @@ const loadSetup = () => import('@/pages/Setup')
 const Setup = lazy(loadSetup)
 const loadCompanies = () => import('@/pages/Companies')
 const Companies = lazy(loadCompanies)
+const Plans = lazy(() => import('@/pages/public/Plans'))
+const Subscribe = lazy(() => import('@/pages/public/Subscribe'))
 
 /** Download every page chunk once the user is signed in and the browser is idle, so navigation feels instant. */
 const prefetchPages = () => {
@@ -82,6 +84,8 @@ export default function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/plans" element={<Suspense fallback={<Skeleton />}><Plans /></Suspense>} />
+            <Route path="/subscribe" element={<Suspense fallback={<Skeleton />}><Subscribe /></Suspense>} />
             <Route element={<Protected />}>
               <Route index element={<Overview />} />
               <Route path="map" element={<LiveMap />} />

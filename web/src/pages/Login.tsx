@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
 import { Button, ErrorNote, Field, Input } from '@/components/ui'
@@ -31,6 +31,7 @@ export default function Login() {
         <Field label="Password"><Input type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} /></Field>
         {error && <ErrorNote error={new Error(error)} />}
         <Button type="submit" disabled={busy} className="w-full">{busy ? 'Signing in…' : 'Sign in'}</Button>
+        <p className="text-center text-sm text-slate-500">New to Attendo? <Link to="/plans" className="underline">View plans</Link></p>
       </form>
     </main>
   )
