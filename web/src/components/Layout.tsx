@@ -1,7 +1,7 @@
 import { Suspense, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
-import { navFor, canUseDashboard, NAV_GROUPS } from '@/lib/roles'
+import { navFor, canUseDashboard, NAV_GROUPS, type Role } from '@/lib/roles'
 import { Button, Select, Skeleton, Icon } from '@/components/ui'
 import Clock from '@/components/Clock'
 import NotificationBell from '@/components/NotificationBell'
@@ -70,7 +70,7 @@ function SidebarContent({ role, onNav }: { role: string | null; onNav?: () => vo
       {/* Navigation */}
       <nav className="flex-1 space-y-5 overflow-y-auto">
         {NAV_GROUPS.map((g) => {
-          const items = navFor(role).filter((n) => n.group === g)
+          const items = navFor((role as Role | undefined) ?? undefined).filter((n) => n.group === g)
           if (!items.length) return null
           return (
             <div key={g}>
