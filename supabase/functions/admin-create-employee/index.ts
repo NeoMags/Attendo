@@ -18,6 +18,10 @@ Deno.serve(async (req) => {
   const role = b.role === 'manager' ? 'manager' : 'employee'
   const pwProblem = passwordProblem(b.password)
   if (!companyId) return json({ error: 'COMPANY_REQUIRED' }, 400)
+  if (caller.role !== 'super_admin') {
+    const { data: state } = await admin.rpc('subscription_state_for', { p_company: companyId })
+    if (state !== 'active') return json({ error: 'SUBSCRIPTION_EXPIRED' }, 403)
+  }
   if (!CODE_RE.test(code)) return json({ error: 'INVALID_EMPLOYEE_CODE' }, 400)
   if (name.length < 1 || name.length > 200) return json({ error: 'INVALID_NAME' }, 400)
   if (pwProblem) return json({ error: 'WEAK_PASSWORD', message: pwProblem }, 400)
@@ -28,6 +32,7 @@ Deno.serve(async (req) => {
     contact_phone: b.contact_phone ?? null, contact_email: b.contact_email ?? null,
     preferred_language: b.preferred_language ?? 'en', joined_on: b.joined_on ?? null,
   }).select('id, login_phone').single()
+  if (eErr?.message?.includes('EMPLOYEE_LIMIT_REACHED')) return json({ error: 'EMPLOYEE_LIMIT_REACHED' }, 409)
   if (eErr || !emp) return json({ error: 'EMPLOYEE_CREATE_FAILED', message: eErr?.message }, eErr?.code === '23505' ? 409 : 400)
 
   const { data: u, error: uErr } = await admin.auth.admin.createUser({

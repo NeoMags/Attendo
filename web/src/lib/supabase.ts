@@ -61,6 +61,9 @@ const FRIENDLY: Record<string, string> = {
   RECEIPT_REQUIRED: 'Attach a screenshot or PDF of your payment.',
   RECEIPT_TOO_LARGE: 'The receipt must be 3 MB or smaller.',
   RECEIPT_TYPE: 'The receipt must be a JPG, PNG, WebP or PDF file.',
+  SUBSCRIPTION_EXPIRED: 'Your plan has expired, so changes are turned off. Renew your plan to continue.',
+  EMPLOYEE_LIMIT_REACHED: 'Your plan’s employee limit is reached. Upgrade your plan to add more people.',
+  RESET_FAILED: 'Could not reset the login. Try again.',
   TOO_MANY_ATTEMPTS: 'Too many requests from this network. Try again in an hour.',
 }
 

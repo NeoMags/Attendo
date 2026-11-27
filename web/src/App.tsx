@@ -6,6 +6,7 @@ import { isAdmin, type Role } from '@/lib/roles'
 import { missingEnv } from '@/lib/env'
 import Layout from '@/components/Layout'
 import Login from '@/pages/Login'
+import ForcePasswordChange from '@/components/ForcePasswordChange'
 const loadOverview = () => import('@/pages/Overview')
 const Overview = lazy(loadOverview)
 const loadEmployees = () => import('@/pages/Employees')
@@ -44,6 +45,7 @@ const loadCompanies = () => import('@/pages/Companies')
 const Companies = lazy(loadCompanies)
 const SubscriptionRequests = lazy(() => import('@/pages/SubscriptionRequests'))
 const PlatformSettings = lazy(() => import('@/pages/PlatformSettings'))
+const Billing = lazy(() => import('@/pages/Billing'))
 const Plans = lazy(() => import('@/pages/public/Plans'))
 const Subscribe = lazy(() => import('@/pages/public/Subscribe'))
 
@@ -66,6 +68,7 @@ function Protected() {
   useEffect(() => { if (session) prefetchPages() }, [session])
   if (loading) return <Skeleton />
   if (!session) return <Navigate to="/login" replace />
+  if (session.user.user_metadata?.must_change_password === true) return <ForcePasswordChange />
   return <Layout />
 }
 
@@ -106,6 +109,7 @@ export default function App() {
               <Route path="geofences" element={<Geofences />} />
               <Route path="team" element={<RoleGate allow={isAdmin}><Team /></RoleGate>} />
               <Route path="setup" element={<RoleGate allow={isAdmin}><Setup /></RoleGate>} />
+              <Route path="billing" element={<RoleGate allow={(r) => r === 'company_admin'}><Billing /></RoleGate>} />
               <Route path="subscriptions" element={<RoleGate allow={(r) => r === 'super_admin'}><SubscriptionRequests /></RoleGate>} />
               <Route path="settings" element={<RoleGate allow={(r) => r === 'super_admin'}><PlatformSettings /></RoleGate>} />
               <Route path="companies" element={<RoleGate allow={(r) => r === 'super_admin'}><Companies /></RoleGate>} />

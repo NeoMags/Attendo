@@ -1,7 +1,7 @@
 // Public endpoint (no login): POST multipart/form-data { plan_id, applicant_name, company_name, email, phone, utr, receipt(file) }.
 // Validates the receipt by magic bytes, stores it in the private `receipts` bucket, then creates the request through
 // public.submit_subscription_request (which re-validates every field). Throttled per IP. Returns only { reference, plan, amount }.
-import { adminClient, json, preflight } from '../_shared/common.ts'
+import { adminClient, json, preflight, requireCaller } from '../_shared/common.ts'
 import { MAX_RECEIPT_BYTES, SUBMIT_ERRORS, sniffReceipt, submitErrorCode } from '../_shared/receipt.ts'
 
 const MAX_PER_IP = 5      // submissions per IP per window
@@ -31,6 +31,14 @@ Deno.serve(async (req) => {
   if (!kind) return json({ error: 'RECEIPT_TYPE', message: 'Receipt must be a JPG, PNG, WebP or PDF file.' }, 400)
 
   const admin = adminClient()
+  // Renewal: only a signed-in company admin can renew, and only their own company.
+  let renewCompany: string | null = null
+  if (field(form, 'renewal', 5) === '1') {
+    const caller = await requireCaller(req, admin)
+    if (caller instanceof Response) return caller
+    if (caller.role !== 'company_admin' || !caller.companyId) return json({ error: 'FORBIDDEN' }, 403)
+    renewCompany = caller.companyId
+  }
   // Never skip the throttle: if no client IP is visible, all such requests share one bucket with a higher ceiling.
   const h = req.headers
   const clientIp = (h.get('x-forwarded-for') ?? '').split(',')[0].trim() || h.get('cf-connecting-ip') || h.get('x-real-ip') || ''
@@ -49,7 +57,7 @@ Deno.serve(async (req) => {
 
   const { data, error } = await admin.rpc('submit_subscription_request', {
     p_plan: planId, p_applicant: field(form, 'applicant_name', 200), p_company: field(form, 'company_name', 300),
-    p_email: field(form, 'email', 300), p_phone: field(form, 'phone', 40), p_utr: field(form, 'utr', 60), p_receipt_path: path,
+    p_email: field(form, 'email', 300), p_phone: field(form, 'phone', 40), p_utr: field(form, 'utr', 60), p_receipt_path: path, p_company_id: renewCompany,
   })
   if (error || !data) {
     await admin.storage.from('receipts').remove([path])        // no orphaned receipts for rejected submissions

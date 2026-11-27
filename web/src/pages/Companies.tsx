@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { callFunction, supabase } from '@/lib/supabase'
 import { useAuth, type Company } from '@/lib/auth'
 import { Badge, Button, Card, ErrorNote, Field, Input, Modal, Table, Td } from '@/components/ui'
@@ -11,6 +11,7 @@ export default function Companies() {
   const qc = useQueryClient()
   const [adding, setAdding] = useState(false)
   const [adminFor, setAdminFor] = useState<Company | null>(null)
+  const [resetFor, setResetFor] = useState<Company | null>(null)
 
   const toggle = useMutation({
     mutationFn: async (c: Company) => {
@@ -38,6 +39,7 @@ export default function Companies() {
                 <span className="inline-flex gap-2">
                   <Button variant="ghost" onClick={() => setCompanyId(c.id)}>Open</Button>
                   <Button variant="ghost" onClick={() => setAdminFor(c)}>Add admin login</Button>
+                  <Button variant="ghost" onClick={() => setResetFor(c)}>Reset admin login</Button>
                   <Button variant="ghost" disabled={toggle.isPending} onClick={() => toggle.mutate(c)}>{c.is_active ? 'Deactivate' : 'Activate'}</Button>
                 </span>
               </Td>
@@ -48,6 +50,7 @@ export default function Companies() {
       </Card>
       {adding && <AddCompany onClose={() => setAdding(false)} onDone={(id) => { setAdding(false); qc.invalidateQueries({ queryKey: ['companies'] }).then(() => setCompanyId(id)) }} />}
       {adminFor && <AddAdmin company={adminFor} onClose={() => setAdminFor(null)} />}
+      {resetFor && <ResetAdmin company={resetFor} onClose={() => setResetFor(null)} />}
     </div>
   )
 }
@@ -90,6 +93,55 @@ function AddAdmin({ company, onClose }: { company: Company; onClose: () => void 
           <ErrorNote error={m.error} />
           <Button type="submit" disabled={m.isPending} className="w-full">Create admin</Button>
         </form>
+      )}
+    </Modal>
+  )
+}
+
+interface AdminRow { user_id: string; email: string | null }
+
+function ResetAdmin({ company, onClose }: { company: Company; onClose: () => void }) {
+  const [pick, setPick] = useState('')
+  const [copied, setCopied] = useState(false)
+  const list = useQuery({
+    queryKey: ['company-admins', company.id],
+    queryFn: async () => (await callFunction<{ admins: AdminRow[] }>('reset-admin-login', { action: 'list', company_id: company.id })).admins,
+    gcTime: 0,
+  })
+  const admins = list.data ?? []
+  const target = pick || (admins.length === 1 ? admins[0].user_id : '')
+  const reset = useMutation({
+    mutationFn: () => callFunction<{ email: string | null; temporary_password: string }>('reset-admin-login', { action: 'reset', company_id: company.id, user_id: target }),
+  })
+  async function copy(text: string) {
+    try { await navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1800) } catch { /* shown on screen to copy by hand */ }
+  }
+  return (
+    <Modal title={`Reset admin login · ${company.name}`} onClose={onClose}>
+      {reset.isSuccess ? (
+        <div className="space-y-3">
+          <p className="text-sm">Share these with the customer. The password is shown once and must be changed at first sign-in.</p>
+          <div className="rounded-lg border px-3 py-2 text-sm" style={{ borderColor: 'var(--color-border)' }}>
+            <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>Username</div><div className="font-mono">{reset.data.email}</div>
+            <div className="mt-2 text-xs" style={{ color: 'var(--color-text-muted)' }}>Temporary password</div><div className="font-mono text-base font-semibold">{reset.data.temporary_password}</div>
+          </div>
+          <Button variant="ghost" className="w-full" onClick={() => copy(`Username: ${reset.data.email}\nTemporary password: ${reset.data.temporary_password}`)}>{copied ? 'Copied' : 'Copy both'}</Button>
+          <Button onClick={onClose} className="w-full">Done</Button>
+        </div>
+      ) : list.isLoading ? <p className="text-sm">Loading…</p> : list.isError ? <ErrorNote error={list.error} /> : admins.length === 0 ? (
+        <p className="text-sm">This company has no admin login yet. Use “Add admin login” instead.</p>
+      ) : (
+        <div className="space-y-3">
+          <Field label="Admin login">
+            <select className="input" value={target} onChange={(e) => setPick(e.target.value)}>
+              {admins.length > 1 && <option value="">Choose…</option>}
+              {admins.map((a) => <option key={a.user_id} value={a.user_id}>{a.email ?? a.user_id}</option>)}
+            </select>
+          </Field>
+          <p className="text-[13px]" style={{ color: 'var(--color-text-muted)' }}>Their current password stops working immediately.</p>
+          <ErrorNote error={reset.error} />
+          <Button className="w-full" disabled={!target || reset.isPending} onClick={() => reset.mutate()}>{reset.isPending ? 'Resetting…' : 'Generate new temporary password'}</Button>
+        </div>
       )}
     </Modal>
   )

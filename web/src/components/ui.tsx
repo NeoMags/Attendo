@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef } from 'react'
+import { friendlyError } from '@/lib/supabase'
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react'
 
 const cx = (...a: Array<string | false | undefined>) => a.filter(Boolean).join(' ')
@@ -419,6 +420,7 @@ export function ErrorNote({ error }: { error: unknown }) {
       : typeof error === 'object' && error && 'message' in error
       ? String((error as { message: unknown }).message)
       : 'Something went wrong'
+  const shown = friendlyError(msg.trim(), msg)
   return (
     <p
       role="alert"
@@ -429,7 +431,7 @@ export function ErrorNote({ error }: { error: unknown }) {
         border: '1px solid color-mix(in srgb, var(--color-bad) 25%, transparent)',
       }}
     >
-      {msg}
+      {shown}
     </p>
   )
 }

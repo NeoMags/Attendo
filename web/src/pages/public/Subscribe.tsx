@@ -3,10 +3,11 @@ import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { callFunction } from '@/lib/supabase'
 import {
-  durationLabel, fetchPaymentInfo, fetchPlans, formatInr, normalizePhone, normalizeUtr, qrUrl, upiLink, validateSubscribe,
+  durationLabel, fetchPaymentInfo, fetchPlans, formatInr, normalizePhone, normalizeUtr, validateSubscribe,
   type SubscribeErrors, type SubscribeValues,
 } from '@/lib/subscribe'
 import { Button, ErrorNote, Field, Input, Skeleton } from '@/components/ui'
+import PaymentPanel, { FieldError, canPayWith } from '@/components/PaymentPanel'
 import PublicShell from './PublicShell'
 
 interface Submitted { reference: string; plan: string; amount_inr: number }
@@ -21,7 +22,6 @@ export default function Subscribe() {
   const [v, setV] = useState<SubscribeValues>(EMPTY)
   const [file, setFile] = useState<File | null>(null)
   const [errors, setErrors] = useState<SubscribeErrors>({})
-  const [copied, setCopied] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   const plan = plans.data?.find((p) => p.id === planId)
@@ -45,9 +45,7 @@ export default function Subscribe() {
   if (!plan || !pay.data) return <PublicShell><Skeleton /></PublicShell>
 
   const info = pay.data
-  const qr = qrUrl(info.qr_path)
-  const canPay = Boolean(info.upi_id || qr)
-  const link = upiLink(info, plan.price_inr)
+  const canPay = canPayWith(info)
 
   if (submit.isSuccess) {
     return (
@@ -71,10 +69,6 @@ export default function Subscribe() {
 
   const set = (k: keyof SubscribeValues) => (e: React.ChangeEvent<HTMLInputElement>) => { setV({ ...v, [k]: e.target.value }); if (errors[k]) setErrors({ ...errors, [k]: undefined }) }
 
-  async function copyUpi() {
-    try { await navigator.clipboard.writeText(info.upi_id!); setCopied(true); setTimeout(() => setCopied(false), 1800) } catch { /* clipboard unavailable: the ID stays visible to copy by hand */ }
-  }
-
   function onSubmit(e: FormEvent) {
     e.preventDefault()
     const found = validateSubscribe(v, file ? { name: file.name, size: file.size } : null)
@@ -91,32 +85,7 @@ export default function Subscribe() {
       </p>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
-        <section className="card p-5" aria-label="Pay by UPI">
-          <h2 className="text-[15px] font-semibold" style={{ color: 'var(--color-text-primary)' }}>Pay {formatInr(plan.price_inr)} by UPI</h2>
-          {!canPay ? (
-            <p className="mt-3 text-[14px]" style={{ color: 'var(--color-text-muted)' }}>Payment details are not set up yet. Please check back soon.</p>
-          ) : (
-            <>
-              {qr && <img src={qr} alt={`UPI QR code${info.payee_name ? ' for ' + info.payee_name : ''}`} className="mx-auto mt-4 h-52 w-52 rounded-lg border object-contain p-2" style={{ borderColor: 'var(--color-border)', background: '#fff' }} />}
-              {info.payee_name && (
-                <div className="mt-4 text-[13px]" style={{ color: 'var(--color-text-muted)' }}>Payee<div className="text-[15px] font-medium" style={{ color: 'var(--color-text-primary)' }}>{info.payee_name}</div></div>
-              )}
-              {info.upi_id && (
-                <div className="mt-3 flex items-center justify-between gap-2 rounded-lg border px-3 py-2" style={{ borderColor: 'var(--color-border)', background: 'var(--color-bg-muted)' }}>
-                  <div className="min-w-0">
-                    <div className="text-[12px]" style={{ color: 'var(--color-text-muted)' }}>UPI ID</div>
-                    <div className="truncate font-mono text-[14px]" style={{ color: 'var(--color-text-primary)' }}>{info.upi_id}</div>
-                  </div>
-                  <Button type="button" variant="ghost" size="sm" onClick={copyUpi}>{copied ? 'Copied' : 'Copy'}</Button>
-                </div>
-              )}
-              {link && <a href={link} className="btn btn-primary mt-3 w-full justify-center sm:hidden">Open UPI app</a>}
-              <p className="mt-4 text-[13px]" style={{ color: 'var(--color-text-muted)' }}>
-                After paying, copy the UTR (transaction reference) from your UPI app and take a screenshot of the payment. Enter both on the right.
-              </p>
-            </>
-          )}
-        </section>
+        <PaymentPanel amount={plan.price_inr} info={info} />
 
         <form onSubmit={onSubmit} noValidate className="card space-y-4 p-5" aria-label="Payment details">
           <h2 className="text-[15px] font-semibold" style={{ color: 'var(--color-text-primary)' }}>Your details</h2>
@@ -146,8 +115,4 @@ export default function Subscribe() {
       </div>
     </PublicShell>
   )
-}
-
-function FieldError({ text }: { text: string }) {
-  return <p role="alert" className="mt-1 text-[12px]" style={{ color: 'var(--color-bad)' }}>{text}</p>
 }

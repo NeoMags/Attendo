@@ -42,6 +42,12 @@ Deno.serve(async (req) => {
   }
   await admin.from('login_attempts').insert({ identifier, ip, succeeded: session !== null })
   if (!session) return json({ error: 'INVALID_CREDENTIALS' }, 401)
+  // Employee app is blocked once the company's plan is past its grace window (after the password was verified, so no enumeration).
+  const { data: emp } = await admin.from('employees').select('company_id').eq('user_id', session.user.id).maybeSingle()
+  if (emp?.company_id) {
+    const { data: state } = await admin.rpc('subscription_state_for', { p_company: emp.company_id })
+    if (state === 'expired') return json({ error: 'SUBSCRIPTION_EXPIRED' }, 402)
+  }
   return json({
     access_token: session.access_token, refresh_token: session.refresh_token,
     expires_in: session.expires_in, token_type: session.token_type,

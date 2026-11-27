@@ -6,6 +6,7 @@ import { platformNavFor } from '@/lib/platformNav'
 import { Avatar, Button, Select, Skeleton, Icon } from '@/components/ui'
 import Clock from '@/components/Clock'
 import NotificationBell from '@/components/NotificationBell'
+import SubscriptionBanner from '@/components/SubscriptionBanner'
 
 export function BrandMark({ size = 32 }: { size?: number }) {
   return (
@@ -146,6 +147,8 @@ export default function Layout() {
             <Button variant="ghost" size="sm" onClick={signOut}>Sign out</Button>
           </div>
         </header>
+
+        <SubscriptionBanner />
 
         <main className="min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8 animate-page">
           <Suspense fallback={<Skeleton />}>

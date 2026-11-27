@@ -2,6 +2,7 @@
 import type { NavItem, Role } from '@/lib/roles'
 
 export const PLATFORM_NAV: NavItem[] = [
+  { to: '/billing', label: 'Plan & billing', roles: ['company_admin'], group: 'Setup' },
   { to: '/subscriptions', label: 'Subscription requests', roles: ['super_admin'], group: 'Setup' },
   { to: '/settings', label: 'Platform settings', roles: ['super_admin'], group: 'Setup' },
 ]

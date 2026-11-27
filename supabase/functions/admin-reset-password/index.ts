@@ -16,6 +16,10 @@ Deno.serve(async (req) => {
   const { data: emp } = await admin.from('employees').select('id, company_id, user_id').eq('id', String(b.employee_id ?? '')).maybeSingle()
   if (!emp || !emp.user_id) return json({ error: 'NOT_FOUND' }, 404)
   if (caller.role !== 'super_admin' && emp.company_id !== caller.companyId) return json({ error: 'NOT_FOUND' }, 404)
+  if (caller.role !== 'super_admin') {
+    const { data: state } = await admin.rpc('subscription_state_for', { p_company: emp.company_id })
+    if (state !== 'active') return json({ error: 'SUBSCRIPTION_EXPIRED' }, 403)
+  }
   const { error } = await admin.auth.admin.updateUserById(emp.user_id, {
     password: String(b.new_password), user_metadata: { must_change_password: true },
   })
