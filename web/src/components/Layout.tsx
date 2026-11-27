@@ -1,122 +1,47 @@
 import { Suspense, useState } from 'react'
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { navFor, canUseDashboard, NAV_GROUPS, type Role } from '@/lib/roles'
-import { Button, Select, Skeleton, Icon } from '@/components/ui'
+import { Avatar, Button, Select, Skeleton, Icon } from '@/components/ui'
 import Clock from '@/components/Clock'
 import NotificationBell from '@/components/NotificationBell'
 
-// Map route paths to icon names (Icon component from ui.tsx)
-const NAV_ICONS: Record<string, string> = {
-  '/':           'home',
-  '/map':        'map-pin',
-  '/routes':     'route',
-  '/schedule':   'calendar-clock',
-  '/alerts':     'bell-ring',
-  '/devices':    'smartphone',
-  '/analytics':  'bar-chart-2',
-  '/employees':  'users',
-  '/attendance': 'clock',
-  '/tasks':      'check-square',
-  '/leave':      'umbrella',
-  '/calendar':   'calendar',
-  '/payroll':    'banknote',
-  '/reports':    'file-text',
-  '/team':       'git-branch',
-  '/geofences':  'hexagon',
-  '/setup':      'settings-2',
-  '/companies':  'building-2',
-}
-
-// Map route paths to human-readable page titles (for breadcrumb / top bar)
-const PAGE_TITLES: Record<string, string> = {
-  '/':           'Overview',
-  '/map':        'Live Map',
-  '/routes':     'Route History',
-  '/schedule':   'Field Schedule',
-  '/alerts':     'Geofence Alerts',
-  '/devices':    'Device Health',
-  '/analytics':  'Analytics',
-  '/employees':  'Employees',
-  '/attendance': 'Attendance',
-  '/tasks':      'Tasks',
-  '/leave':      'Leave Requests',
-  '/calendar':   'Attendance Calendar',
-  '/payroll':    'Payroll',
-  '/reports':    'Reports',
-  '/team':       'Manager Teams',
-  '/geofences':  'Geofences',
-  '/setup':      'Departments & Shifts',
-  '/companies':  'Companies',
+function BrandMark({ size = 32 }: { size?: number }) {
+  return (
+    <svg aria-hidden width={size} height={size} viewBox="0 0 32 32">
+      <rect width="32" height="32" rx="9" fill="var(--color-primary-600)" />
+      <path d="M8 22 16 9l8 13" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="8" cy="22" r="2.6" fill="#fff" />
+      <circle cx="24" cy="22" r="2.6" fill="#fff" />
+      <circle cx="16" cy="9" r="2.6" fill="var(--color-signal)" stroke="#fff" strokeWidth="1.6" />
+    </svg>
+  )
 }
 
 function SidebarContent({ role, onNav }: { role: string | null; onNav?: () => void }) {
+  const all = navFor((role as Role | undefined) ?? undefined)
   return (
     <>
-      {/* Logo / Brand */}
-      <div className="mb-7 flex items-center gap-3 px-2">
-        <span
-          aria-hidden
-          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-bold"
-          style={{ background: 'var(--color-sidebar-accent)', color: '#0f172a' }}
-        >
-          A
-        </span>
-        <span className="text-[15px] font-semibold tracking-tight" style={{ color: 'var(--color-sidebar-text-active)' }}>
+      <div className="mb-6 flex items-center gap-2.5 px-2.5">
+        <BrandMark />
+        <span className="text-[19px] font-semibold tracking-tight" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text-primary)' }}>
           Attendo
         </span>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 space-y-5 overflow-y-auto">
+      <nav className="flex-1 space-y-5 overflow-y-auto pb-4" aria-label="Main">
         {NAV_GROUPS.map((g) => {
-          const items = navFor((role as Role | undefined) ?? undefined).filter((n) => n.group === g)
+          const items = all.filter((n) => n.group === g)
           if (!items.length) return null
           return (
             <div key={g}>
-              <div
-                className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-widest"
-                style={{ color: 'var(--color-sidebar-text)', opacity: 0.5 }}
-              >
-                {g}
+              <div className="mb-1.5 px-2.5 text-xs font-semibold capitalize" style={{ color: 'var(--color-text-tertiary)' }}>
+                {g.toLowerCase()}
               </div>
-              <div className="space-y-0.5">
+              <div className="route-nav space-y-0.5">
                 {items.map((n) => (
-                  <NavLink
-                    key={n.to}
-                    to={n.to}
-                    end={n.to === '/'}
-                    onClick={onNav}
-                    className={({ isActive }) =>
-                      `flex items-center gap-2.5 rounded-lg border-l-[3px] px-3 py-2 text-sm font-medium transition-colors ${
-                        isActive
-                          ? 'border-[var(--color-sidebar-accent)] font-semibold'
-                          : 'border-transparent'
-                      }`
-                    }
-                    style={({ isActive }) => ({
-                      background: isActive ? 'var(--color-sidebar-active-bg)' : undefined,
-                      color: isActive ? 'var(--color-sidebar-text-active)' : 'var(--color-sidebar-text)',
-                    })}
-                    onMouseEnter={(e) => {
-                      const el = e.currentTarget
-                      if (!el.dataset.active) el.style.background = 'var(--color-sidebar-hover-bg)'
-                    }}
-                    onMouseLeave={(e) => {
-                      const el = e.currentTarget
-                      if (!el.dataset.active) el.style.background = ''
-                    }}
-                  >
-                    {({ isActive }) => (
-                      <>
-                        <Icon
-                          name={NAV_ICONS[n.to] ?? 'circle'}
-                          size={16}
-                          style={{ color: isActive ? 'var(--color-sidebar-accent)' : 'var(--color-sidebar-text)', opacity: isActive ? 1 : 0.7 }}
-                        />
-                        {n.label}
-                      </>
-                    )}
+                  <NavLink key={n.to} to={n.to} end={n.to === '/'} onClick={onNav} className="route-stop">
+                    {n.label}
                   </NavLink>
                 ))}
               </div>
@@ -130,7 +55,6 @@ function SidebarContent({ role, onNav }: { role: string | null; onNav?: () => vo
 
 export default function Layout() {
   const { role, session, signOut, companies, companyId, setCompanyId, company } = useAuth()
-  const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
 
   if (!canUseDashboard(role)) {
@@ -145,87 +69,55 @@ export default function Layout() {
     )
   }
 
-  // Resolve page title for top bar
-  const pageTitle = PAGE_TITLES[location.pathname] ?? ''
-
   return (
-    <div className="flex min-h-screen text-slate-900" style={{ background: 'var(--color-bg-base)' }}>
-
-      {/* ── Desktop sidebar ───────────────────────────────── */}
+    <div className="flex min-h-screen" style={{ background: 'var(--color-bg-base)' }}>
+      {/* Desktop rail */}
       <aside
-        className="hidden w-60 shrink-0 flex-col p-4 md:flex"
-        style={{
-          background: 'var(--color-sidebar-bg)',
-          borderRight: '1px solid rgba(255,255,255,0.06)',
-        }}
+        className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col px-3.5 py-5 md:flex"
+        style={{ background: 'var(--color-sidebar-bg)', borderRight: '1px solid var(--color-border)' }}
       >
         <SidebarContent role={role} />
       </aside>
 
-      {/* ── Mobile drawer overlay ─────────────────────────── */}
+      {/* Mobile drawer */}
       {mobileOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => setMobileOpen(false)}
-          />
-          {/* Drawer */}
-          <aside
-            className="absolute inset-y-0 left-0 flex w-64 flex-col p-4"
-            style={{ background: 'var(--color-sidebar-bg)' }}
-          >
-            <div className="mb-4 flex items-center justify-between">
-              <span className="text-sm font-semibold" style={{ color: 'var(--color-sidebar-text-active)' }}>
-                Menu
-              </span>
-              <button
-                onClick={() => setMobileOpen(false)}
-                className="rounded p-1 text-slate-400 hover:text-white"
-                aria-label="Close menu"
-              >
-                <Icon name="x" size={18} />
-              </button>
-            </div>
+          <div className="absolute inset-0 animate-fade" style={{ background: 'var(--color-surface-overlay)' }} onClick={() => setMobileOpen(false)} />
+          <aside className="absolute inset-y-0 left-0 flex w-72 flex-col px-3.5 py-5" style={{ background: 'var(--color-sidebar-bg)' }}>
+            <button
+              onClick={() => setMobileOpen(false)}
+              className="absolute right-3 top-4 rounded-lg p-1.5 hover:bg-[var(--color-bg-muted)]"
+              style={{ color: 'var(--color-text-muted)' }}
+              aria-label="Close menu"
+            >
+              <Icon name="x" size={18} />
+            </button>
             <SidebarContent role={role} onNav={() => setMobileOpen(false)} />
           </aside>
         </div>
       )}
 
-      {/* ── Main content area ─────────────────────────────── */}
       <div className="flex min-w-0 flex-1 flex-col">
-
-        {/* Top bar */}
         <header
-          className="flex shrink-0 items-center gap-4 border-b px-4 py-0"
-          style={{
-            background: 'var(--color-bg-surface)',
-            borderColor: 'var(--color-border)',
-            height: '52px',
-          }}
+          className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-3 px-4 md:px-8"
+          style={{ background: 'color-mix(in srgb, var(--color-bg-base) 88%, transparent)', backdropFilter: 'blur(10px)', borderBottom: '1px solid var(--color-border)' }}
         >
-          {/* Mobile hamburger */}
           <button
-            className="md:hidden -ml-1 rounded p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+            className="-ml-1 rounded-lg p-1.5 hover:bg-[var(--color-bg-muted)] md:hidden"
+            style={{ color: 'var(--color-text-secondary)' }}
             onClick={() => setMobileOpen(true)}
             aria-label="Open menu"
           >
             <Icon name="menu" size={20} />
           </button>
 
-          {/* Page title — desktop only */}
-          {pageTitle && (
-            <span className="hidden text-sm font-semibold text-slate-900 md:inline">{pageTitle}</span>
-          )}
-
-          {/* Company selector / name */}
-          <div className="flex items-center gap-2 md:ml-0">
+          <div className="flex items-center gap-2">
             {role === 'super_admin' ? (
               <Select
                 aria-label="Company"
                 value={companyId ?? ''}
                 onChange={(e) => setCompanyId(e.target.value || null)}
-                className="w-48"
+                className="!h-9 w-48 !text-sm"
               >
                 {companies.length === 0 && <option value="">No companies yet</option>}
                 {companies.map((c) => (
@@ -235,25 +127,25 @@ export default function Layout() {
                 ))}
               </Select>
             ) : (
-              <span className="text-sm font-medium text-slate-700">{companies[0]?.name}</span>
+              <span className="text-sm font-semibold">{companies[0]?.name}</span>
             )}
           </div>
 
-          {/* Right side */}
-          <div className="ml-auto flex items-center gap-3 text-sm text-slate-600">
+          <div className="ml-auto flex items-center gap-3">
             <Clock timeZone={company?.timezone} />
             <NotificationBell />
-            <span className="hidden lg:inline text-slate-500">
-              {session?.user.email}
-              <span className="mx-1.5 text-slate-300">·</span>
-              <span className="capitalize">{role?.replace('_', ' ')}</span>
-            </span>
-            <Button variant="ghost" onClick={signOut}>Sign out</Button>
+            <div className="hidden items-center gap-2.5 border-l pl-3 lg:flex" style={{ borderColor: 'var(--color-border)' }}>
+              <Avatar name={session?.user.email ?? '?'} size="sm" />
+              <div className="leading-tight">
+                <div className="max-w-[11rem] truncate text-[13px] font-medium">{session?.user.email}</div>
+                <div className="text-xs capitalize" style={{ color: 'var(--color-text-muted)' }}>{role?.replace('_', ' ')}</div>
+              </div>
+            </div>
+            <Button variant="ghost" size="sm" onClick={signOut}>Sign out</Button>
           </div>
         </header>
 
-        {/* Page content */}
-        <main className="min-w-0 flex-1 p-4 md:p-6 animate-page">
+        <main className="min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8 animate-page">
           <Suspense fallback={<Skeleton />}>
             <Outlet />
           </Suspense>

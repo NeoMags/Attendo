@@ -1,4 +1,5 @@
-import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from 'react'
+import { useEffect, useId, useRef } from 'react'
+import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react'
 
 const cx = (...a: Array<string | false | undefined>) => a.filter(Boolean).join(' ')
 
@@ -14,6 +15,7 @@ export function Spinner({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
 
 export function Button({
   variant = 'primary',
+  size = 'md',
   loading,
   className,
   children,
@@ -21,45 +23,14 @@ export function Button({
   ...p
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: 'primary' | 'ghost' | 'danger'
+  size?: 'sm' | 'md'
   loading?: boolean
 }) {
   return (
     <button
       {...p}
       disabled={disabled || loading}
-      className={cx(
-        'inline-flex items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 btn-pressable',
-        variant === 'primary' && 'shadow-sm',
-        variant === 'ghost' && 'border',
-        variant === 'danger' && 'shadow-sm',
-        className,
-      )}
-      style={{
-        ...(variant === 'primary'
-          ? { background: 'var(--color-accent)', color: '#0f172a' }
-          : variant === 'ghost'
-          ? { background: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }
-          : variant === 'danger'
-          ? { background: 'var(--color-bad)', color: '#fff' }
-          : {}),
-        ...(p.style ?? {}),
-      }}
-      onMouseEnter={(e) => {
-        const el = e.currentTarget as HTMLButtonElement
-        if (!el.disabled) {
-          if (variant === 'primary') el.style.opacity = '0.88'
-          if (variant === 'ghost') el.style.background = 'var(--color-bg-muted)'
-          if (variant === 'danger') el.style.opacity = '0.88'
-        }
-        p.onMouseEnter?.(e)
-      }}
-      onMouseLeave={(e) => {
-        const el = e.currentTarget as HTMLButtonElement
-        if (variant === 'primary') el.style.opacity = ''
-        if (variant === 'ghost') el.style.background = 'var(--color-bg-surface)'
-        if (variant === 'danger') el.style.opacity = ''
-        p.onMouseLeave?.(e)
-      }}
+      className={cx('btn', `btn-${variant}`, size === 'sm' && 'btn-sm', className)}
     >
       {loading && <Spinner size="sm" />}
       {children}
@@ -67,71 +38,37 @@ export function Button({
   )
 }
 
-export function Field({ label, children, hint }: { label: string; children: ReactNode; hint?: string }) {
+export function Field({ label, children, hint, className }: { label: string; children: ReactNode; hint?: string; className?: string }) {
   return (
-    <label className="block text-sm">
-      <span className="mb-1 block font-medium" style={{ color: 'var(--color-text-primary)' }}>
-        {label}
-      </span>
+    <label className={cx('block', className)}>
+      <span className="field-label mb-1.5 block">{label}</span>
       {children}
-      {hint && (
-        <span className="mt-1 block text-xs" style={{ color: 'var(--color-text-muted)' }}>
-          {hint}
-        </span>
-      )}
+      {hint && <span className="field-hint mt-1.5 block">{hint}</span>}
     </label>
   )
 }
 
-const inputStyle = {
-  background: 'var(--color-bg-surface)',
-  border: '1px solid var(--color-border)',
-  color: 'var(--color-text-primary)',
-  borderRadius: 'var(--radius-md)',
-  fontSize: '0.875rem',
-  padding: '0.375rem 0.625rem',
-  width: '100%',
-  outline: 'none',
-  transition: 'border-color var(--transition-fast), box-shadow var(--transition-fast)',
-} as const
-
 export function Input(p: InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <input
-      {...p}
-      className={cx('block', p.className)}
-      style={{ ...inputStyle, ...p.style }}
-      onFocus={(e) => {
-        e.currentTarget.style.borderColor = 'var(--color-accent)'
-        e.currentTarget.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--color-accent) 20%, transparent)'
-        p.onFocus?.(e)
-      }}
-      onBlur={(e) => {
-        e.currentTarget.style.borderColor = 'var(--color-border)'
-        e.currentTarget.style.boxShadow = ''
-        p.onBlur?.(e)
-      }}
-    />
-  )
+  return <input {...p} className={cx('input', p.className)} />
+}
+
+export function Textarea(p: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  return <textarea {...p} className={cx('input', p.className)} />
 }
 
 export function Select(p: SelectHTMLAttributes<HTMLSelectElement>) {
+  return <select {...p} className={cx('input', p.className)} />
+}
+
+export function PageHeader({ title, description, actions }: { title: string; description?: string; actions?: ReactNode }) {
   return (
-    <select
-      {...p}
-      className={cx('block', p.className)}
-      style={{ ...inputStyle, ...p.style }}
-      onFocus={(e) => {
-        e.currentTarget.style.borderColor = 'var(--color-accent)'
-        e.currentTarget.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--color-accent) 20%, transparent)'
-        p.onFocus?.(e)
-      }}
-      onBlur={(e) => {
-        e.currentTarget.style.borderColor = 'var(--color-border)'
-        e.currentTarget.style.boxShadow = ''
-        p.onBlur?.(e)
-      }}
-    />
+    <div className="page-head">
+      <div>
+        <h1 className="page-title">{title}</h1>
+        {description && <p className="page-sub">{description}</p>}
+      </div>
+      {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+    </div>
   )
 }
 
@@ -147,17 +84,10 @@ export function Card({
   className?: string
 }) {
   return (
-    <section
-      className={cx('rounded-xl p-5 card-lift', className)}
-      style={{
-        background: 'var(--color-bg-surface)',
-        border: '1px solid var(--color-border)',
-        boxShadow: 'var(--shadow-sm)',
-      }}
-    >
+    <section className={cx('card p-5', className)}>
       {(title || actions) && (
         <div className="mb-4 flex items-center justify-between gap-2">
-          <h2 className="text-sm font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+          <h2 className="text-[15px] font-semibold" style={{ color: 'var(--color-text-primary)' }}>
             {title}
           </h2>
           {actions}
@@ -308,23 +238,18 @@ export function Stat({
   const t = tone ? STAT_TONES[tone] : null
   return (
     <div
-      className="flex items-start justify-between gap-3 rounded-xl p-5"
-      style={{
-        background: 'var(--color-bg-surface)',
-        border: '1px solid var(--color-border)',
-        boxShadow: 'var(--shadow-sm)',
-      }}
+      className="card flex items-start justify-between gap-3 p-5"
     >
       <div className="min-w-0">
         <div
-          className="text-xs font-medium uppercase tracking-wide"
-          style={{ color: 'var(--color-text-muted)', letterSpacing: '0.07em' }}
+          className="text-[13px] font-medium"
+          style={{ color: 'var(--color-text-muted)' }}
         >
           {label}
         </div>
         <div
-          className="mt-1.5 text-2xl font-bold leading-none"
-          style={{ color: t ? t.value : 'var(--color-text-primary)' }}
+          className="mt-2 font-semibold leading-none tracking-tight"
+          style={{ color: t ? t.value : 'var(--color-text-primary)', fontFamily: 'var(--font-display)', fontSize: '1.875rem' }}
         >
           {value}
         </div>
@@ -391,8 +316,8 @@ export function Table({
             {head.map((h) => (
               <th
                 key={h}
-                className="px-3 py-2.5 text-xs font-semibold uppercase tracking-wide"
-                style={{ color: 'var(--color-text-muted)' }}
+                className="px-3 py-2.5 text-[13px] font-semibold"
+                style={{ color: 'var(--color-text-secondary)' }}
               >
                 {h}
               </th>
@@ -423,47 +348,64 @@ export function Td({ children, className }: { children?: ReactNode; className?: 
 
 export function Modal({
   title,
+  description,
   onClose,
   children,
+  footer,
   wide,
 }: {
   title: string
+  description?: string
   onClose: () => void
   children: ReactNode
+  footer?: ReactNode
   wide?: boolean
 }) {
+  const titleId = useId()
+  const panel = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const prev = document.activeElement as HTMLElement | null
+    const first = panel.current?.querySelector<HTMLElement>('input, select, textarea')
+    first?.focus()
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', onKey)
+    const overflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = overflow
+      prev?.focus()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(2px)' }}
+      className="modal-backdrop"
       role="dialog"
       aria-modal="true"
-      aria-label={title}
+      aria-labelledby={titleId}
+      onMouseDown={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div
-        className={`w-full ${wide ? 'max-w-3xl' : 'max-w-md'} max-h-[90vh] overflow-y-auto rounded-xl p-6`}
-        style={{
-          background: 'var(--color-bg-surface)',
-          border: '1px solid var(--color-border)',
-          boxShadow: 'var(--shadow-xl)',
-        }}
-      >
-        <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-base font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-            {title}
-          </h2>
+      <div ref={panel} className="modal-panel" style={{ maxWidth: wide ? '48rem' : '34rem' }}>
+        <div className="modal-head">
+          <div>
+            <h2 id={titleId} className="text-lg font-semibold leading-snug">{title}</h2>
+            {description && <p className="mt-1 text-sm" style={{ color: 'var(--color-text-muted)' }}>{description}</p>}
+          </div>
           <button
+            type="button"
             onClick={onClose}
             aria-label="Close"
-            className="rounded-lg p-1 transition-colors"
+            className="-mr-1.5 -mt-1 rounded-lg p-1.5 transition-colors hover:bg-[var(--color-bg-muted)]"
             style={{ color: 'var(--color-text-muted)' }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--color-bg-muted)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = '' }}
           >
             <Icon name="x" size={18} />
           </button>
         </div>
-        {children}
+        <div className="modal-body">{children}</div>
+        {footer && <div className="modal-foot">{footer}</div>}
       </div>
     </div>
   )
